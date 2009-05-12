@@ -1,0 +1,8 @@
+#summary How scoring will work.
+
+= Introduction =
+
+This is pretty tricky because it isn't clear what should depend on what, e.g. you could give tracks a higher score based on the top artists but you could also give artists a score based on the score of their tracks.
+
+
+= Details =
