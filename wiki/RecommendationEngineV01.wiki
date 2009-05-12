@@ -1,0 +1,22 @@
+#summary A quick pseudo-code summary of how the recommendation engine in v0.1 will work.
+
+= Introduction =
+
+The first version of the program will try to get similar tracks, but will give extra weight to similar artists and will get the top tracks from the artist if it can't find enough similar tracks. Later versions will include the tag information to give higher weighting to similarly tagged tracks and find the top tagged tracks.
+
+
+= Details =
+
+Note: All this is in an array that is invisible to the user, the visible list will show only the tracks that have a high enough score.
+
+* Seed track list with the selected tracks (with a 100 score)
+* Seed artist list with the selected tracks (100 score)
+* While track to process has a score > cutoff
+*  Call track.getSimilar
+*  For all tracks
+*   Find it in the library and give it a score (or update it) based on the returned match score and the parent's score
+*   Add to or update artist list with scores
+*   Mark song as processed
+* While artist to process has score > cutoff
+*  Find top tracks from artist and add to list (with lowish score)
+* Go back to first loop and start again, until stopped (or maximum number of songs is reached)
