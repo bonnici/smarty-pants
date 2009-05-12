@@ -8,11 +8,11 @@ This is pretty tricky because it isn't clear what should depend on what, e.g. yo
 = Details =
 
 Each track has:
-  A track name
-  An artist name
-  A list of the tracks that it is related to, with scores (the results from track.getSimilar)
-  A list of the tracks that are related to it, with scores (inverse of above)
+  * A track name
+  * An artist name
+  * A list of the tracks that it is related to, with scores (the results from track.getSimilar)
+  * A list of the tracks that are related to it, with scores (inverse of above)
 
 Each artist has:
-  An artist name
-  A list of tracks (with play count if available)
+  * An artist name
+  * A list of tracks (with play count if available)
