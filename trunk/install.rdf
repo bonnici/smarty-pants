@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:em="http://www.mozilla.org/2004/em-rdf#"
+     xmlns:songbird="http://www.songbirdnest.com/2007/addon-metadata-rdf#">
+  <Description about="urn:mozilla:install-manifest">
+    <em:id>smarty-pants@songbirdnest.com</em:id>
+    <em:type>2</em:type>
+    <em:name>Smarty Pants</em:name>
+    <em:version>0.1</em:version>
+    <em:creator>Nick Marsh</em:creator>
+    <em:description>Finds songs that are similar to one or more tracks in your library.</em:description>
+    <em:targetApplication>
+      <Description>
+        <em:id>songbird@songbirdnest.com</em:id>
+        <em:minVersion>1.1.1</em:minVersion>
+        <em:maxVersion>1.2.0a</em:maxVersion>
+      </Description>
+    </em:targetApplication>
+
+    <songbird:displayPane>
+      <Description>
+        <songbird:contentTitle>Smarty Pants</songbird:contentTitle>
+        <songbird:contentUrl>chrome://smarty-pants/content/pane.xul</songbird:contentUrl>
+        <songbird:contentIcon>chrome://smarty-pants/skin/pane-icon.png</songbird:contentIcon>
+        <songbird:defaultWidth>400</songbird:defaultWidth>
+        <songbird:defaultHeight>200</songbird:defaultHeight>
+        <songbird:suggestedContentGroups>sidebar</songbird:suggestedContentGroups>
+        <songbird:showOnInstall>true</songbird:showOnInstall>
+      </Description>
+    </songbird:displayPane>
+
+  </Description>
+</RDF>
