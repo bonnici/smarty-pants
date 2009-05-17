@@ -1,0 +1,7 @@
+<!ENTITY smarty-pants.add-button-label "Add">
+<!ENTITY smarty-pants.go-button-label "Go">
+<!ENTITY smarty-pants.save-button-label "Save">
+<!ENTITY smarty-pants.clear-button-label "Clear">
+<!ENTITY smarty-pants.track-list.title-column-header "Title">
+<!ENTITY smarty-pants.track-list.artist-column-header "Artist">
+<!ENTITY smarty-pants.track-list.album-column-header "Album">
