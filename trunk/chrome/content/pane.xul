@@ -11,7 +11,46 @@
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
   <script src="pane.js"/>
+  
+  <stringbundleset id="stringbundleset"> 
+     <stringbundle id="smarty-pants-strings" src="chrome://smarty-pants/locale/overlay.properties"/>
+  </stringbundleset>
 
-  <description>hi</description>
+  <vbox flex="1">
+  
+    <hbox>
+      <button id="add-button" label="&smarty-pants.add-button-label;" />
+      <button id="go-button" label="&smarty-pants.go-button-label;" />
+      <spacer flex="1" />
+      <button id="save-button" label="&smarty-pants.save-button-label;" />
+      <button id="clear-button" label="&smarty-pants.clear-button-label;" />
+    </hbox>
+    
+    <hbox flex="1">
+    
+      <tree id="track-tree" flex="1" hidecolumnpicker="true" seltype="single">
+      
+        <treecols>
+          <treecol id="track-list-title-column" label="&smarty-pants.track-list.title-column-header;" flex="1" />
+          <splitter class="tree-splitter" />
+          <treecol id="track-list-artist-column" label="&smarty-pants.track-list.artist-column-header;" flex="1" />
+          <splitter class="tree-splitter" />
+          <treecol id="track-list-album-column" label="&smarty-pants.track-list.album-column-header;" flex="1" />
+          <splitter class="tree-splitter" />
+        </treecols>
+
+        <treechildren/>
+
+      </tree>
+      
+    </hbox>
+    
+    <hbox>
+      <vbox flex="1">
+        <textbox id="output-textbox" multiline="true" rows="10" />
+      </vbox>
+    </hbox>
+    
+  </vbox>
   
 </page>
