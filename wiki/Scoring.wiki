@@ -23,13 +23,20 @@ Each artist has:
   Set all scores to -1
   For all tracks
     If score is < 0
+      Get score
+
+  Get score:
+      if being processed
+        return // infinite loop protection
       tempscore = 0
       if not ignore this track
         if seed track
           score = 1
         else
+          set track as "being processed"
           for all tracks related to this one
             tempscore += (match score / max + 1) * parent's score
+          set track as not "being processed"
           if tempscore > 0.99
             tempscore = 0.99
        score = tempscore
@@ -37,18 +44,25 @@ Each artist has:
 
 = Similar Artist Scoring =
 
+Note: No upper limit on score so make sure seed artists are shown first regardless of score.
+
 {{{
   Set all scores to -1
   For all artists
     If score is < 0
+      Get score
+
+  Get score:
+      if being processed
+        return // infinite loop protection
       tempscore = 0
       if not ignore this artist
         if seed artist
           score = 1
         else
+          set track as "being processed"
           for all artists related to this one
             tempscore += (match score / 101) * parent's score
-          if tempscore > 0.99
-            tempscore = 0.99
+          set track as not "being processed"
        score = tempscore
 }}}
