@@ -54,7 +54,7 @@ Note: No upper limit on score so make sure seed artists are shown first regardle
   Set all scores to -1
   For all artists
     If score is < 0
-      Get similar artist score
+      score Get similar artist score
 
   Get similar artist score:
       if being processed
