@@ -54,9 +54,9 @@ Note: No upper limit on score so make sure seed artists are shown first regardle
   Set all scores to -1
   For all artists
     If score is < 0
-      Get score
+      Get similar artist score
 
-  Get score:
+  Get similar artist score:
       if being processed
         return // infinite loop protection
       tempscore = 0
@@ -66,7 +66,11 @@ Note: No upper limit on score so make sure seed artists are shown first regardle
         else
           set track as "being processed"
           for all artists related to this one
-            tempscore += (match score / 101) * parent's score
+            if (parent's score != -1)
+              tempscore += (match score / 101) * parent's score            
           set track as not "being processed"
-       score = tempscore
+       if (all parent's scores = -1)
+         return -1
+       else
+         return tempscore
 }}}
