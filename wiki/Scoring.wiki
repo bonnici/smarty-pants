@@ -14,6 +14,7 @@ Each track has:
 
 Each artist has:
   * An artist name
+  * A list of the artists that are similar to it, with scores (inverse of artist.getSimilar)
   * A list of tracks (with play count if available)
 
 = Similar Track Scoring =
@@ -32,3 +33,22 @@ Each artist has:
           if tempscore > 0.99
             tempscore = 0.99
        score = tempscore
+}}}
+
+= Similar Artist Scoring =
+
+{{{
+  Set all scores to -1
+  For all artists
+    If score is < 0
+      tempscore = 0
+      if not ignore this artist
+        if seed artist
+          score = 1
+        else
+          for all artists related to this one
+            tempscore += (match score / 101) * parent's score
+          if tempscore > 0.99
+            tempscore = 0.99
+       score = tempscore
+}}}
