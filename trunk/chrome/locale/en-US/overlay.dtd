@@ -1,7 +1,8 @@
 <!ENTITY smarty-pants.add-button-label "Add">
-<!ENTITY smarty-pants.go-button-label "Go">
 <!ENTITY smarty-pants.save-button-label "Save">
 <!ENTITY smarty-pants.clear-button-label "Clear">
 <!ENTITY smarty-pants.track-list.title-column-header "Title">
 <!ENTITY smarty-pants.track-list.artist-column-header "Artist">
-<!ENTITY smarty-pants.track-list.album-column-header "Album">
+<!ENTITY smarty-pants.track-list.score-column-header "Score">
+<!ENTITY smarty-pants.ignore-duplicate-matches-check "Ignore duplicate matches">
+<!ENTITY smarty-pants.utput-list.column-header "Details">

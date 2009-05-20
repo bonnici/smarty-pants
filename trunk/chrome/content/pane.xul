@@ -19,35 +19,47 @@
   <vbox flex="1">
   
     <hbox>
-      <button id="add-button" label="&smarty-pants.add-button-label;" />
-      <button id="go-button" label="&smarty-pants.go-button-label;" />
+      <button id="add-button" label="&smarty-pants.add-button-label;" width="60" />
+      <button id="go-button" width="60" />
       <spacer flex="1" />
-      <button id="save-button" label="&smarty-pants.save-button-label;" />
-      <button id="clear-button" label="&smarty-pants.clear-button-label;" />
+      <button id="save-button" label="&smarty-pants.save-button-label;" width="60" />
+      <button id="clear-button" label="&smarty-pants.clear-button-label;" width="60" />
     </hbox>
     
     <hbox flex="1">
     
-      <tree id="track-tree" flex="1" hidecolumnpicker="true" seltype="single">
+      <tree id="track-tree" flex="1" seltype="single">
       
         <treecols>
-          <treecol id="track-list-title-column" label="&smarty-pants.track-list.title-column-header;" flex="1" />
-          <splitter class="tree-splitter" />
           <treecol id="track-list-artist-column" label="&smarty-pants.track-list.artist-column-header;" flex="1" />
           <splitter class="tree-splitter" />
-          <treecol id="track-list-album-column" label="&smarty-pants.track-list.album-column-header;" flex="1" />
+          <treecol id="track-list-title-column" label="&smarty-pants.track-list.title-column-header;" flex="1" />
           <splitter class="tree-splitter" />
+          <treecol id="track-list-score-column" label="&smarty-pants.track-list.score-column-header;" hidden="true" />
+          <splitter class="tree-splitter" />
+          <treecol id="track-list-inlib-column" label="In Lib" />
         </treecols>
 
         <treechildren/>
 
       </tree>
       
+      
     </hbox>
+    
+    <checkbox id="ignore-duplicate-matches-checkbox" label="&smarty-pants.ignore-duplicate-matches-check;" checked="true" />
     
     <hbox>
       <vbox flex="1">
-        <textbox id="output-textbox" multiline="true" rows="10" />
+        <tree id="output-tree" flex="1" hidecolumnpicker="true" seltype="single" rows="7">
+
+          <treecols>
+            <treecol id="output-list-column" label="&smarty-pants.utput-list.column-header;" flex="1" />
+          </treecols>
+
+          <treechildren/>
+
+        </tree>
       </vbox>
     </hbox>
     
