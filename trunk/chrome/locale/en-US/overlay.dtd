@@ -6,3 +6,8 @@
 <!ENTITY smarty-pants.track-list.score-column-header "Score">
 <!ENTITY smarty-pants.ignore-duplicate-matches-check "Ignore duplicate matches">
 <!ENTITY smarty-pants.utput-list.column-header "Details">
+<!ENTITY smarty-pants.show-advanced-options-check "Show advanced options">
+<!ENTITY smarty-pants.show-output-check "Show details">
+<!ENTITY smarty-pants.playlist-tabpanel-header "Playlist">
+<!ENTITY smarty-pants.recommendations-tabpanel-header "Recommendations">
+<!ENTITY smarty-pants.recommendation-list-streamable-column-header "Streamable?">

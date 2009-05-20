@@ -36,6 +36,11 @@ SmartyPants.PaneController = {
     //this._outputTextbox = document.getElementById("output-textbox");
     this._outputTree = document.getElementById("output-tree");
     this._ignoreDuplicateMatchesCheckbox = document.getElementById("ignore-duplicate-matches-checkbox");
+    this._showAdvancedOptionsCheckbox = document.getElementById("show-advanced-options-checkbox");
+    this._advancedOptionsGroup = document.getElementById("advanced-options-group");
+    this._showDetailsCheckbox = document.getElementById("show-details-checkbox");
+    this._detailsGroup = document.getElementById("details-group");
+    this._recommendationTree = document.getElementById("recommendation-tree");
     
     this._processing = false;
     this._goButton.setAttribute("label", this._strings.getString("goButtonGo"));
@@ -46,6 +51,27 @@ SmartyPants.PaneController = {
           function() { controller.startOrStopProcessing(); }, false);
     this._clearButton.addEventListener("command", 
           function() { controller.clearAllTracks(); }, false);
+    this._saveButton.addEventListener("command", 
+          function() { controller.savePlaylist(); }, false);
+    this._showAdvancedOptionsCheckbox.addEventListener("command", 
+          function() { controller.onShowAdvancedOptionsCheck(); }, false);
+    this._showDetailsCheckbox.addEventListener("command", 
+          function() { controller.onShowDetailsCheck(); }, false);
+          
+          /*
+    this._trackTree.addEventListener("dblclick", 
+          function(event) 
+          { 
+            var iIndex = this._trackTree.treeBoxObject.getRowAt(event.clientX,event.clientY);
+            alert("track tree double clicked at " + iIndex); 
+          }, false);
+    this._recommendationTree.addEventListener("dblclick", 
+          function(event) 
+          { 
+            var iIndex = this._recommendationTree.treeBoxObject.getRowAt(event.clientX,event.clientY);
+            alert("recommendation tree double clicked at " + iIndex); 
+          }, false);
+          */
           
     this._candidateTracks = {
       dataArray: [],
@@ -163,10 +189,7 @@ SmartyPants.PaneController = {
         getCellText : function(row,column) {  
           if (column.id == "track-list-title-column") return this.dataArray[row].trackName;
           else if (column.id == "track-list-artist-column") return this.dataArray[row].artistName;
-          //temp else if (column.id == "track-list-album-column") return this.dataArray[row].albumName;
           else if (column.id == "track-list-score-column") return this.dataArray[row].score;
-          //temp
-          else if (column.id == "track-list-inlib-column") return this.dataArray[row].guid != null ? "Yes" : "No";
           else return "";  
         },  
         setTree: function(treebox) { this.treebox = treebox; },  
@@ -182,7 +205,50 @@ SmartyPants.PaneController = {
           this.dataArray = [];
           for (var index = 0; index < candidateTracks.dataArray.length; index++) {
             var curTrack = candidateTracks.dataArray[index];
-            this.dataArray.push({trackName: curTrack.trackName, artistName: curTrack.artist, albumName: curTrack.album, score: curTrack.score, guid: curTrack.guid}); 
+            if (curTrack.guid != null) {
+              this.dataArray.push({trackName: curTrack.trackName, artistName: curTrack.artist, albumName: curTrack.album, score: curTrack.score, guid: curTrack.guid}); 
+            }
+          }
+          this.rowCount = this.dataArray.length; 
+        } 
+    };
+    
+   this._recommendationTreeView = {  
+        dataArray: [],
+        rowCount: 0,
+        getCellText : function(row,column) {  
+          if (column.id == "recommendation-list-title-column") return this.dataArray[row].trackName;
+          else if (column.id == "recommendation-list-artist-column") return this.dataArray[row].artistName;
+          else if (column.id == "recommendation-list-score-column") return this.dataArray[row].score;
+          else if (column.id == "recommendation-list-streamable-column") {
+            if (this.dataArray[row].streamable == 1) {
+              return "Yes";
+            }
+            else if (this.dataArray[row].streamable == 2) {
+              return "Full";
+            }
+            else {
+              return "No";
+            }
+          }
+          else return "";  
+        },  
+        setTree: function(treebox) { this.treebox = treebox; },  
+        isContainer: function(row) { return false; },  
+        isSeparator: function(row) { return false; },  
+        isSorted: function() { return false; },  
+        getLevel: function(row) { return 0; },  
+        getImageSrc: function(row,col) { return null; },  
+        getRowProperties: function(row,props) {},  
+        getCellProperties: function(row,col,props) {},  
+        getColumnProperties: function(colid,col,props) {}, 
+        update: function(candidateTracks) { 
+          this.dataArray = [];
+          for (var index = 0; index < candidateTracks.dataArray.length; index++) {
+            var curTrack = candidateTracks.dataArray[index];
+            if (curTrack.guid == null) {
+              this.dataArray.push({trackName: curTrack.trackName, artistName: curTrack.artist, albumName: curTrack.album, score: curTrack.score, streamable: curTrack.streamable}); 
+            }
           }
           this.rowCount = this.dataArray.length; 
         } 
@@ -210,9 +276,48 @@ SmartyPants.PaneController = {
     
     this._windowMediator = Cc["@mozilla.org/appshell/window-mediator;1"]
                             .getService(Ci.nsIWindowMediator);
+                            
+    this._mediaCoreManager = Cc["@songbirdnest.com/Songbird/Mediacore/Manager;1"]  
+                            .getService(Components.interfaces.sbIMediacoreManager);  
   },
   
   onUnLoad: function() {
+  },
+  
+  onShowAdvancedOptionsCheck: function() {
+    if (this._showAdvancedOptionsCheckbox.getAttribute("checked") == "true") {
+      this._advancedOptionsGroup.setAttribute("hidden", "false");
+    }
+    else {
+      this._advancedOptionsGroup.setAttribute("hidden", "true");
+    }
+  },
+  
+  onShowDetailsCheck: function() {
+    if (this._showDetailsCheckbox.getAttribute("checked") == "true") {
+      this._detailsGroup.setAttribute("hidden", "false");
+    }
+    else {
+      this._detailsGroup.setAttribute("hidden", "true");
+    }
+  },
+  
+  onTrackTreeDoubleClick: function(event) {
+    var clickedIndex = this._trackTree.treeBoxObject.getRowAt(event.clientX, event.clientY);
+    
+    /*
+    var sourceMediaListView = this._mediaCoreManager.sequencer.view;
+    var targetMediaListView = targetMediaList.createView();
+    */
+    
+    alert("track tree dclick at " + clickedIndex);
+  },
+  
+  onRecommendationTreeDoubleClick: function(event) {
+    var clickedIndex = this._recommendationTree.treeBoxObject.getRowAt(event.clientX, event.clientY);
+    //var clickedItem = this._recommendationTree.dataArray[clickedIndex];
+    
+    alert("recommendation tree dclick at " + clickedIndex);
   },
   
   addSelectedTracks: function() {
@@ -247,7 +352,9 @@ SmartyPants.PaneController = {
       seedTrack: parentTrack == null,
       isGettingScored: false,
       needsRescoring: true,
-      maxSimilarityScore: 0
+      maxSimilarityScore: 0,
+      url: null,
+      streamable: 0
     }
     
     if (parentTrack != null) {
@@ -257,7 +364,7 @@ SmartyPants.PaneController = {
     return candidiateTrack;
   },
   
-  makeCandidateTrackFromDetails: function(trackName, artistName, parentTrack, score) {
+  makeCandidateTrackFromDetails: function(trackName, artistName, parentTrack, score, url, streamable) {
     var candidiateTrack = {
       trackName: trackName,
       artist: artistName,
@@ -268,7 +375,9 @@ SmartyPants.PaneController = {
       seedTrack: false,
       isGettingScored: false,
       needsRescoring: true,
-      maxSimilarityScore: 0
+      maxSimilarityScore: 0,
+      url: url,
+      streamable: streamable
     }
 
     if (parentTrack != null) {
@@ -292,7 +401,7 @@ SmartyPants.PaneController = {
     this._outputTree.view = this._outputTreeView;
     
     var boxobject = this._outputTree.boxObject;
-    boxobject.scrollToRow(this._outputTreeView.dataArray.length - 7);
+    boxobject.scrollToRow(this._outputTreeView.dataArray.length - 5);
   },
   
   clearOutputText: function(text) {
@@ -305,6 +414,8 @@ SmartyPants.PaneController = {
     this._candidateTracks.sortByScore();
     this._trackTreeView.update(this._candidateTracks);
     this._trackTree.view = this._trackTreeView;
+    this._recommendationTreeView.update(this._candidateTracks);
+    this._recommendationTree.view = this._recommendationTreeView;
   },
   
   startOrStopProcessing: function() {
@@ -369,7 +480,7 @@ SmartyPants.PaneController = {
     var request = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"].createInstance(Ci.nsIXMLHttpRequest);
 
     //alert(requestUri);
-    this.addOutputText(requestUri);
+    //this.addOutputText(requestUri);
 
     request.open("GET", requestUri, false);
     try {
@@ -425,6 +536,8 @@ SmartyPants.PaneController = {
       var artistName = this.getArtistFromTrackNode(trackNode);
       var trackName = this.getTrackFromTrackNode(trackNode);
       var score = this.getScoreFromTrackNode(trackNode);
+      var url = this.getUrlFromTrackNode(trackNode);
+      var streamable = this.getStreamableFromTrackNode(trackNode);
       
       if (score+1 > track.maxSimilarityScore) {
         track.maxSimilarityScore = score+1;
@@ -445,7 +558,7 @@ SmartyPants.PaneController = {
     		}
   		}
     	catch (e) {
-    	  var candidateTrack = this.makeCandidateTrackFromDetails(trackName, artistName, track, score);
+    	  var candidateTrack = this.makeCandidateTrackFromDetails(trackName, artistName, track, score, url, streamable);
     	  this._candidateTracks.addOrUpdate(candidateTrack);
     	}
 
@@ -456,7 +569,6 @@ SmartyPants.PaneController = {
   },
   
   getArtistFromTrackNode: function(trackNode) {
-    var artistName = "";
     var artistElement = trackNode.getElementsByTagName('artist');
     if (artistElement != null && artistElement.length > 0) {
       var artistNameElement = artistElement[0].getElementsByTagName('name');
@@ -469,7 +581,6 @@ SmartyPants.PaneController = {
   },
   
   getTrackFromTrackNode: function(trackNode) {
-    var trackName = "";
     var nameElement = trackNode.getElementsByTagName('name');
     if (nameElement != null && nameElement.length > 0) {
       return nameElement[0].textContent;
@@ -479,7 +590,6 @@ SmartyPants.PaneController = {
   },
   
   getScoreFromTrackNode: function(trackNode) {
-    var score = 0;
     var matchElement = trackNode.getElementsByTagName('match');
     if (matchElement != null && matchElement.length > 0) {
       return parseFloat(matchElement[0].textContent);
@@ -487,6 +597,48 @@ SmartyPants.PaneController = {
     
     return 0;
   },
+  
+  getUrlFromTrackNode: function(trackNode) {
+    var urlElement = trackNode.getElementsByTagName('url');
+    if (urlElement != null && urlElement.length > 0) {
+      return urlElement[0].textContent;
+    }
+    
+    return "";
+  },
+  
+  // 0 for not streamable, 1 for streamable, 2 for fully streamable
+  getStreamableFromTrackNode: function(trackNode) {
+    var steamableElement = trackNode.getElementsByTagName('streamable');
+    if (steamableElement != null && steamableElement.length > 0) {
+      if (steamableElement[0].textContent == "1") {
+        if (steamableElement[0].getAttribute("fulltrack") == "1") {
+          return 2;
+        }
+        else {
+          return 1;
+        }
+      }
+    }
+    
+    return 0;
+  },
+  
+  savePlaylist: function() {
+    var newPlaylist = LibraryUtils.mainLibrary.createMediaList("simple");    
+    newPlaylist.name = "Smarty Pants";
+    
+    for (var index=0; index < this._trackTreeView.dataArray.length; index++) {
+      var curItem = this._trackTreeView.dataArray[index];
+      
+      if (curItem.guid != null) {
+        var mediaItem = LibraryUtils.mainLibrary.getItemByGuid(curItem.guid);
+        if (mediaItem != null) {
+          newPlaylist.add(mediaItem);
+        }
+      }
+    }
+  }
   
 };
 
