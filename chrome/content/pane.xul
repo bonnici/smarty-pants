@@ -26,7 +26,6 @@
     </hbox>
     
     <hbox flex="1">
-    
       <tabbox flex="1"> 
         <tabs> 
           <tab label="&smarty-pants.playlist-tabpanel-header;"/> 
@@ -34,7 +33,7 @@
         </tabs> 
         <tabpanels flex="1"> 
           <tabpanel>
-	
+  
             <vbox flex="1">
               <tree id="track-tree" flex="1" seltype="single" ondblclick="SmartyPants.PaneController.onTrackTreeDoubleClick(event);">
               
@@ -50,7 +49,12 @@
 
               </tree>
               
-              <hbox>
+              <hbox align="center">
+                <label value="&smarty-pants.playlist-limit-to-label;" />
+                <textbox id="playlist-limit-to-songs-textbox" value="50" type="number" min="0" increment="5" decimalplaces="0" width="40" />
+                <label value="&smarty-pants.playlist-limit-to-songs;" />
+                <textbox id="playlist-limit-to-time-textbox" value="0" type="number" min="0" increment="5" decimalplaces="0" width="40" />
+                <label value="&smarty-pants.playlist-limit-to-time;" />
                 <spacer flex="1" />
                 <button id="save-button" label="&smarty-pants.save-button-label;" width="60" />
               </hbox>
@@ -58,21 +62,36 @@
           </tabpanel>
           
           <tabpanel>
-            <tree id="recommendation-tree" flex="1" seltype="single" ondblclick="SmartyPants.PaneController.onRecommendationTreeDoubleClick(event);">
-            
-              <treecols>
-                <treecol id="recommendation-list-artist-column" label="&smarty-pants.track-list.artist-column-header;" flex="1" />
-                <splitter class="tree-splitter" />
-                <treecol id="recommendation-list-title-column" label="&smarty-pants.track-list.title-column-header;" flex="1" />
-                <splitter class="tree-splitter" />
-                <treecol id="recommendation-list-score-column" label="&smarty-pants.track-list.score-column-header;" hidden="true" />
-                <splitter class="tree-splitter" />
-                <treecol id="recommendation-list-streamable-column" label="&smarty-pants.recommendation-list-streamable-column-header;" />
-              </treecols>
+            <vbox flex="1">
+              <tree id="recommendation-tree" flex="1" seltype="single" ondblclick="SmartyPants.PaneController.onRecommendationTreeDoubleClick(event);">
+              
+                <treecols>
+                  <treecol id="recommendation-list-artist-column" label="&smarty-pants.track-list.artist-column-header;" flex="1" />
+                  <splitter class="tree-splitter" />
+                  <treecol id="recommendation-list-title-column" label="&smarty-pants.track-list.title-column-header;" flex="1" />
+                  <splitter class="tree-splitter" />
+                  <treecol id="recommendation-list-score-column" label="&smarty-pants.track-list.score-column-header;" hidden="true" />
+                  <splitter class="tree-splitter" />
+                  <treecol id="recommendation-list-streamable-column" label="&smarty-pants.recommendation-list-streamable-column-header;" />
+                </treecols>
 
-              <treechildren/>
+                <treechildren/>
 
-            </tree>
+              </tree>
+              
+              <hbox align="center">
+                <label value="&smarty-pants.recommendation-list-note;" />
+                <spacer flex="1" />
+                <label value="&smarty-pants.recommendation-filter-caption;" />
+                <menulist id="recommendation-filter-list" label="&smarty-pants.recommendation-filter-all;" width="90">
+                  <menupopup>
+                    <menuitem id="recommendation-filter-all" label="&smarty-pants.recommendation-filter-all;" selected="true" />
+                    <menuitem id="recommendation-filter-steamable" label="&smarty-pants.recommendation-filter-steamable;" />
+                    <menuitem id="recommendation-filter-full" label="&smarty-pants.recommendation-filter-full;" />
+                  </menupopup>
+                </menulist>
+              </hbox>
+            </vbox>
           </tabpanel>
         </tabpanels>
       </tabbox>
@@ -80,8 +99,16 @@
     
 	<checkbox id="show-advanced-options-checkbox" label="&smarty-pants.show-advanced-options-check;" checked="false" />
 	<groupbox id="advanced-options-group" hidden="true">
-		<checkbox id="ignore-duplicate-matches-checkbox" label="&smarty-pants.ignore-duplicate-matches-check;" checked="true" />
-    </groupbox>
+		<checkbox id="ignore-duplicate-matches-checkbox" label="&smarty-pants.ignore-duplicate-matches-check;" checked="true" tooltiptext="&smarty-pants.ignore-duplicate-matches-tooltip;" />
+    <hbox align="center">
+      <label value="&smarty-pants.ignore-scores-below-label;" width="110" tooltiptext="&smarty-pants.ignore-scores-below-tooltip;"/>
+      <textbox id="ignore-scores-below-textbox" value="0.15" type="number" min="0" max="1" increment="0.01" decimalplaces="2" width="50" tooltiptext="&smarty-pants.ignore-scores-below-tooltip;"/>
+    </hbox>
+    <hbox align="center">
+      <label value="&smarty-pants.similar-track-weight-label;" width="110" tooltiptext="&smarty-pants.similar-tracks-weight-tooltip;" />
+      <textbox id="similar-track-weight-textbox" value="1.0" type="number" min="0" max="1" increment="0.05" decimalplaces="2" width="50" tooltiptext="&smarty-pants.similar-tracks-weight-tooltip;" />
+    </hbox>
+  </groupbox>
 	
 	<checkbox id="show-details-checkbox" label="&smarty-pants.show-output-check;" checked="false" />
     <hbox id="details-group" hidden="true">
@@ -89,7 +116,7 @@
         <tree id="output-tree" flex="1" hidecolumnpicker="true" seltype="single" rows="5">
 
           <treecols>
-            <treecol id="output-list-column" label="&smarty-pants.utput-list.column-header;" flex="1" />
+            <treecol id="output-list-column" label="&smarty-pants.output-list.column-header;" flex="1" />
           </treecols>
 
           <treechildren/>

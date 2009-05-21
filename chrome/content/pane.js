@@ -41,6 +41,14 @@ SmartyPants.PaneController = {
     this._showDetailsCheckbox = document.getElementById("show-details-checkbox");
     this._detailsGroup = document.getElementById("details-group");
     this._recommendationTree = document.getElementById("recommendation-tree");
+    this._ignoreScoresTextbox = document.getElementById("ignore-scores-below-textbox");
+    this._similarTrackWeightTextbox = document.getElementById("similar-track-weight-textbox");
+    this._recommendationFilterList = document.getElementById("recommendation-filter-list");
+    this._recommendationFilterAll = document.getElementById("recommendation-filter-all");
+    this._recommendationFilterStreamable = document.getElementById("recommendation-filter-steamable");
+    this._recommendationFilterFull = document.getElementById("recommendation-filter-full");
+    this._playlistLimitToSongsTextbox = document.getElementById("playlist-limit-to-songs-textbox");
+    this._playlistLimitToTimeTextbox = document.getElementById("playlist-limit-to-time-textbox");
     
     this._processing = false;
     this._goButton.setAttribute("label", this._strings.getString("goButtonGo"));
@@ -57,21 +65,10 @@ SmartyPants.PaneController = {
           function() { controller.onShowAdvancedOptionsCheck(); }, false);
     this._showDetailsCheckbox.addEventListener("command", 
           function() { controller.onShowDetailsCheck(); }, false);
+    this._recommendationFilterList.addEventListener("command", 
+          function() { controller.onRecommendationFilterCommand(); }, false);
           
-          /*
-    this._trackTree.addEventListener("dblclick", 
-          function(event) 
-          { 
-            var iIndex = this._trackTree.treeBoxObject.getRowAt(event.clientX,event.clientY);
-            alert("track tree double clicked at " + iIndex); 
-          }, false);
-    this._recommendationTree.addEventListener("dblclick", 
-          function(event) 
-          { 
-            var iIndex = this._recommendationTree.treeBoxObject.getRowAt(event.clientX,event.clientY);
-            alert("recommendation tree double clicked at " + iIndex); 
-          }, false);
-          */
+    this._recommendationFilterSelection = 0;
           
     this._candidateTracks = {
       dataArray: [],
@@ -161,8 +158,8 @@ SmartyPants.PaneController = {
             if (parentsScore >= 0) {
               properScoreFound = true;
               //controller.addOutputText("parent " + track.relatedTo[index].track.artist + " - " + track.relatedTo[index].track.trackName + " with score " + track.relatedTo[index].score + "\n");
-              //controller.addOutputText("score += (" + track.relatedTo[index].score + " / " + track.relatedTo[index].track.maxSimilarityScore + ") * " + parentsScore + "\n");
-              score += (track.relatedTo[index].score / track.relatedTo[index].track.maxSimilarityScore) * parentsScore; 
+              score += (track.relatedTo[index].score / track.relatedTo[index].track.maxSimilarityScore) * parentsScore * controller._similarTrackWeight; 
+              //controller.addOutputText("score += (" + track.relatedTo[index].score + " / " + track.relatedTo[index].track.maxSimilarityScore + ") * " + parentsScore + " * " + controller._similarTrackWeight + " = " + score + "\n");
             }
           }
           track.isGettingScored = false;
@@ -203,9 +200,10 @@ SmartyPants.PaneController = {
         getColumnProperties: function(colid,col,props) {}, 
         update: function(candidateTracks) { 
           this.dataArray = [];
+          var minScore = parseFloat(controller._ignoreScoresTextbox.value);
           for (var index = 0; index < candidateTracks.dataArray.length; index++) {
             var curTrack = candidateTracks.dataArray[index];
-            if (curTrack.guid != null) {
+            if (curTrack.guid != null && curTrack.score >= minScore) {
               this.dataArray.push({trackName: curTrack.trackName, artistName: curTrack.artist, albumName: curTrack.album, score: curTrack.score, guid: curTrack.guid}); 
             }
           }
@@ -244,10 +242,19 @@ SmartyPants.PaneController = {
         getColumnProperties: function(colid,col,props) {}, 
         update: function(candidateTracks) { 
           this.dataArray = [];
+          var minScore = parseFloat(controller._ignoreScoresTextbox.value);
           for (var index = 0; index < candidateTracks.dataArray.length; index++) {
             var curTrack = candidateTracks.dataArray[index];
-            if (curTrack.guid == null) {
-              this.dataArray.push({trackName: curTrack.trackName, artistName: curTrack.artist, albumName: curTrack.album, score: curTrack.score, streamable: curTrack.streamable}); 
+            if (curTrack.guid == null && curTrack.score >= minScore && curTrack.streamable >= controller._recommendationFilterSelection) {
+              this.dataArray.push(
+                    {
+                      trackName: curTrack.trackName, 
+                      artistName: curTrack.artist, 
+                      albumName: curTrack.album, 
+                      score: curTrack.score, 
+                      streamable: curTrack.streamable, 
+                      url: curTrack.url
+                    }); 
             }
           }
           this.rowCount = this.dataArray.length; 
@@ -279,6 +286,8 @@ SmartyPants.PaneController = {
                             
     this._mediaCoreManager = Cc["@songbirdnest.com/Songbird/Mediacore/Manager;1"]  
                             .getService(Components.interfaces.sbIMediacoreManager);  
+                            
+    this._gBrowser = this._windowMediator.getMostRecentWindow("Songbird:Main").gBrowser;
   },
   
   onUnLoad: function() {
@@ -305,19 +314,53 @@ SmartyPants.PaneController = {
   onTrackTreeDoubleClick: function(event) {
     var clickedIndex = this._trackTree.treeBoxObject.getRowAt(event.clientX, event.clientY);
     
+    if (clickedIndex >= 0 && clickedIndex < this._trackTreeView.dataArray.length)
+    {
+      var clickedItem = this._trackTreeView.dataArray[clickedIndex];
+    }
     /*
     var sourceMediaListView = this._mediaCoreManager.sequencer.view;
     var targetMediaListView = targetMediaList.createView();
     */
     
-    alert("track tree dclick at " + clickedIndex);
+    //alert("track tree dclick at " + clickedIndex);
+    
+    //todo
+  },
+  
+  onRecommendationFilterCommand: function() {
+    if (this._recommendationFilterList.selectedItem == this._recommendationFilterAll) {
+      this._recommendationFilterSelection = 0;
+    }
+    else if (this._recommendationFilterList.selectedItem == this._recommendationFilterStreamable) {
+      this._recommendationFilterSelection = 1;
+    }
+    else if (this._recommendationFilterList.selectedItem == this._recommendationFilterFull) {
+      this._recommendationFilterSelection = 2;
+    }
+    else {
+      this._recommendationFilterSelection = 0;
+    }
+    
+    this._recommendationTreeView.update(this._candidateTracks);
+    this._recommendationTree.view = this._recommendationTreeView;
   },
   
   onRecommendationTreeDoubleClick: function(event) {
     var clickedIndex = this._recommendationTree.treeBoxObject.getRowAt(event.clientX, event.clientY);
-    //var clickedItem = this._recommendationTree.dataArray[clickedIndex];
     
-    alert("recommendation tree dclick at " + clickedIndex);
+    if (clickedIndex >= 0 && clickedIndex < this._recommendationTreeView.dataArray.length)
+    {
+      var clickedItem = this._recommendationTreeView.dataArray[clickedIndex];
+      
+      if (clickedItem.url != null) {
+        var url = clickedItem.url;
+        if (clickedItem.streamable > 0) {
+          url += "?autostart";
+        }
+        this._gBrowser.loadURI(url, null, null, null);
+      }
+    }
   },
   
   addSelectedTracks: function() {
@@ -390,12 +433,10 @@ SmartyPants.PaneController = {
   clearAllTracks: function() {
     this._candidateTracks.clear();
     this.updateTrackTree();
-    //this._outputTextbox.value = "";
     this.clearOutputText();
   },
   
   addOutputText: function(text) {
-    //this._outputTextbox.value += text;
     this._outputTreeView.dataArray.push(text);
     this._outputTreeView.update();
     this._outputTree.view = this._outputTreeView;
@@ -438,6 +479,7 @@ SmartyPants.PaneController = {
     this.enableButtons(false);
     this._goButton.setAttribute("label", this._strings.getString("goButtonStop"));
     this._ignoreDuplicateMatches = (this._ignoreDuplicateMatchesCheckbox.getAttribute("checked") == "true" ? true : false);
+    this._similarTrackWeight = parseFloat(this._similarTrackWeightTextbox.value);
     
     setTimeout("SmartyPants.PaneController.doProcessNextTrack()", 0);
   },
@@ -454,7 +496,8 @@ SmartyPants.PaneController = {
     if (this._processing) {
       for (var index = 0; index < this._candidateTracks.dataArray.length; index++) {
         var curTrack = this._candidateTracks.dataArray[index];
-        if (!curTrack.processed) {
+        var minScore = parseFloat(this._ignoreScoresTextbox.value);
+        if (!curTrack.processed && curTrack.score >= minScore) {
           this.processTrack(curTrack);
       
           setTimeout("SmartyPants.PaneController.doProcessNextTrack()", 0);
@@ -625,16 +668,47 @@ SmartyPants.PaneController = {
   },
   
   savePlaylist: function() {
-    var newPlaylist = LibraryUtils.mainLibrary.createMediaList("simple");    
-    newPlaylist.name = "Smarty Pants";
+    if (this._trackTreeView.dataArray.length < 1) {
+      return;
+    }
     
+    var seedTrack = this._trackTreeView.dataArray[0];
+    var moreThanOneSeedTrack = (this._trackTreeView.dataArray.length > 1 && this._trackTreeView.dataArray[1].score == 1);
+  
+    var newPlaylist = LibraryUtils.mainLibrary.createMediaList("simple");    
+    var newPlaylistName = this._strings.getString("playlistNameStart") + " " + seedTrack.artistName + " - " + seedTrack.trackName;
+    if (moreThanOneSeedTrack) {
+      newPlaylistName += " " + this._strings.getString("playlistNameEnd");
+    }
+      
+    newPlaylist.name = newPlaylistName;
+    
+    var maxSongs = parseInt(this._playlistLimitToSongsTextbox.value);
+    var maxMinutes = parseInt(this._playlistLimitToTimeTextbox.value);
+    var maxSeconds = maxMinutes*60;
+    
+    var numSongs = 0;
+    var numSeconds = 0;
     for (var index=0; index < this._trackTreeView.dataArray.length; index++) {
+    
+      if (maxSongs > 0 && numSongs >= maxSongs) {
+        break;
+      }
+      
+      if (maxMinutes > 0 && numSeconds >= maxSeconds) {
+        break;
+      }
+    
       var curItem = this._trackTreeView.dataArray[index];
       
       if (curItem.guid != null) {
         var mediaItem = LibraryUtils.mainLibrary.getItemByGuid(curItem.guid);
         if (mediaItem != null) {
           newPlaylist.add(mediaItem);
+          
+          numSongs++;
+          var curSeconds = (mediaItem.getProperty(SBProperties.duration)/1000000);
+          numSeconds += curSeconds;
         }
       }
     }
