@@ -5,9 +5,22 @@
 <!ENTITY smarty-pants.track-list.artist-column-header "Artist">
 <!ENTITY smarty-pants.track-list.score-column-header "Score">
 <!ENTITY smarty-pants.ignore-duplicate-matches-check "Ignore duplicate matches">
-<!ENTITY smarty-pants.utput-list.column-header "Details">
+<!ENTITY smarty-pants.output-list.column-header "Details">
 <!ENTITY smarty-pants.show-advanced-options-check "Show advanced options">
 <!ENTITY smarty-pants.show-output-check "Show details">
 <!ENTITY smarty-pants.playlist-tabpanel-header "Playlist">
 <!ENTITY smarty-pants.recommendations-tabpanel-header "Recommendations">
-<!ENTITY smarty-pants.recommendation-list-streamable-column-header "Streamable?">
+<!ENTITY smarty-pants.recommendation-list-streamable-column-header "Stream">
+<!ENTITY smarty-pants.ignore-scores-below-label "Ignore scores below:">
+<!ENTITY smarty-pants.similar-track-weight-label "Similar track weight:">
+<!ENTITY smarty-pants.recommendation-filter-caption "Show">
+<!ENTITY smarty-pants.recommendation-filter-all "All">
+<!ENTITY smarty-pants.recommendation-filter-steamable "Streamable">
+<!ENTITY smarty-pants.recommendation-filter-full "Full">
+<!ENTITY smarty-pants.ignore-duplicate-matches-tooltip "If this is turned off, the track's score will increase each time it is found as a similar track">
+<!ENTITY smarty-pants.ignore-scores-below-tooltip "Any track with a score below this value will not be processed or shown in the list">
+<!ENTITY smarty-pants.similar-tracks-weight-tooltip "All similar track scores are multiplied by this value, decrease if the scores are too high">
+<!ENTITY smarty-pants.recommendation-list-note "Note: Double click to open in browser">
+<!ENTITY smarty-pants.playlist-limit-to-label "Limit to:">
+<!ENTITY smarty-pants.playlist-limit-to-songs "songs or">
+<!ENTITY smarty-pants.playlist-limit-to-time "minutes">

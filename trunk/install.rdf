@@ -7,7 +7,7 @@
     <em:name>Smarty Pants</em:name>
     <em:version>0.1</em:version>
     <em:creator>Nick Marsh</em:creator>
-    <em:description>Finds songs that are similar to one or more tracks in your library.</em:description>
+    <em:description>Generates a playlist and makes recommendations based on one or more tracks in your library.</em:description>
     <em:targetApplication>
       <Description>
         <em:id>songbird@songbirdnest.com</em:id>
@@ -21,7 +21,7 @@
         <songbird:contentTitle>Smarty Pants</songbird:contentTitle>
         <songbird:contentUrl>chrome://smarty-pants/content/pane.xul</songbird:contentUrl>
         <songbird:contentIcon>chrome://smarty-pants/skin/pane-icon.png</songbird:contentIcon>
-        <songbird:defaultWidth>400</songbird:defaultWidth>
+        <songbird:defaultWidth>350</songbird:defaultWidth>
         <songbird:defaultHeight>200</songbird:defaultHeight>
         <songbird:suggestedContentGroups>sidebar</songbird:suggestedContentGroups>
         <songbird:showOnInstall>true</songbird:showOnInstall>
