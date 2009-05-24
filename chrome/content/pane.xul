@@ -110,8 +110,8 @@
     </hbox>
   </groupbox>
 	
-	<checkbox id="show-details-checkbox" label="&smarty-pants.show-output-check;" checked="false" />
-    <hbox id="details-group" hidden="true">
+	<checkbox id="show-details-checkbox" label="&smarty-pants.show-output-check;" checked="true" />
+    <hbox id="details-group" hidden="false">
       <vbox flex="1">
         <tree id="output-tree" flex="1" hidecolumnpicker="true" seltype="single" rows="5">
 
