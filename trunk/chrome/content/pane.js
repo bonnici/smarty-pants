@@ -19,6 +19,8 @@ if (typeof SmartyPants == 'undefined') {
   var SmartyPants = {};
 }
 
+const SMARTY_PANTS_HIDDEN_PLAYLIST_PROP = "smarty-pants_hidden-playlist";
+
 /**
  * Controller for pane.xul
  */
@@ -200,15 +202,33 @@ SmartyPants.PaneController = {
         getColumnProperties: function(colid,col,props) {}, 
         update: function(candidateTracks) { 
           this.dataArray = [];
+          controller._hiddenPlaylist.clear();
           var minScore = parseFloat(controller._ignoreScoresTextbox.value);
           for (var index = 0; index < candidateTracks.dataArray.length; index++) {
             var curTrack = candidateTracks.dataArray[index];
             if (curTrack.guid != null && curTrack.score >= minScore) {
-              this.dataArray.push({trackName: curTrack.trackName, artistName: curTrack.artist, albumName: curTrack.album, score: curTrack.score, guid: curTrack.guid}); 
+              var curMediaItem = LibraryUtils.mainLibrary.getItemByGuid(curTrack.guid);
+              if (curMediaItem != null) {
+                this.dataArray.push({trackName: curTrack.trackName, artistName: curTrack.artist, albumName: curTrack.album, score: curTrack.score, guid: curTrack.guid}); 
+                controller._hiddenPlaylist.add(curMediaItem);
+              }
             }
           }
+          controller._hiddenPlaylistView = controller._hiddenPlaylist.createView();
           this.rowCount = this.dataArray.length; 
-        } 
+        },
+        getCellProperties: function(row,col,props) {
+          if (row >= 0 && row < this.dataArray.length) {
+            var curTrack = this.dataArray[row];
+            if (curTrack.guid != null) {
+              var curMediaItem = LibraryUtils.mainLibrary.getItemByGuid(curTrack.guid);
+              if (curMediaItem != null && controller._mediaCoreManager.sequencer.currentItem == curMediaItem) {
+                var aserv = Cc["@mozilla.org/atom-service;1"].getService(Ci.nsIAtomService);
+                props.AppendElement(aserv.getAtom("playingSong"));
+              }
+            }
+          }
+        },      
     };
     
    this._recommendationTreeView = {  
@@ -287,7 +307,37 @@ SmartyPants.PaneController = {
     this._mediaCoreManager = Cc["@songbirdnest.com/Songbird/Mediacore/Manager;1"]  
                             .getService(Components.interfaces.sbIMediacoreManager);  
                             
+    this._nowPlayingService = Cc["@songbirdnest.com/Songbird/now-playing/service;1"]
+                            .getService(Ci.sbINowPlayingService);
+                            
     this._gBrowser = this._windowMediator.getMostRecentWindow("Songbird:Main").gBrowser;
+    
+    this._mediaCoreManager.addListener(this);
+    
+    // try to find an existing playlist
+    this._hiddenPlaylist = null;
+    try 
+    {
+  		var itemEnum = LibraryUtils.mainLibrary.getItemsByProperty(SBProperties.customType, SMARTY_PANTS_HIDDEN_PLAYLIST_PROP).enumerate();
+  		if (itemEnum.hasMoreElements()) 
+  		{
+  			this._hiddenPlaylist = itemEnum.getNext();
+  		}
+  	} 
+  	catch (e if e.result == Cr.NS_ERROR_NOT_AVAILABLE) 
+  	{
+  	  // Don't to anything - playlist will be created
+  	}
+    
+    if (this._hiddenPlaylist == null) {
+      this._hiddenPlaylist = LibraryUtils.mainLibrary.createMediaList("simple");
+      this._hiddenPlaylist.setProperty(SBProperties.customType, SMARTY_PANTS_HIDDEN_PLAYLIST_PROP); // Set a custom property so we know which playlist is ours
+      this._hiddenPlaylist.name = "Hidden Smarty Pants Playlist";
+      this._hiddenPlaylist.setProperty(SBProperties.hidden, "1");
+    }
+    this._hiddenPlaylist.setProperty(SBProperties.hidden, "1");
+    
+    this._hiddenPlaylistView = this._hiddenPlaylist.createView();
   },
   
   onUnLoad: function() {
@@ -314,14 +364,11 @@ SmartyPants.PaneController = {
   onTrackTreeDoubleClick: function(event) {
     var clickedIndex = this._trackTree.treeBoxObject.getRowAt(event.clientX, event.clientY);
     
-    if (clickedIndex >= 0 && clickedIndex < this._trackTreeView.dataArray.length)
+    if (clickedIndex >= 0 && clickedIndex < this._hiddenPlaylist.length)
     {
-      var clickedItem = this._trackTreeView.dataArray[clickedIndex];
+      this._mediaCoreManager.sequencer.playView(this._hiddenPlaylistView, clickedIndex);
     }
-    /*
-    var sourceMediaListView = this._mediaCoreManager.sequencer.view;
-    var targetMediaListView = targetMediaList.createView();
-    */
+    
     
     //alert("track tree dclick at " + clickedIndex);
     
@@ -712,7 +759,15 @@ SmartyPants.PaneController = {
         }
       }
     }
-  }
+  },
+  
+  onMediacoreEvent: function(event) {
+    switch (event.type) {
+      case Ci.sbIMediacoreEvent.TRACK_CHANGE :
+        this._trackTreeView.treebox.invalidate();
+        break;
+    }
+  },
   
 };
 

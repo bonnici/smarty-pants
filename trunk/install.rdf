@@ -5,14 +5,14 @@
     <em:id>smarty-pants@songbirdnest.com</em:id>
     <em:type>2</em:type>
     <em:name>Smarty Pants</em:name>
-    <em:version>0.1</em:version>
+    <em:version>0.2</em:version>
     <em:creator>Nick Marsh</em:creator>
     <em:description>Generates a playlist and makes recommendations based on one or more tracks in your library.</em:description>
     <em:targetApplication>
       <Description>
         <em:id>songbird@songbirdnest.com</em:id>
         <em:minVersion>1.1.1</em:minVersion>
-        <em:maxVersion>1.2.0a</em:maxVersion>
+        <em:maxVersion>1.2.*</em:maxVersion>
       </Description>
     </em:targetApplication>
 
