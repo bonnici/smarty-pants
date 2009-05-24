@@ -10,6 +10,7 @@
 <page id="smarty-pants-pane" title="Smarty Pants"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
+  <script src="shared.js"/>
   <script src="pane.js"/>
   
   <stringbundleset id="stringbundleset"> 
@@ -101,6 +102,8 @@
 	<groupbox id="advanced-options-group" hidden="true">
 		<checkbox id="ignore-duplicate-matches-checkbox" label="&smarty-pants.ignore-duplicate-matches-check;" checked="true" tooltiptext="&smarty-pants.ignore-duplicate-matches-tooltip;" />
     <checkbox id="try-other-artist-checkbox" label="&smarty-pants.try-other-artist-check;" checked="true" tooltiptext="&smarty-pants.try-other-artist-tooltip;" />
+    <checkbox id="fuzzy-match-checkbox" label="&smarty-pants.fuzzy-match-check;" checked="true" tooltiptext="&smarty-pants.fuzzy-match-tooltip;" />
+    
     <hbox align="center">
       <label value="&smarty-pants.ignore-scores-below-label;" width="110" tooltiptext="&smarty-pants.ignore-scores-below-tooltip;"/>
       <textbox id="ignore-scores-below-textbox" value="0.15" type="number" min="0" max="1" increment="0.01" decimalplaces="2" width="50" tooltiptext="&smarty-pants.ignore-scores-below-tooltip;"/>
