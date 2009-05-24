@@ -13,6 +13,7 @@ Cu.import("resource://app/jsmodules/sbLibraryUtils.jsm");
 const LAST_FM_ROOT_URL = "http://ws.audioscrobbler.com/2.0/";
 const LAST_FM_API_KEY = "72b14fe3e1fd7f8ff8a993b1f1e78a50";
 const TRACK_GETSIMILAR_METHOD = "track.getSimilar";
+const ARTIST_SEARCH_METHOD = "artist.search";
 const REQUEST_SUCCESS_CODE = 200;
 
 if (typeof SmartyPants == 'undefined') {
@@ -51,6 +52,7 @@ SmartyPants.PaneController = {
     this._recommendationFilterFull = document.getElementById("recommendation-filter-full");
     this._playlistLimitToSongsTextbox = document.getElementById("playlist-limit-to-songs-textbox");
     this._playlistLimitToTimeTextbox = document.getElementById("playlist-limit-to-time-textbox");
+    this._tryOtherArtistCheckbox = document.getElementById("try-other-artist-checkbox");
     
     this._processing = false;
     this._goButton.setAttribute("label", this._strings.getString("goButtonGo"));
@@ -368,11 +370,6 @@ SmartyPants.PaneController = {
     {
       this._mediaCoreManager.sequencer.playView(this._hiddenPlaylistView, clickedIndex);
     }
-    
-    
-    //alert("track tree dclick at " + clickedIndex);
-    
-    //todo
   },
   
   onRecommendationFilterCommand: function() {
@@ -526,6 +523,7 @@ SmartyPants.PaneController = {
     this.enableButtons(false);
     this._goButton.setAttribute("label", this._strings.getString("goButtonStop"));
     this._ignoreDuplicateMatches = (this._ignoreDuplicateMatchesCheckbox.getAttribute("checked") == "true" ? true : false);
+    this._tryOtherArtist = (this._tryOtherArtistCheckbox.getAttribute("checked") == "true" ? true : false);
     this._similarTrackWeight = parseFloat(this._similarTrackWeightTextbox.value);
     
     setTimeout("SmartyPants.PaneController.doProcessNextTrack()", 0);
@@ -559,12 +557,87 @@ SmartyPants.PaneController = {
     
   },
   
+  // return the original artist name on error so no further processing is done
+  findArtistInLastFm: function(artistName) {
+  //alert("findArtistInLastFm");
+    var requestUri = LAST_FM_ROOT_URL + "?method=" + ARTIST_SEARCH_METHOD + 
+                        "&artist=" + artistName +
+                        "&limit=1" +
+                        "&api_key=" + LAST_FM_API_KEY;
+
+    var request = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"].createInstance(Ci.nsIXMLHttpRequest);
+
+    //alert(requestUri);
+    //this.addOutputText(requestUri);
+
+    request.open("GET", requestUri, false);
+    try {
+    	request.send(null);
+    }
+    catch (e) {
+      return artistName;
+    }
+    
+    //alert(request.responseText);
+
+    if (!this._processing || !request.responseXML || request.status != REQUEST_SUCCESS_CODE) {
+      return artistName;
+    }
+    
+    var xml = request.responseXML;
+    
+    var mainElement = xml.getElementsByTagName('results');
+    if (mainElement == null || mainElement.length < 1) {
+      return artistName;
+    }
+    
+    var matches = mainElement[0].getElementsByTagName('artistmatches');
+    if (matches.length < 1) {
+      return artistName;
+    }
+    
+    var match = matches[0].getElementsByTagName('artist');
+    if (match.length < 1) {
+      return artistName;
+    }
+    
+    var artist = match[0].getElementsByTagName('name');
+    if (artist.length < 1) {
+      return artistName;
+    }
+    
+    return artist[0].textContent;
+  },
+  
   processTrack: function(track) {
     this.addOutputText(this._strings.getFormattedString("processingTrackOutputText", [track.artist, track.trackName]));
+
+    //if (!this.parseSimilarTrackXml(track, request.responseXML)) {
+    if (!this.processTrackWithDetails(track, track.trackName, track.artist) && this._tryOtherArtist) {
+      // Try again with the closest matching artist
+      var closestArtist = this.findArtistInLastFm(track.artist);
+      if 
+      (
+        closestArtist != null
+        &&
+        (
+          closestArtist.length != track.artist.length 
+          ||
+          closestArtist.length.toLowerCase().indexOf(track.artist.toLowerCase()) == -1
+        )
+      ) {
+        this.addOutputText(this._strings.getFormattedString("retryingTrackOutputText", [closestArtist]));
+        this.processTrackWithDetails(track, track.trackName, closestArtist)
+      }
+    }
     
+    track.processed = true;
+  },
+  
+  processTrackWithDetails: function(track, trackName, artistName) {
     var requestUri = LAST_FM_ROOT_URL + "?method=" + TRACK_GETSIMILAR_METHOD + 
-                        "&track=" + track.trackName +
-                        "&artist=" + track.artist +
+                        "&track=" + trackName +
+                        "&artist=" + artistName +
                         "&api_key=" + LAST_FM_API_KEY;
 
     var request = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"].createInstance(Ci.nsIXMLHttpRequest);
@@ -579,28 +652,32 @@ SmartyPants.PaneController = {
     catch (e) {
       // If processing has been stopped
       if (!this._processing) {
-        return;
+        return true;
       }
 
       this.addOutputText(this._strings.getString("lastfmResponseErrorOutputText"));
       track.processed = true;
-      return;
+      return false;
     }
 
     if (!this._processing) {
-      return;
+      return true;
     }
 
     if (!request.responseXML || request.status != REQUEST_SUCCESS_CODE) {
       this.addOutputText(this._strings.getString("lastfmResponseErrorOutputText"));
       track.processed = true;
-      return; 
+      return false; 
     }
     
     //alert(request.responseText);
-
-    this.parseSimilarTrackXml(track, request.responseXML);
-    track.processed = true;
+    
+    if (this.parseSimilarTrackXml(track, request.responseXML)) {
+      track.processed = true;
+      return true;
+    }
+    
+    return false;
   },
   
   parseSimilarTrackXml: function(track, xml) {
@@ -608,13 +685,13 @@ SmartyPants.PaneController = {
     var mainElement = xml.getElementsByTagName('similartracks');
     if (mainElement == null || mainElement.length < 1) {
       this.addOutputText(this._strings.getFormattedString("noSimilarTracksOutputText", [track.artist, track.trackName]));
-      return;
+      return false;
     }
     
     var tracks = mainElement[0].getElementsByTagName('track');
     if (tracks.length < 1) {
       this.addOutputText(this._strings.getFormattedString("noSimilarTracksOutputText", [track.artist, track.trackName]));
-      return;
+      return false;
     }
     
     var foundTracks = 0;
@@ -656,6 +733,8 @@ SmartyPants.PaneController = {
     
     this.addOutputText(this._strings.getFormattedString("foundSimilarTracksOutputText", [totalTracks, foundTracks]));
     this.updateTrackTree();
+    
+    return true;
   },
   
   getArtistFromTrackNode: function(trackNode) {

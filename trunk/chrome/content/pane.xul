@@ -100,6 +100,7 @@
 	<checkbox id="show-advanced-options-checkbox" label="&smarty-pants.show-advanced-options-check;" checked="false" />
 	<groupbox id="advanced-options-group" hidden="true">
 		<checkbox id="ignore-duplicate-matches-checkbox" label="&smarty-pants.ignore-duplicate-matches-check;" checked="true" tooltiptext="&smarty-pants.ignore-duplicate-matches-tooltip;" />
+    <checkbox id="try-other-artist-checkbox" label="&smarty-pants.try-other-artist-check;" checked="true" tooltiptext="&smarty-pants.try-other-artist-tooltip;" />
     <hbox align="center">
       <label value="&smarty-pants.ignore-scores-below-label;" width="110" tooltiptext="&smarty-pants.ignore-scores-below-tooltip;"/>
       <textbox id="ignore-scores-below-textbox" value="0.15" type="number" min="0" max="1" increment="0.01" decimalplaces="2" width="50" tooltiptext="&smarty-pants.ignore-scores-below-tooltip;"/>
