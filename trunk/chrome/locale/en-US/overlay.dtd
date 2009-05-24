@@ -24,5 +24,7 @@
 <!ENTITY smarty-pants.playlist-limit-to-label "Limit to:">
 <!ENTITY smarty-pants.playlist-limit-to-songs "songs or">
 <!ENTITY smarty-pants.playlist-limit-to-time "minutes">
-<!ENTITY smarty-pants.try-other-artist-check "Automatically correct artist">
+<!ENTITY smarty-pants.try-other-artist-check "Automatically correct source artist">
 <!ENTITY smarty-pants.try-other-artist-tooltip "This option will search last.fm for the artist name and use the best match if no similar tracks can be found.">
+<!ENTITY smarty-pants.fuzzy-match-check "Automatically correct results">
+<!ENTITY smarty-pants.fuzzy-match-tooltip "If this option is checked, the results from last.fm do not have to exactly match your library.">

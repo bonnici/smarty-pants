@@ -53,6 +53,7 @@ SmartyPants.PaneController = {
     this._playlistLimitToSongsTextbox = document.getElementById("playlist-limit-to-songs-textbox");
     this._playlistLimitToTimeTextbox = document.getElementById("playlist-limit-to-time-textbox");
     this._tryOtherArtistCheckbox = document.getElementById("try-other-artist-checkbox");
+    this._fuzzyMatchCheckbox = document.getElementById("fuzzy-match-checkbox");
     
     this._processing = false;
     this._goButton.setAttribute("label", this._strings.getString("goButtonGo"));
@@ -524,6 +525,7 @@ SmartyPants.PaneController = {
     this._goButton.setAttribute("label", this._strings.getString("goButtonStop"));
     this._ignoreDuplicateMatches = (this._ignoreDuplicateMatchesCheckbox.getAttribute("checked") == "true" ? true : false);
     this._tryOtherArtist = (this._tryOtherArtistCheckbox.getAttribute("checked") == "true" ? true : false);
+    this._fuzzyMatch = (this._fuzzyMatchCheckbox.getAttribute("checked") == "true" ? true : false);
     this._similarTrackWeight = parseFloat(this._similarTrackWeightTextbox.value);
     
     setTimeout("SmartyPants.PaneController.doProcessNextTrack()", 0);
@@ -699,7 +701,7 @@ SmartyPants.PaneController = {
     
     for (var index = 0; index < totalTracks; index++) {
       
-      trackNode = tracks[index];
+      var trackNode = tracks[index];
       var artistName = this.getArtistFromTrackNode(trackNode);
       var trackName = this.getTrackFromTrackNode(trackNode);
       var score = this.getScoreFromTrackNode(trackNode);
@@ -709,26 +711,95 @@ SmartyPants.PaneController = {
       if (score+1 > track.maxSimilarityScore) {
         track.maxSimilarityScore = score+1;
       }
+            
+      var guids = VandelayIndustriesSharedForSmartyPants.Functions.findSongInLibrary(artistName, trackName);
+
+      if (guids != null && guids.length > 0) {
+        var mediaItem = LibraryUtils.mainLibrary.getItemByGuid(guids[0]);
+        var candidateTrack = this.makeCandidateTrackFromMediaItem(mediaItem, track, score);
+        this._candidateTracks.addOrUpdate(candidateTrack);
+        foundTracks++;
+      }
+      else {
       
-      var songProps = Cc["@songbirdnest.com/Songbird/Properties/MutablePropertyArray;1"]
-       	                  .createInstance(Ci.sbIMutablePropertyArray);
-      songProps.appendProperty(SBProperties.artistName, artistName);  
-      songProps.appendProperty(SBProperties.trackName, trackName);
-
-      try {
-      	var itemEnum = LibraryUtils.mainLibrary.getItemsByProperties(songProps).enumerate();
-      	if (itemEnum.hasMoreElements()) {
-        	var item = itemEnum.getNext();
-        	var candidateTrack = this.makeCandidateTrackFromMediaItem(item, track, score);
-        	this._candidateTracks.addOrUpdate(candidateTrack);
-        	foundTracks++;
-    		}
-  		}
-    	catch (e) {
-    	  var candidateTrack = this.makeCandidateTrackFromDetails(trackName, artistName, track, score, url, streamable);
-    	  this._candidateTracks.addOrUpdate(candidateTrack);
-    	}
-
+        if (this._fuzzyMatch) {
+          // Try to find a good match
+          var songsFromArtist = VandelayIndustriesSharedForSmartyPants.Functions.findArtistInLibrary(artistName);
+          var bestSongFromArtistScore = -100;
+          var bestSongFromArtist = null;
+          if (songsFromArtist != null && songsFromArtist.length > 0) {
+            
+            var enumerator = songsFromArtist.enumerate();
+            while (enumerator.hasMoreElements()) {
+              var curSongFromArtist = enumerator.getNext();
+              
+              var curTrackName = curSongFromArtist.getProperty(SBProperties.trackName);
+              var curDiffScore = VandelayIndustriesSharedForSmartyPants.Functions.getDifferenceScore(trackName, curTrackName);
+              
+              if (curDiffScore > bestSongFromArtistScore) {
+                bestSongFromArtist = curSongFromArtist;
+                bestSongFromArtistScore = curDiffScore;
+              }
+            }
+          }
+          
+          var artistsFromSong = VandelayIndustriesSharedForSmartyPants.Functions.findTrackInLibrary(trackName);
+          var bestArtistFromSongScore = -100;
+          var bestArtistFromSong = null;
+          if (artistsFromSong != null && artistsFromSong.length > 0) {
+            for (var artistIndex = 0; artistIndex < artistsFromSong.length; artistIndex++) {
+            
+              var enumerator = artistsFromSong.enumerate();
+              while (enumerator.hasMoreElements()) {
+                var curArtistFromSong = enumerator.getNext();
+                
+                var curArtistName = curArtistFromSong.getProperty(SBProperties.artistName);
+                var curDiffScore = VandelayIndustriesSharedForSmartyPants.Functions.getDifferenceScore(artistName, curArtistName);
+                
+                if (curDiffScore > bestArtistFromSongScore) {
+                  bestArtistFromSong = curArtistFromSong;
+                  bestArtistFromSongScore = curDiffScore;
+                }
+              }
+            }
+          }
+          
+          // If we have a good track match for the artist, use it
+          if 
+          (
+            bestSongFromArtistScore > 0 
+            ||
+            (bestSongFromArtistScore >= -3 && bestSongFromArtistScore*-1 < trackName.length/2)
+          ) {
+            this.addOutputText(this._strings.getFormattedString("correctedSongOutputText", [artistName, trackName, bestSongFromArtist.getProperty(SBProperties.trackName)]));
+            var candidateTrack = this.makeCandidateTrackFromMediaItem(bestSongFromArtist, track, score);
+            this._candidateTracks.addOrUpdate(candidateTrack);
+            foundTracks++;
+          }
+          // Otherwise if we have a good artist match for the track, use that
+          else if
+          (
+            bestArtistFromSongScore > 0 
+            ||
+            (bestArtistFromSongScore >= -3 && bestArtistFromSongScore*-1 < artistName.length/2)
+          ) {
+            this.addOutputText(this._strings.getFormattedString("correctedSongOutputText", [artistName, trackName, bestArtistFromSong.getProperty(SBProperties.artistName)]));
+            var candidateTrack = this.makeCandidateTrackFromMediaItem(bestArtistFromSong, track, score);
+            this._candidateTracks.addOrUpdate(candidateTrack);
+            foundTracks++;
+          }
+          // Otherwise, use it as a recommendation
+          else {
+            var candidateTrack = this.makeCandidateTrackFromDetails(trackName, artistName, track, score, url, streamable);
+            this._candidateTracks.addOrUpdate(candidateTrack);
+          }
+        }
+        // No fuzzy matching
+        else {
+          var candidateTrack = this.makeCandidateTrackFromDetails(trackName, artistName, track, score, url, streamable);
+          this._candidateTracks.addOrUpdate(candidateTrack);
+        }
+      }
     }
     
     this.addOutputText(this._strings.getFormattedString("foundSimilarTracksOutputText", [totalTracks, foundTracks]));
