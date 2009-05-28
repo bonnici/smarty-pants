@@ -310,9 +310,6 @@ SmartyPants.PaneController = {
     this._mediaCoreManager = Cc["@songbirdnest.com/Songbird/Mediacore/Manager;1"]  
                             .getService(Components.interfaces.sbIMediacoreManager);  
                             
-    this._nowPlayingService = Cc["@songbirdnest.com/Songbird/now-playing/service;1"]
-                            .getService(Ci.sbINowPlayingService);
-                            
     this._gBrowser = this._windowMediator.getMostRecentWindow("Songbird:Main").gBrowser;
     
     this._mediaCoreManager.addListener(this);
