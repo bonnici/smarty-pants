@@ -476,6 +476,7 @@ SmartyPants.PaneController = {
     this._candidateTracks.clear();
     this.updateTrackTree();
     this.clearOutputText();
+    this._goButton.setAttribute("label", this._strings.getString("goButtonGo"));
   },
   
   addOutputText: function(text) {
@@ -513,7 +514,7 @@ SmartyPants.PaneController = {
   stopProcessing: function() {
     this._processing = false;
     this.enableButtons(true);
-    this._goButton.setAttribute("label", this._strings.getString("goButtonGo"));
+    this._goButton.setAttribute("label", this._strings.getString("goButtonResume"));
   },
   
   startProcessing: function() {
@@ -560,7 +561,7 @@ SmartyPants.PaneController = {
   findArtistInLastFm: function(artistName) {
   //alert("findArtistInLastFm");
     var requestUri = LAST_FM_ROOT_URL + "?method=" + ARTIST_SEARCH_METHOD + 
-                        "&artist=" + artistName +
+                        "&artist=" + encodeURIComponent(artistName) +
                         "&limit=1" +
                         "&api_key=" + LAST_FM_API_KEY;
 
@@ -610,7 +611,7 @@ SmartyPants.PaneController = {
   
   processTrack: function(track) {
     this.addOutputText(this._strings.getFormattedString("processingTrackOutputText", [track.artist, track.trackName]));
-
+    
     //if (!this.parseSimilarTrackXml(track, request.responseXML)) {
     if (!this.processTrackWithDetails(track, track.trackName, track.artist) && this._tryOtherArtist) {
       // Try again with the closest matching artist
@@ -622,7 +623,7 @@ SmartyPants.PaneController = {
         (
           closestArtist.length != track.artist.length 
           ||
-          closestArtist.length.toLowerCase().indexOf(track.artist.toLowerCase()) == -1
+          closestArtist.toLowerCase().indexOf(track.artist.toLowerCase()) == -1
         )
       ) {
         this.addOutputText(this._strings.getFormattedString("retryingTrackOutputText", [closestArtist]));
@@ -635,8 +636,8 @@ SmartyPants.PaneController = {
   
   processTrackWithDetails: function(track, trackName, artistName) {
     var requestUri = LAST_FM_ROOT_URL + "?method=" + TRACK_GETSIMILAR_METHOD + 
-                        "&track=" + trackName +
-                        "&artist=" + artistName +
+                        "&track=" + encodeURIComponent(trackName) +
+                        "&artist=" + encodeURIComponent(artistName) +
                         "&api_key=" + LAST_FM_API_KEY;
 
     var request = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"].createInstance(Ci.nsIXMLHttpRequest);
