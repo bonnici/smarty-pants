@@ -1,0 +1,4 @@
+treechildren::-moz-tree-cell-text(playingSong)
+{
+  font-weight: bold;
+}
