@@ -110,23 +110,19 @@ SmartyPants.PaneController = {
               curTrack.similarArtistTopTrackScore = candidateTrack.similarArtistTopTrackScore;
               curTrack.needsRescoring = true;
             }
-          
-            if (!controller._ignoreDuplicateMatches) {
-              if (candidateTrack.relatedTo.length > 0) {
-                // should only ever be 1 parent max
-                curTrack.relatedTo.push({track: candidateTrack.relatedTo[0].track, score: candidateTrack.relatedTo[0].score});
-                curTrack.needsRescoring = true;
-              }
-              return true;
+            
+            if (candidateTrack.relatedTo.length > 0) {
+              // should only ever be 1 parent max
+              curTrack.relatedTo.push({track: candidateTrack.relatedTo[0].track, score: candidateTrack.relatedTo[0].score});
+              curTrack.needsRescoring = true;
             }
-            else {
-              return false;
-            }
+            
+            return;
           }
         }
         
         this.dataArray.push(candidateTrack);
-        return true;
+        return;
       },
       
       clear: function() {
@@ -201,8 +197,16 @@ SmartyPants.PaneController = {
           for (var index = 0; index < track.relatedTo.length; index++) {
             var parentsScore = this.scoreTrack(track.relatedTo[index].track);
             if (parentsScore >= 0) {
+              var score = (track.relatedTo[index].score / track.relatedTo[index].track.maxSimilarityScore) * parentsScore * controller._similarTrackWeight;
               properScoreFound = true;
-              similarTrackScore += (track.relatedTo[index].score / track.relatedTo[index].track.maxSimilarityScore) * parentsScore * controller._similarTrackWeight; 
+              if (controller._ignoreDuplicateMatches) {
+                if (score > similarTrackScore) {
+                  similarTrackScore = score;
+                }
+              }
+              else {
+                similarTrackScore += score; 
+              }
             }
           }
           track.isGettingScored = false;
@@ -1105,9 +1109,8 @@ SmartyPants.PaneController = {
           if (songGuids != null && songGuids.length > 0) {
             var mediaItem = LibraryUtils.mainLibrary.getItemByGuid(songGuids[0]);
             var candidateTrack = this.makeCandidateTrackFromMediaItem(mediaItem, track, score);
-            if (this._candidateTracks.addOrUpdate(candidateTrack)) {
-              this._candidateArtists.addOrUpdate(this.makeCandidateArtistFromMediaItem(mediaItem, score));
-            }
+            this._candidateTracks.addOrUpdate(candidateTrack);
+            this._candidateArtists.addOrUpdate(this.makeCandidateArtistFromMediaItem(mediaItem, score));
             foundTracks++;
           }
           else {
@@ -1163,9 +1166,8 @@ SmartyPants.PaneController = {
               this.addOutputText(this._strings.getFormattedString("correctedSongOutputText", [artistName, trackName, bestSongFromArtist.getProperty(SBProperties.trackName)]));
               this._fixedResultSongs[trackName] = bestSongFromArtist.getProperty(SBProperties.trackName);
               var candidateTrack = this.makeCandidateTrackFromMediaItem(bestSongFromArtist, track, score);
-              if (this._candidateTracks.addOrUpdate(candidateTrack)) {
-                this._candidateArtists.addOrUpdate(this.makeCandidateArtistFromMediaItem(bestSongFromArtist, score));
-              }
+              this._candidateTracks.addOrUpdate(candidateTrack);
+              this._candidateArtists.addOrUpdate(this.makeCandidateArtistFromMediaItem(bestSongFromArtist, score));
               foundTracks++;
             }
             // Otherwise if we have a good artist match for the track, use that
@@ -1178,26 +1180,23 @@ SmartyPants.PaneController = {
               this.addOutputText(this._strings.getFormattedString("correctedSongOutputText", [artistName, trackName, bestArtistFromSong.getProperty(SBProperties.artistName)]));
               this._fixedResultArtists[artistName] = bestArtistFromSong.getProperty(SBProperties.artistName);
               var candidateTrack = this.makeCandidateTrackFromMediaItem(bestArtistFromSong, track, score);
-              if (this._candidateTracks.addOrUpdate(candidateTrack)) {
-                this._candidateArtists.addOrUpdate(this.makeCandidateArtistFromMediaItem(bestArtistFromSong, score));
-              }
+              this._candidateTracks.addOrUpdate(candidateTrack);
+              this._candidateArtists.addOrUpdate(this.makeCandidateArtistFromMediaItem(bestArtistFromSong, score));
               foundTracks++;
             }
             // Otherwise, use it as a recommendation
             else {
               var candidateTrack = this.makeCandidateTrackFromDetails(trackName, artistName, track, score, url, streamable);
-              if (this._candidateTracks.addOrUpdate(candidateTrack)) {
-                this._candidateArtists.addOrUpdate(this.makeCandidateArtistFromDetails(artistName, score));
-              }
+              this._candidateTracks.addOrUpdate(candidateTrack);
+              this._candidateArtists.addOrUpdate(this.makeCandidateArtistFromDetails(artistName, score));
             }
           }
         }
         // No fuzzy matching
         else {
           var candidateTrack = this.makeCandidateTrackFromDetails(trackName, artistName, track, score, url, streamable);
-          if (this._candidateTracks.addOrUpdate(candidateTrack)) {
-            this._candidateArtists.addOrUpdate(this.makeCandidateArtistFromDetails(artistName, score));
-          }
+          this._candidateTracks.addOrUpdate(candidateTrack);
+          this._candidateArtists.addOrUpdate(this.makeCandidateArtistFromDetails(artistName, score));
         }
       }
     }
