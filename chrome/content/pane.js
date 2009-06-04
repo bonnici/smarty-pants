@@ -67,6 +67,7 @@ SmartyPants.PaneController = {
     this._similarArtistTrackWeightTextbox = document.getElementById("similar-artist-track-weight-textbox");
     this._similarArtistSimilarityWeightTextbox = document.getElementById("similar-artist-similarity-weight-textbox");
     this._maxTopTracksTextbox = document.getElementById("max-top-tracks-textbox");
+    this._maxNumToProcessTextbox = document.getElementById("max-num-to-process-textbox");
     
     this._processing = false;
     this._goButton.setAttribute("label", this._strings.getString("goButtonGo"));
@@ -91,6 +92,7 @@ SmartyPants.PaneController = {
           function() { controller.onSimilarArtistSimilarityWeightChange(false); }, false);
           
     this._recommendationFilterSelection = 0;
+    this._numProcessed = 0;
           
     this._candidateTracks = {
       dataArray: [],
@@ -779,6 +781,8 @@ SmartyPants.PaneController = {
     this.updateTrees();
     this.clearOutputText();
     this._goButton.setAttribute("label", this._strings.getString("goButtonGo"));
+    
+    this._numProcessed = 0;
   },
   
   addOutputText: function(text) {
@@ -847,6 +851,7 @@ SmartyPants.PaneController = {
     this._similarArtistTrackWeight = parseFloat(this._similarArtistTrackWeightTextbox.value);
     this._similarArtistSimilarityWeight = parseFloat(this._similarArtistSimilarityWeightTextbox.value);
     this._maxTopTracks = parseInt(this._maxTopTracksTextbox.value);
+    this._maxNumToProcess = parseInt(this._maxNumToProcessTextbox.value);
     
     setTimeout("SmartyPants.PaneController.doProcessNextTrackOrArtist()", 0);
   },
@@ -861,45 +866,53 @@ SmartyPants.PaneController = {
   doProcessNextTrackOrArtist: function() {
     
     if (this._processing) {
-      var minScore = parseFloat(this._ignoreScoresTextbox.value);
     
-      var bestTrackScore = 0;
-      for (var index = 0; index < this._candidateTracks.dataArray.length; index++) {
-        var curTrack = this._candidateTracks.dataArray[index];
-        if (!curTrack.processed && curTrack.score >= minScore) {
-          bestTrackScore = curTrack.score;
-          var bestTrack = curTrack;
-          break;
+      if (this._numProcessed >= this._maxNumToProcess) {
+        // All tracks and artists are processed, stop processing
+        this.addOutputText(this._strings.getString("maxSongsProcessedOutputText"));
+        this.stopProcessing(true);
+      }
+      else {
+        var minScore = parseFloat(this._ignoreScoresTextbox.value);
+      
+        var bestTrackScore = 0;
+        for (var index = 0; index < this._candidateTracks.dataArray.length; index++) {
+          var curTrack = this._candidateTracks.dataArray[index];
+          if (!curTrack.processed && curTrack.score >= minScore) {
+            bestTrackScore = curTrack.score;
+            var bestTrack = curTrack;
+            break;
+          }
         }
-      }
-      
-      var bestArtistScore = 0;
-      for (var index = 0; index < this._candidateArtists.dataArray.length; index++) {
-        var curArtist = this._candidateArtists.dataArray[index];
-        var artistScore = this._candidateArtists.getScore(curArtist);
-        if (!curArtist.processed && artistScore >= minScore) {
-          bestArtistScore = artistScore;
-          var bestArtist = curArtist;
-          break;
+        
+        var bestArtistScore = 0;
+        for (var index = 0; index < this._candidateArtists.dataArray.length; index++) {
+          var curArtist = this._candidateArtists.dataArray[index];
+          var artistScore = this._candidateArtists.getScore(curArtist);
+          if (!curArtist.processed && artistScore >= minScore) {
+            bestArtistScore = artistScore;
+            var bestArtist = curArtist;
+            break;
+          }
         }
-      }
+        
+        if (bestTrack != null && bestTrackScore >= minScore && bestTrackScore >= bestArtistScore) {
+          this.processTrack(bestTrack);
       
-      if (bestTrack != null && bestTrackScore >= minScore && bestTrackScore >= bestArtistScore) {
-        this.processTrack(bestTrack);
-    
-        setTimeout("SmartyPants.PaneController.doProcessNextTrackOrArtist()", 0);
-        return;
-      }
-      else if (bestArtist != null && bestArtistScore >= minScore) {
-        this.processArtist(bestArtist);
-    
-        setTimeout("SmartyPants.PaneController.doProcessNextTrackOrArtist()", 0);
-        return;
-      }
+          setTimeout("SmartyPants.PaneController.doProcessNextTrackOrArtist()", 0);
+          return;
+        }
+        else if (bestArtist != null && bestArtistScore >= minScore) {
+          this.processArtist(bestArtist);
       
-      // All tracks and artists are processed, stop processing
-      this.addOutputText(this._strings.getString("allSongsProcessedOutputText"));
-      this.stopProcessing(true);
+          setTimeout("SmartyPants.PaneController.doProcessNextTrackOrArtist()", 0);
+          return;
+        }
+        
+        // All tracks and artists are processed, stop processing
+        this.addOutputText(this._strings.getString("allSongsProcessedOutputText"));
+        this.stopProcessing(true);
+      }
     }
     
   },
@@ -986,6 +999,7 @@ SmartyPants.PaneController = {
     }
     
     track.processed = true;
+    this._numProcessed++;
   },
   
   processTrackWithDetails: function(track, trackName, artistName) {
@@ -1364,6 +1378,7 @@ SmartyPants.PaneController = {
     
     this.updateTrees();
     artist.processed = true;
+    this._numProcessed++;
   },
   
   findSimilarArtists: function(artist) {

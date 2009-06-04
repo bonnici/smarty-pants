@@ -140,8 +140,12 @@
               <checkbox id="fuzzy-match-checkbox" label="&smarty-pants.fuzzy-match-check;" checked="true" tooltiptext="&smarty-pants.fuzzy-match-tooltip;" />
               
               <hbox align="center">
-                <label value="&smarty-pants.ignore-scores-below-label;" tooltiptext="&smarty-pants.ignore-scores-below-tooltip;"/>
-                <textbox id="ignore-scores-below-textbox" value="0.15" type="number" min="0" max="1" increment="0.01" decimalplaces="2" width="50" tooltiptext="&smarty-pants.ignore-scores-below-tooltip;"/>
+                <label value="&smarty-pants.ignore-scores-below-label;" width="150" tooltiptext="&smarty-pants.ignore-scores-below-tooltip;"/>
+                <textbox id="ignore-scores-below-textbox" width="50" value="0.15" type="number" min="0" max="1" increment="0.01" decimalplaces="2" tooltiptext="&smarty-pants.ignore-scores-below-tooltip;"/>
+              </hbox>
+              <hbox align="center">
+                <label value="&smarty-pants.max-num-to-process-label;" width="150" tooltiptext="&smarty-pants.max-num-to-process-tooltip;" />
+                <textbox id="max-num-to-process-textbox" width="50" value="25" type="number" min="1" max="100" increment="1" tooltiptext="&smarty-pants.max-num-to-process-tooltip;" />
               </hbox>
             </vbox>
           </tabpanel>
