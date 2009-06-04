@@ -68,6 +68,7 @@ SmartyPants.PaneController = {
     this._similarArtistSimilarityWeightTextbox = document.getElementById("similar-artist-similarity-weight-textbox");
     this._maxTopTracksTextbox = document.getElementById("max-top-tracks-textbox");
     this._maxNumToProcessTextbox = document.getElementById("max-num-to-process-textbox");
+    this._ignoreNotInLibraryCheckbox = document.getElementById("ignore-not-in-library-checkbox");
     
     this._processing = false;
     this._goButton.setAttribute("label", this._strings.getString("goButtonGo"));
@@ -852,6 +853,8 @@ SmartyPants.PaneController = {
     this._similarArtistSimilarityWeight = parseFloat(this._similarArtistSimilarityWeightTextbox.value);
     this._maxTopTracks = parseInt(this._maxTopTracksTextbox.value);
     this._maxNumToProcess = parseInt(this._maxNumToProcessTextbox.value);
+    this._ignoreNotInLibrary = (this._ignoreNotInLibraryCheckbox.getAttribute("checked") == "true" ? true : false);
+    
     
     setTimeout("SmartyPants.PaneController.doProcessNextTrackOrArtist()", 0);
   },
@@ -878,8 +881,8 @@ SmartyPants.PaneController = {
         var bestTrackScore = 0;
         for (var index = 0; index < this._candidateTracks.dataArray.length; index++) {
           var curTrack = this._candidateTracks.dataArray[index];
-          if (!curTrack.processed && curTrack.score >= minScore) {
-            bestTrackScore = curTrack.score;
+          if (!curTrack.processed) {
+            bestTrackScore = curTrack.diminishedScore;
             var bestTrack = curTrack;
             break;
           }
@@ -889,7 +892,7 @@ SmartyPants.PaneController = {
         for (var index = 0; index < this._candidateArtists.dataArray.length; index++) {
           var curArtist = this._candidateArtists.dataArray[index];
           var artistScore = this._candidateArtists.getScore(curArtist);
-          if (!curArtist.processed && artistScore >= minScore) {
+          if (!curArtist.processed) {
             bestArtistScore = artistScore;
             var bestArtist = curArtist;
             break;
@@ -965,6 +968,11 @@ SmartyPants.PaneController = {
   
   processTrack: function(track) {
     if (!this._doSimilarTracks) {
+      track.processed = true;
+      return;
+    }
+    
+    if (this._ignoreNotInLibrary && track.guid == null) {
       track.processed = true;
       return;
     }
@@ -1352,6 +1360,25 @@ SmartyPants.PaneController = {
       artist.processed = true;
       return;
     }
+    
+    if (this._ignoreNotInLibrary) {
+      var artistInLibrary = false;
+      var songsFromArtist = VandelayIndustriesSharedForSmartyPants.Functions.findArtistInLibrary(artist.artistName);
+      if (songsFromArtist == null || songsFromArtist.length == 0) {
+        if (this._fixedResultArtists[artist.artistName] != null) {
+          songsFromArtist = VandelayIndustriesSharedForSmartyPants.Functions.findArtistInLibrary(this._fixedResultArtists[artist.artistName]);
+        }
+      }
+      
+      if (songsFromArtist != null && songsFromArtist.length > 0) {
+        artistInLibrary = true;
+      }
+      
+      if (!artistInLibrary) {
+        artist.processed = true;
+        return;
+      }
+    }
   
     this.addOutputText(this._strings.getFormattedString("processingArtistOutputText", [artist.artistName]));
     
@@ -1539,13 +1566,11 @@ SmartyPants.PaneController = {
     
     var maxTracks = this._maxTopTracks;
     var totalTracks = tracks.length;
-    if (totalTracks > maxTracks) {
-      totalTracks = maxTracks;
-    }
     var foundTracks = 0;
+    var addedTracks = 0;
     
     // scale top tracks linearly, diminishing returns can be used to adjust this later
-    for (var index = 0; index < totalTracks; index++) {
+    for (var index = 0; index < totalTracks && addedTracks < maxTracks; index++) {
       
       var trackNode = tracks[index];
       var trackName = this.getTrackFromTrackNode(trackNode);
@@ -1553,7 +1578,7 @@ SmartyPants.PaneController = {
       var streamable = this.getStreamableFromTrackNode(trackNode);
       
       var topTrackWeight = this._artistTopTrackWeight;
-      var scoreFromTopTrack = (1-((index+1)/(totalTracks+1))) * topTrackWeight;
+      var scoreFromTopTrack = (1-((addedTracks+1)/(totalTracks+1))) * topTrackWeight;
       
       // Try to find using the library artist name
       var guids = VandelayIndustriesSharedForSmartyPants.Functions.findSongInLibrary(artist.artistName, trackName);
@@ -1565,8 +1590,9 @@ SmartyPants.PaneController = {
       if (guids != null && guids.length > 0) {
         var mediaItem = LibraryUtils.mainLibrary.getItemByGuid(guids[0]);
         if (mediaItem != null) {
-          foundTracks++;
           this._candidateTracks.addOrUpdate(this.makeCandidateTrackFromSimilarArtistTopTrackMediaItem(mediaItem, artist, scoreFromTopTrack));
+          foundTracks++;
+          addedTracks++;
         }
       }
       else {
@@ -1614,20 +1640,22 @@ SmartyPants.PaneController = {
           ||
           (bestSongFromArtistScore >= -3 && bestSongFromArtistScore*-1 < trackName.length/2)
         ) {
-          foundTracks++;
           this._candidateTracks.addOrUpdate(this.makeCandidateTrackFromSimilarArtistTopTrackMediaItem(bestSongFromArtist, artist, scoreFromTopTrack));
           this.addOutputText(this._strings.getFormattedString("correctedSongOutputText", [artistName, trackName, bestSongFromArtist.getProperty(SBProperties.trackName)]));
           this._fixedResultSongs[trackName] = bestSongFromArtist.getProperty(SBProperties.trackName);
+          foundTracks++;
+          addedTracks++;
         }
         // Otherwise add the song as a recommendation
-        else
+        else if (!this._ignoreNotInLibrary)
         {
           this._candidateTracks.addOrUpdate(this.makeCandidateTrackFromSimilarArtistTopTrackDetails(trackName, artistName, artist, scoreFromTopTrack, url, streamable));
+          addedTracks++;
         }  
       }
     }
     
-    this.addOutputText(this._strings.getFormattedString("foundTopTracksOutputText", [totalTracks, foundTracks]));
+    this.addOutputText(this._strings.getFormattedString("foundTopTracksOutputText", [addedTracks, foundTracks]));
   },
   
   findUrlForArtist: function(artist) {
