@@ -133,7 +133,6 @@
             <vbox>
               <checkbox id="do-similar-tracks-check" label="&smarty-pants.do-similar-tracks-check;" checked="true" tooltiptext="&smarty-pants.do-similar-tracks-tooltip;" />
               <checkbox id="do-similar-artists-check" label="&smarty-pants.do-similar-artists-check;" checked="true" tooltiptext="&smarty-pants.do-similar-artists-tooltip;" />
-              <checkbox id="do-tracks-from-artist-check" label="&smarty-pants.do-tracks-from-artist-check;" checked="false" tooltiptext="&smarty-pants.do-tracks-from-artist-tooltip;" />
               <checkbox id="do-artist-top-tracks-check" label="&smarty-pants.do-artist-top-tracks-check;" checked="true" tooltiptext="&smarty-pants.do-artist-top-tracks-tooltip;" />
               
               <checkbox id="try-other-artist-checkbox" label="&smarty-pants.try-other-artist-check;" checked="true" tooltiptext="&smarty-pants.try-other-artist-tooltip;" />
@@ -154,6 +153,7 @@
           <tabpanel>
             <vbox>
               <checkbox id="ignore-duplicate-matches-checkbox" label="&smarty-pants.ignore-duplicate-matches-check;" checked="true" tooltiptext="&smarty-pants.ignore-duplicate-matches-tooltip;" />
+              <checkbox id="ignore-similar-tracks-from-same-artist-check" label="&smarty-pants.ignore-similar-tracks-from-same-artist-check;" checked="true" tooltiptext="&smarty-pants.ignore-similar-tracks-from-same-artist-tooltip;" />
               <checkbox id="diminish-track-scores-check" label="&smarty-pants.diminish-track-scores-check;" checked="true" tooltiptext="&smarty-pants.diminish-track-scores-tooltip;" />
               <hbox align="center">
                 <label value="&smarty-pants.diminish-tracks-after-label;" width="110" tooltiptext="&smarty-pants.diminish-tracks-after-tooltip;"/>
@@ -168,6 +168,7 @@
           
           <tabpanel>
             <vbox>
+              <checkbox id="do-tracks-from-artist-check" label="&smarty-pants.do-tracks-from-artist-check;" checked="false" tooltiptext="&smarty-pants.do-tracks-from-artist-tooltip;" />
               <hbox align="center">
                 <label value="&smarty-pants.default-similar-artist-track-score-label;" width="200" tooltiptext="&smarty-pants.default-similar-artist-track-score-tooltip;" />
                 <textbox id="default-similar-artist-track-score-textbox" value="0.15" type="number" min="0" max="1" increment="0.05" decimalplaces="2" width="50" tooltiptext="&smarty-pants.default-similar-artist-track-score-tooltip;" />

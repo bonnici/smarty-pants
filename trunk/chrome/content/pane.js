@@ -69,6 +69,7 @@ SmartyPants.PaneController = {
     this._maxTopTracksTextbox = document.getElementById("max-top-tracks-textbox");
     this._maxNumToProcessTextbox = document.getElementById("max-num-to-process-textbox");
     this._ignoreNotInLibraryCheckbox = document.getElementById("ignore-not-in-library-checkbox");
+    this._ignoreSimilarTracksFromSameArtistCheckbox = document.getElementById("ignore-similar-tracks-from-same-artist-check");
     
     this._processing = false;
     this._goButton.setAttribute("label", this._strings.getString("goButtonGo"));
@@ -858,7 +859,7 @@ SmartyPants.PaneController = {
     this._maxTopTracks = parseInt(this._maxTopTracksTextbox.value);
     this._maxNumToProcess = parseInt(this._maxNumToProcessTextbox.value);
     this._ignoreNotInLibrary = (this._ignoreNotInLibraryCheckbox.getAttribute("checked") == "true" ? true : false);
-    
+    this._ignoreSimilarTracksFromSameArtist = (this._ignoreSimilarTracksFromSameArtistCheckbox.getAttribute("checked") == "true" ? true : false);
     
     setTimeout("SmartyPants.PaneController.doProcessNextTrackOrArtist()", 0);
   },
@@ -1047,7 +1048,7 @@ SmartyPants.PaneController = {
       return false; 
     }
     
-    if (this.parseSimilarTrackXml(track, request.responseXML)) {
+    if (this.parseSimilarTrackXml(track, request.responseXML, artistName)) {
       track.processed = true;
       return true;
     }
@@ -1055,7 +1056,7 @@ SmartyPants.PaneController = {
     return false;
   },
   
-  parseSimilarTrackXml: function(track, xml) {
+  parseSimilarTrackXml: function(track, xml, sourceArtistName) {
     
     var mainElement = xml.getElementsByTagName('similartracks');
     if (mainElement == null || mainElement.length < 1) {
@@ -1076,6 +1077,15 @@ SmartyPants.PaneController = {
       
       var trackNode = tracks[index];
       var artistName = this.getArtistFromTrackNode(trackNode);
+      
+      var artistsAreEqual = 
+          artistName.length == sourceArtistName.length 
+          && 
+          artistName.toLowerCase().indexOf(sourceArtistName.toLowerCase()) != -1;
+      if (this._ignoreSimilarTracksFromSameArtist && artistsAreEqual) {
+        continue;
+      }
+      
       var trackName = this.getTrackFromTrackNode(trackNode);
       var score = this.getScoreFromTrackNode(trackNode);
       var url = this.getUrlFromTrackNode(trackNode);
