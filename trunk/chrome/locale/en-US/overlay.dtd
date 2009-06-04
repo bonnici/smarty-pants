@@ -53,3 +53,5 @@
 <!ENTITY smarty-pants.advanced-options-general-header "General">
 <!ENTITY smarty-pants.advanced-options-track-header "Track">
 <!ENTITY smarty-pants.advanced-options-artist-header "Artist">
+<!ENTITY smarty-pants.max-top-tracks-label "Maximum top tracks:">
+<!ENTITY smarty-pants.max-top-tracks-tooltip "The maximum number of artist top tracks that will be added to the list">
