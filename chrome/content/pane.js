@@ -30,6 +30,7 @@ const SMARTY_PANTS_HIDDEN_PLAYLIST_PROP = "smarty-pants_hidden-playlist";
 SmartyPants.PaneController = {
   
   onLoad: function() {
+  
     var controller = this;
     this._strings = document.getElementById("smarty-pants-strings");
     
@@ -65,7 +66,7 @@ SmartyPants.PaneController = {
     this._artistTopTrackWeightTextbox = document.getElementById("artist-top-track-weight-textbox");
     this._similarArtistTrackWeightTextbox = document.getElementById("similar-artist-track-weight-textbox");
     this._similarArtistSimilarityWeightTextbox = document.getElementById("similar-artist-similarity-weight-textbox");
-    //todo make the sum of the 2 above = 1
+    this._maxTopTracksTextbox = document.getElementById("max-top-tracks-textbox");
     
     this._processing = false;
     this._goButton.setAttribute("label", this._strings.getString("goButtonGo"));
@@ -845,6 +846,7 @@ SmartyPants.PaneController = {
     this._artistTopTrackWeight = parseFloat(this._artistTopTrackWeightTextbox.value);
     this._similarArtistTrackWeight = parseFloat(this._similarArtistTrackWeightTextbox.value);
     this._similarArtistSimilarityWeight = parseFloat(this._similarArtistSimilarityWeightTextbox.value);
+    this._maxTopTracks = parseInt(this._maxTopTracksTextbox.value);
     
     setTimeout("SmartyPants.PaneController.doProcessNextTrackOrArtist()", 0);
   },
@@ -1520,7 +1522,11 @@ SmartyPants.PaneController = {
       return;
     }
     
+    var maxTracks = this._maxTopTracks;
     var totalTracks = tracks.length;
+    if (totalTracks > maxTracks) {
+      totalTracks = maxTracks;
+    }
     var foundTracks = 0;
     
     // scale top tracks linearly, diminishing returns can be used to adjust this later

@@ -179,57 +179,14 @@
                 <label value="&smarty-pants.similar-artist-similarity-weight-label;" width="200" tooltiptext="&smarty-pants.similar-artist-similarity-weight-tooltip;" />
                 <textbox id="similar-artist-similarity-weight-textbox" value="0.75" type="number" min="0" max="1" increment="0.05" decimalplaces="2" width="50" tooltiptext="&smarty-pants.similar-artist-similarity-weight-tooltip;" />
               </hbox>
+              <hbox align="center">
+                <label value="&smarty-pants.max-top-tracks-label;" width="200" tooltiptext="&smarty-pants.max-top-tracks-tooltip;" />
+                <textbox id="max-top-tracks-textbox" value="10" type="number" min="1" max="50" increment="1" width="50" tooltiptext="&smarty-pants.max-top-tracks-tooltip;" />
+              </hbox>
             </vbox>
           </tabpanel>
         </tabpanels>
       </tabbox>
-      
-    
-    
-    
-    <!--
-      <checkbox id="do-similar-tracks-check" label="&smarty-pants.do-similar-tracks-check;" checked="true" tooltiptext="&smarty-pants.do-similar-tracks-tooltip;" />
-      <checkbox id="do-similar-artists-check" label="&smarty-pants.do-similar-artists-check;" checked="true" tooltiptext="&smarty-pants.do-similar-artists-tooltip;" />
-      <checkbox id="do-tracks-from-artist-check" label="&smarty-pants.do-tracks-from-artist-check;" checked="false" tooltiptext="&smarty-pants.do-tracks-from-artist-tooltip;" />
-      <checkbox id="do-artist-top-tracks-check" label="&smarty-pants.do-artist-top-tracks-check;" checked="true" tooltiptext="&smarty-pants.do-artist-top-tracks-tooltip;" />
-      
-      <checkbox id="diminish-track-scores-check" label="&smarty-pants.diminish-track-scores-check;" checked="true" tooltiptext="&smarty-pants.diminish-track-scores-tooltip;" />
-      <hbox align="center">
-        <label value="&smarty-pants.diminish-tracks-after-label;" width="110" tooltiptext="&smarty-pants.diminish-tracks-after-tooltip;"/>
-        <textbox id="diminish-tracks-after-textbox" value="3" type="number" min="1" max="100" increment="1" width="50" tooltiptext="&smarty-pants.diminish-tracks-after-tooltip;"/>
-      </hbox>
-    
-      <checkbox id="ignore-duplicate-matches-checkbox" label="&smarty-pants.ignore-duplicate-matches-check;" checked="true" tooltiptext="&smarty-pants.ignore-duplicate-matches-tooltip;" />
-      <checkbox id="try-other-artist-checkbox" label="&smarty-pants.try-other-artist-check;" checked="true" tooltiptext="&smarty-pants.try-other-artist-tooltip;" />
-      <checkbox id="fuzzy-match-checkbox" label="&smarty-pants.fuzzy-match-check;" checked="true" tooltiptext="&smarty-pants.fuzzy-match-tooltip;" />
-      
-      <hbox align="center">
-        <label value="&smarty-pants.ignore-scores-below-label;" width="110" tooltiptext="&smarty-pants.ignore-scores-below-tooltip;"/>
-        <textbox id="ignore-scores-below-textbox" value="0.15" type="number" min="0" max="1" increment="0.01" decimalplaces="2" width="50" tooltiptext="&smarty-pants.ignore-scores-below-tooltip;"/>
-      </hbox>
-      <hbox align="center">
-        <label value="&smarty-pants.similar-track-weight-label;" width="110" tooltiptext="&smarty-pants.similar-tracks-weight-tooltip;" />
-        <textbox id="similar-track-weight-textbox" value="1.0" type="number" min="0" max="1" increment="0.05" decimalplaces="2" width="50" tooltiptext="&smarty-pants.similar-tracks-weight-tooltip;" />
-      </hbox>
-      
-      <hbox align="center">
-        <label value="&smarty-pants.default-similar-artist-track-score-label;" tooltiptext="&smarty-pants.default-similar-artist-track-score-tooltip;" />
-        <textbox id="default-similar-artist-track-score-textbox" value="0.15" type="number" min="0" max="1" increment="0.05" decimalplaces="2" width="50" tooltiptext="&smarty-pants.default-similar-artist-track-score-tooltip;" />
-      </hbox>
-      
-      <hbox align="center">
-        <label value="&smarty-pants.artist-top-track-weight-label;" width="110" tooltiptext="&smarty-pants.artist-top-track-weight-tooltip;" />
-        <textbox id="artist-top-track-weight-textbox" value="0.7" type="number" min="0" max="1" increment="0.05" decimalplaces="2" width="50" tooltiptext="&smarty-pants.artist-top-track-weight-tooltip;" />
-      </hbox>
-      <hbox align="center">
-        <label value="&smarty-pants.similar-artist-track-weight-label;" width="110" tooltiptext="&smarty-pants.similar-artist-track-weight-tooltip;" />
-        <textbox id="similar-artist-track-weight-textbox" value="0.25" type="number" min="0" max="1" increment="0.05" decimalplaces="2" width="50" tooltiptext="&smarty-pants.similar-artist-track-weight-tooltip;" />
-      </hbox>
-      <hbox align="center">
-        <label value="&smarty-pants.similar-artist-similarity-weight-label;" width="110" tooltiptext="&smarty-pants.similar-artist-similarity-weight-tooltip;" />
-        <textbox id="similar-artist-similarity-weight-textbox" value="0.75" type="number" min="0" max="1" increment="0.05" decimalplaces="2" width="50" tooltiptext="&smarty-pants.similar-artist-similarity-weight-tooltip;" />
-      </hbox>
-    -->
       
     </groupbox>
 	
