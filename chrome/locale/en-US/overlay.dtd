@@ -57,3 +57,5 @@
 <!ENTITY smarty-pants.max-top-tracks-tooltip "The maximum number of artist top tracks that will be added to the list">
 <!ENTITY smarty-pants.max-num-to-process-label "Max songs/artists to process:">
 <!ENTITY smarty-pants.max-num-to-process-tooltip "This is the maximum number of songs or artists that will be processed">
+<!ENTITY smarty-pants.ignore-not-in-library-check "Ignore songs/artists not in library">
+<!ENTITY smarty-pants.ignore-not-in-library-tooltip "If this option is checked, songs and artists that are not in your library will not be processed">
