@@ -981,35 +981,25 @@ SmartyPants.PaneController = {
       track.processed = true;
       return;
     }
-      
-    this.addOutputText(this._strings.getFormattedString("processingTrackOutputText", [track.artist, track.trackName]));
     
-    if (!this.processTrackWithDetails(track, track.trackName, track.artist) && this._tryOtherArtist) {
-      var closestArtist = null;
-      // Have we fixed this artist before?
-      if (this._fixedQueryArtists[track.artist] != null) {
-        closestArtist = this._fixedQueryArtists[track.artist];
-      }
-      else {
-        // Try again with the closest matching artist
-        var closestArtist = this.findArtistInLastFm(track.artist);
-      }
-      if 
-      (
-        closestArtist != null
-        &&
-        (
-          closestArtist.length != track.artist.length 
-          ||
-          closestArtist.toLowerCase().indexOf(track.artist.toLowerCase()) == -1
-        )
-      ) {
-        this.addOutputText(this._strings.getFormattedString("retryingTrackOutputText", [closestArtist]));
-        if (this.processTrackWithDetails(track, track.trackName, closestArtist)) {
-          this._fixedQueryArtists[track.artist] = closestArtist;
-        }
-      }
+    var artistToUse = null;
+    // Have we queried this artist before?
+    if (this._fixedQueryArtists[track.artist] != null) {
+      artistToUse = this._fixedQueryArtists[track.artist];
     }
+    else if (this._tryOtherArtist) {
+      // Find the closest matching artist
+      artistToUse = this.findArtistInLastFm(track.artist);
+    }
+    
+    if (artistToUse == null || artistToUse.length == 0) {
+      artistToUse = track.artist;
+    }
+    
+    this._fixedQueryArtists[track.artist] = artistToUse;
+      
+    this.addOutputText(this._strings.getFormattedString("processingTrackOutputText", [artistToUse, track.trackName]));
+    this.processTrackWithDetails(track, track.trackName, artistToUse)
     
     track.processed = true;
     this._numProcessed++;
@@ -1388,8 +1378,13 @@ SmartyPants.PaneController = {
         return;
       }
     }
+    
+    var artistName = artist.artistName;
+    if (this._fixedQueryArtists[artistName] != null) {
+      artistName = this._fixedQueryArtists[artistName];
+    }
   
-    this.addOutputText(this._strings.getFormattedString("processingArtistOutputText", [artist.artistName]));
+    this.addOutputText(this._strings.getFormattedString("processingArtistOutputText", [artistName]));
     
     if (this._doSimilarArtists) {    
       this.findSimilarArtists(artist);
