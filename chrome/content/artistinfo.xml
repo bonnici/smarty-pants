@@ -6,25 +6,24 @@
     xmlns:xbl="http://www.mozilla.org/xbl"
     xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-  <binding id="artistinfo">
-    <content>
-      <xul:hbox class="artistinfo-outter">
+  <binding id="artistinfo" flex="1">
+    <content flex="1">
+      <xul:hbox class="artistinfo-outter" flex="1">
         <xul:image xbl:inherits="src=artistImage, collapsed=hideArtistImage, tooltiptext=artistName"
                    class="artistinfo-image" 
                    onclick="SmartyPants.PaneController.onArtistClick(document.getBindingParent(this), event)" />
-        <xul:vbox class="artistinfo-labelbox">
-          <xul:hbox>
+        <xul:vbox class="artistinfo-labelbox" flex="1">
+          <xul:hbox flex="1">
             <xul:label xbl:inherits="value=artistName,tooltiptext=artistName"
                        class="artistinfo-artistname"
                        crop="end"
-                       flex="1" 
                        onclick="SmartyPants.PaneController.onArtistClick(document.getBindingParent(this), event)" />
-          </xul:hbox>
-          <xul:spacer flex="1" />
-          <xul:hbox xbl:inherits="hidden=hideArtistScore">
-            <xul:label xbl:inherits="value=artistScore"
-                       class="artistinfo-artistscore"
-                       flex="1" />
+            <xul:image src="chrome://smarty-pants/skin/radio-icon.png" tooltiptext="Play Radio"
+                   class="artistinfo-radioimage" 
+                   onclick="SmartyPants.PaneController.onPlayArtistRadioClick(document.getBindingParent(this), event)" />
+            <xul:spacer flex="1" />
+            <xul:label xbl:inherits="hidden=hideArtistScore, value=artistScore"
+                         class="artistinfo-artistscore"/>
           </xul:hbox>
         </xul:vbox>
       </xul:hbox>

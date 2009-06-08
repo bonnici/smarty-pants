@@ -1838,6 +1838,7 @@ SmartyPants.PaneController = {
     this.updateAlbumTree();
   },
   
+  /*
   findUrlForArtist: function(artist) {
     var requestUri = LAST_FM_ROOT_URL + "?method=" + ARTIST_SEARCH_METHOD + 
                         "&artist=" + encodeURIComponent(artist.artistName) +
@@ -1876,6 +1877,7 @@ SmartyPants.PaneController = {
       artist.url = urlElement[0].textContent;
     }
   },
+  */
   
   addArtistInfo: function(artist, score, index) {
     var listBox = document.getElementById('artist-list');
@@ -1927,14 +1929,23 @@ SmartyPants.PaneController = {
     var artistIndex = parseInt(node.getAttribute("index"));
     var artist = this._candidateArtists.dataArray[artistIndex];
   
-    if (artist.url == null || artist.url.length == 0) {
-      this.findUrlForArtist(artist);
+    var url = artist.url;
+    if (url == null || url.length == 0) {
+      url = "http://www.last.fm/music/" + encodeURIComponent(artist.artistName);
     }
     
-    if (artist.url != null) {
-      this._gBrowser.loadURI(artist.url, null, null, event, '_blank');
-    }
+    this._gBrowser.loadURI(url, null, null, event, '_blank');
     
+    event.stopPropagation();
+  },
+  
+  onPlayArtistRadioClick: function(node, event) {
+    var artistIndex = parseInt(node.getAttribute("index"));
+    var artist = this._candidateArtists.dataArray[artistIndex];
+    var radioUrl = "http://www.last.fm/listen/artist/" + encodeURIComponent(artist.artistName);
+    
+    //todo make this not open a tab
+    this._gBrowser.loadURI(radioUrl, null, null, event);
     event.stopPropagation();
   },
   
