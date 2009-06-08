@@ -16,6 +16,7 @@ const TRACK_GETSIMILAR_METHOD = "track.getSimilar";
 const ARTIST_SEARCH_METHOD = "artist.search";
 const ARTIST_GETSIMILAR_METHOD = "artist.getSimilar";
 const ARTIST_GETTOPTRACKS_METHOD = "artist.getTopTracks";
+const ARTIST_GETTOPALBUMS_METHOD = "artist.getTopAlbums";
 const REQUEST_SUCCESS_CODE = 200;
 
 if (typeof SmartyPants == 'undefined') {
@@ -70,6 +71,9 @@ SmartyPants.PaneController = {
     this._maxNumToProcessTextbox = document.getElementById("max-num-to-process-textbox");
     this._ignoreNotInLibraryCheckbox = document.getElementById("ignore-not-in-library-checkbox");
     this._ignoreSimilarTracksFromSameArtistCheckbox = document.getElementById("ignore-similar-tracks-from-same-artist-check");
+    this._doArtistTopAlbumsCheckbox = document.getElementById("do-artist-top-albums-check");
+    this._albumTree = document.getElementById("recommended-albums-tree");
+    this._maxTopAlbumsTextbox = document.getElementById("max-top-albums-textbox");
     
     this._processing = false;
     this._goButton.setAttribute("label", this._strings.getString("goButtonGo"));
@@ -319,6 +323,32 @@ SmartyPants.PaneController = {
       }
     };
     
+    this._candidateAlbums = {
+      dataArray: [],    
+      
+      add: function(candidateAlbum) {
+        this.dataArray.push(candidateAlbum);
+      },
+      
+      getScore: function(candidateAlbum) {
+        var artistScore = controller._candidateArtists.getScore(candidateAlbum.artist);
+        var albumScore = candidateAlbum.score;
+        return artistScore * albumScore;
+      },
+            
+      clear: function() {
+        this.dataArray = [];
+      },
+      
+      sortByScore: function() {
+        this.dataArray.sort(this.sortByScoreFunc);
+      },
+      
+      sortByScoreFunc: function(a, b) {
+        return controller._candidateAlbums.getScore(a) < controller._candidateAlbums.getScore(b);
+      }
+    };
+    
     this._trackTreeView = {  
         dataArray: [],
         rowCount: 0,
@@ -470,6 +500,43 @@ SmartyPants.PaneController = {
         } 
     };
     
+    this._recommendedAlbumTreeView = {  
+        dataArray: [],
+        rowCount: 0,
+        getCellText : function(row,column) {  
+          if (column.id == "album-list-artist-column") return this.dataArray[row].artistName;
+          else if (column.id == "album-list-album-column") return this.dataArray[row].albumName;
+          else if (column.id == "album-list-score-column") return this.dataArray[row].score;
+          else return "";  
+        },  
+        setTree: function(treebox) { this.treebox = treebox; },  
+        isContainer: function(row) { return false; },  
+        isSeparator: function(row) { return false; },  
+        isSorted: function() { return false; },  
+        getLevel: function(row) { return 0; },  
+        getImageSrc: function(row,col) { return null; },  
+        getRowProperties: function(row,props) {},  
+        getCellProperties: function(row,col,props) {},  
+        getColumnProperties: function(colid,col,props) {}, 
+        update: function(candidateAlbums) { 
+          this.dataArray = [];
+          var minScore = parseFloat(controller._ignoreScoresTextbox.value);
+          for (var index = 0; index < candidateAlbums.dataArray.length; index++) {
+            var curAlbum = candidateAlbums.dataArray[index];
+            var score = candidateAlbums.getScore(curAlbum);
+            if (score >= minScore) {
+              this.dataArray.push(
+                    {
+                      artistName: curAlbum.artist.artistName, 
+                      albumName: curAlbum.albumName, 
+                      score: score
+                    }); 
+            }
+          }
+          this.rowCount = this.dataArray.length; 
+        } 
+    };
+    
     this._outputTreeView = {  
         dataArray: [],
         rowCount: 0,
@@ -581,7 +648,7 @@ SmartyPants.PaneController = {
         if (clickedItem.streamable > 0) {
           url += "?autostart";
         }
-        this._gBrowser.loadURI(url, null, null, null);
+        this._gBrowser.loadURI(url, null, null, null, '_blank');
       }
     }
   },
@@ -598,13 +665,13 @@ SmartyPants.PaneController = {
       }
       
       if (clickedItem.url != null) {
-        this._gBrowser.loadURI(clickedItem.url, null, null, null);
+        this._gBrowser.loadURI(clickedItem.url, null, null, null, '_blank');
       }
     }
   },
   
   onIgnoreScoresChange: function(event) {
-    this.updateTrees();
+    this.updateAllTrees();
   },
           
   onSimilarArtistTrackWeightChange: function(event) {
@@ -634,7 +701,8 @@ SmartyPants.PaneController = {
       this._candidateArtists.addOrUpdate(this.makeSeedArtistFromMediaItem(item));
     }
     
-    this.updateTrees();
+    this.updateTrackTrees();
+    this.updateArtistTree();
   },
   
   makeCandidateTrackFromMediaItem: function(mediaItem, parentTrack, score) {
@@ -781,10 +849,21 @@ SmartyPants.PaneController = {
     return candidiateArtist;
   },
   
+  makeCandidateAlbumFromDetails: function(artist, albumName, score) {
+    var candidiateAlbum = {
+      artist: artist,
+      albumName: albumName,
+      score: score
+    };
+        
+    return candidiateAlbum;
+  },
+  
   clearAllTracks: function() {
     this._candidateTracks.clear();
     this._candidateArtists.clear();
-    this.updateTrees();
+    this._candidateAlbums.clear();
+    this.updateAllTrees();
     this.clearOutputText();
     this._goButton.setAttribute("label", this._strings.getString("goButtonGo"));
     
@@ -800,22 +879,36 @@ SmartyPants.PaneController = {
     boxobject.ensureRowIsVisible(this._outputTreeView.dataArray.length - 1);
   },
   
-  clearOutputText: function(text) {
+  clearOutputText: function() {
     this._outputTreeView.dataArray = [];
     this._outputTreeView.update();
     this._outputTree.view = this._outputTreeView;
   },
   
-  updateTrees: function() {
+  updateAllTrees: function() {
+    this.updateTrackTrees();
+    this.updateArtistTree();
+    this.updateAlbumTree();
+  },
+  
+  updateTrackTrees: function() {
     this._candidateTracks.sortByScore();
     this._trackTreeView.update(this._candidateTracks);
     this._trackTree.view = this._trackTreeView;
     this._recommendationTreeView.update(this._candidateTracks);
     this._recommendationTree.view = this._recommendationTreeView;
-    
+  },
+  
+  updateArtistTree: function() {
     this._candidateArtists.sortByScore();
     this._recommendedArtistTreeView.update(this._candidateArtists);
     this._recommendedArtistTree.view = this._recommendedArtistTreeView;
+  },
+  
+  updateAlbumTree: function() {
+    this._candidateAlbums.sortByScore();
+    this._recommendedAlbumTreeView.update(this._candidateAlbums);
+    this._albumTree.view = this._recommendedAlbumTreeView;
   },
   
   startOrStopProcessing: function() {
@@ -860,6 +953,8 @@ SmartyPants.PaneController = {
     this._maxNumToProcess = parseInt(this._maxNumToProcessTextbox.value);
     this._ignoreNotInLibrary = (this._ignoreNotInLibraryCheckbox.getAttribute("checked") == "true" ? true : false);
     this._ignoreSimilarTracksFromSameArtist = (this._ignoreSimilarTracksFromSameArtistCheckbox.getAttribute("checked") == "true" ? true : false);
+    this._doArtistTopAlbums = (this._doArtistTopAlbumsCheckbox.getAttribute("checked") == "true" ? true : false);
+    this._maxTopAlbums = parseInt(this._maxTopAlbumsTextbox.value);
     
     setTimeout("SmartyPants.PaneController.doProcessNextTrackOrArtist()", 0);
   },
@@ -1202,7 +1297,7 @@ SmartyPants.PaneController = {
     }
     
     this.addOutputText(this._strings.getFormattedString("foundSimilarTracksOutputText", [totalTracks, foundTracks]));
-    this.updateTrees();
+    this.updateTrackTrees();
     
     return true;
   },
@@ -1299,6 +1394,24 @@ SmartyPants.PaneController = {
     return null;
   },
   
+  getAlbumFromAlbumNode: function(albumNode) {
+    var nameElement = albumNode.getElementsByTagName('name');
+    if (nameElement != null && nameElement.length > 0) {
+      return nameElement[0].textContent;
+    }
+    
+    return null;
+  },
+  
+  getUrlFromAlbumNode: function(albumNode) {
+    var urlElement = albumNode.getElementsByTagName('url');
+    if (urlElement != null && urlElement.length > 0) {
+      return urlElement[0].textContent;
+    }
+    
+    return null;
+  },
+  
   savePlaylist: function() {
     if (this._trackTreeView.dataArray.length < 1) {
       return;
@@ -1355,7 +1468,7 @@ SmartyPants.PaneController = {
   },
   
   processArtist: function(artist) {
-    if (!this._doSimilarArtists && !this._doTracksFromArtist && !this._doTopTracks) {
+    if (!this._doSimilarArtists && !this._doTracksFromArtist && !this._doTopTracks && !this._doArtistTopAlbums) {
       artist.processed = true;
       return;
     }
@@ -1387,7 +1500,7 @@ SmartyPants.PaneController = {
     this.addOutputText(this._strings.getFormattedString("processingArtistOutputText", [artistName]));
     
     if (this._doSimilarArtists) {    
-      this.findSimilarArtists(artist);
+      this.findSimilarArtists(artist, artistName);
       if (!this._processing) {
         return;
       }
@@ -1401,23 +1514,25 @@ SmartyPants.PaneController = {
     }
     
     if (this._doTopTracks) {
-      this.findTopTracks(artist);
+      this.findTopTracks(artist, artistName);
       if (!this._processing) {
         return;
       }
     }
     
-    this.updateTrees();
+    if (this._doArtistTopAlbums) {
+      this.findTopAlbums(artist, artistName);
+      if (!this._processing) {
+        return;
+      }
+    }
+    
+    this.updateArtistTree();
     artist.processed = true;
     this._numProcessed++;
   },
   
-  findSimilarArtists: function(artist) {
-  
-    var artistName = artist.artistName;
-    if (this._fixedQueryArtists[artistName] != null) {
-      artistName = this._fixedQueryArtists[artistName];
-    }
+  findSimilarArtists: function(artist, artistName) {
   
     var requestUri = LAST_FM_ROOT_URL + "?method=" + ARTIST_GETSIMILAR_METHOD + 
                         "&artist=" + encodeURIComponent(artistName) +
@@ -1515,12 +1630,7 @@ SmartyPants.PaneController = {
     }
   },
   
-  findTopTracks: function(artist) {
-  
-    var artistName = artist.artistName;
-    if (this._fixedQueryArtists[artistName] != null) {
-      artistName = this._fixedQueryArtists[artistName];
-    }
+  findTopTracks: function(artist, artistName) {
     
     var requestUri = LAST_FM_ROOT_URL + "?method=" + ARTIST_GETTOPTRACKS_METHOD + 
                         "&artist=" + encodeURIComponent(artistName) +
@@ -1660,6 +1770,92 @@ SmartyPants.PaneController = {
     }
     
     this.addOutputText(this._strings.getFormattedString("foundTopTracksOutputText", [addedTracks, foundTracks]));
+  },
+  
+  findTopAlbums: function(artist, artistName) {    
+    var requestUri = LAST_FM_ROOT_URL + "?method=" + ARTIST_GETTOPALBUMS_METHOD + 
+                        "&artist=" + encodeURIComponent(artistName) +
+                        "&api_key=" + LAST_FM_API_KEY;
+
+    var request = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"].createInstance(Ci.nsIXMLHttpRequest);
+
+    request.open("GET", requestUri, false);
+    try {
+    	request.send(null);
+    }
+    catch (e) {
+      // If processing has been stopped
+      if (!this._processing) {
+        return;
+      }
+
+      this.addOutputText(this._strings.getString("lastfmResponseErrorOutputText"));
+      return;
+    }
+
+    if (!this._processing) {
+      return;
+    }
+
+    if (!request.responseXML || request.status != REQUEST_SUCCESS_CODE) {
+      this.addOutputText(this._strings.getString("lastfmResponseErrorOutputText"));
+      return; 
+    }
+    
+    this.processTopAlbumsXml(artist, artistName, request.responseXML);    
+  },
+  
+  processTopAlbumsXml: function(artist, artistName, xml) {
+    var mainElement = xml.getElementsByTagName('topalbums');
+    if (mainElement == null || mainElement.length < 1) {
+      this.addOutputText(this._strings.getFormattedString("noTopAlbumsOutputText", [artist.artistName]));
+      return;
+    }
+    
+    var albums = mainElement[0].getElementsByTagName('album');
+    if (albums.length < 1) {
+      this.addOutputText(this._strings.getFormattedString("noTopAlbumsOutputText", [artist.artistName]));
+      return;
+    }
+    
+    var maxAlbums = this._maxTopAlbums;
+    var totalAlbums = albums.length;
+    if (totalAlbums < maxAlbums) {
+      maxAlbums = totalAlbums;
+    }
+    
+    for (var index = 0; index < maxAlbums; index++) {
+    
+      var albumNode = albums[index];
+      var albumName = this.getAlbumFromAlbumNode(albumNode);
+      var url = this.getUrlFromAlbumNode(albumNode);
+      //todo use url
+      
+      // scale top albums linearly
+      var score = (maxAlbums - index) / maxAlbums;
+      
+      // try to find album in library
+      var songProps = Cc["@songbirdnest.com/Songbird/Properties/MutablePropertyArray;1"]
+     	                  .createInstance(Ci.sbIMutablePropertyArray);
+      songProps.appendProperty(SBProperties.artistName, artist.artistName);  
+      songProps.appendProperty(SBProperties.albumName, albumName);
+      var albumFound = false;
+      
+      try {
+        var albumEnum = LibraryUtils.mainLibrary.getItemsByProperties(songProps);
+        albumFound = albumEnum.length > 0;
+      }
+      catch (e) {
+      }
+        
+      // Only add as a recommendation if it isn't already in the library
+      if (!albumFound) {
+        this._candidateAlbums.add(this.makeCandidateAlbumFromDetails(artist, albumName, score));
+      }
+    }
+  
+    this.addOutputText(this._strings.getFormattedString("foundTopAlbumsOutputText", [maxAlbums]));
+    this.updateAlbumTree();
   },
   
   findUrlForArtist: function(artist) {
