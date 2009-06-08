@@ -103,8 +103,8 @@
                 <richlistbox flex="1" id="artist-list" />
                 <hbox>
                   <spacer flex="1" />
-                  <checkbox id="show-artist-images-check" label="&smarty-pants.show-artist-images-check;" checked="true" />
-                  <checkbox id="show-artist-scores-check" label="&smarty-pants.show-artist-scores-check;" checked="false" />
+                  <checkbox id="show-artist-images-check" label="&smarty-pants.show-images-check;" checked="true" />
+                  <checkbox id="show-artist-scores-check" label="&smarty-pants.show-scores-check;" checked="false" />
                 </hbox>
               </vbox>
             </tabpanel>
@@ -112,25 +112,14 @@
             <tabpanel>
               <vbox flex="1">
                 <richlistbox flex="1" id="album-list" />
-                <!--
-                <tree id="recommended-albums-tree" flex="1" seltype="single" ondblclick="SmartyPants.PaneController.onAlbumTreeDoubleClick(event);">
-                
-                  <treecols>
-                    <treecol id="album-list-artist-column" label="&smarty-pants.track-list.artist-column-header;" flex="1" />
-                    <splitter class="tree-splitter" />
-                    <treecol id="album-list-album-column" label="&smarty-pants.track-list.album-column-header;" flex="1" />
-                    <splitter class="tree-splitter" />
-                    <treecol id="album-list-score-column" label="&smarty-pants.track-list.score-column-header;" hidden="true" />
-                  </treecols>
-
-                  <treechildren/>
-
-                </tree>
-                <label value="&smarty-pants.note-open-in-browser;" />
-                -->
+                <hbox>
+                  <spacer flex="1" />
+                  <checkbox id="show-album-images-check" label="&smarty-pants.show-images-check;" checked="true" />
+                  <checkbox id="show-album-scores-check" label="&smarty-pants.show-scores-check;" checked="false" />
+                </hbox>
               </vbox>
             </tabpanel>
-                  
+            
           </tabpanels>
         </tabbox>
       </hbox>
