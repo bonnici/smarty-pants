@@ -111,6 +111,8 @@
             
             <tabpanel>
               <vbox flex="1">
+                <richlistbox flex="1" id="album-list" />
+                <!--
                 <tree id="recommended-albums-tree" flex="1" seltype="single" ondblclick="SmartyPants.PaneController.onAlbumTreeDoubleClick(event);">
                 
                   <treecols>
@@ -125,6 +127,7 @@
 
                 </tree>
                 <label value="&smarty-pants.note-open-in-browser;" />
+                -->
               </vbox>
             </tabpanel>
                   

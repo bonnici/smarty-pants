@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<!DOCTYPE bindings PUBLIC "-//MOZILLA//DTD XBL V1.0//EN" "http://www.mozilla.org/xbl">
+
+<bindings
+    xmlns="http://www.mozilla.org/xbl"
+    xmlns:xbl="http://www.mozilla.org/xbl"
+    xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+  <binding id="albuminfo" flex="1">
+    <content flex="1">
+      <xul:hbox flex="1">
+        <xul:image xbl:inherits="src=albumImage, collapsed=hideAlbumImage, tooltiptext=albumName"
+                   class="albuminfo-image" 
+                   onclick="SmartyPants.PaneController.onAlbumClick(document.getBindingParent(this), event)" />
+        <xul:vbox class="albuminfo-labelbox" flex="1">
+        <xul:label xbl:inherits="value=albumName"
+                   class="albuminfo-albumname"
+                   crop="end"
+                   onclick="SmartyPants.PaneController.onAlbumClick(document.getBindingParent(this), event)" />
+        <xul:label xbl:inherits="value=artistName"
+                   class="albuminfo-artistname"
+                   crop="end"
+                   onclick="SmartyPants.PaneController.onAlbumArtistClick(document.getBindingParent(this), event)" />
+        </xul:vbox>
+      </xul:hbox>
+    </content>
+    
+    <implementation>
+    </implementation>
+    
+    <handlers>
+    </handlers>
+  </binding>
+
+</bindings>
