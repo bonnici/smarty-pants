@@ -7,12 +7,6 @@ artistinfo {
   -moz-binding: url("chrome://smarty-pants/content/artistinfo.xml#artistinfo");
 }
 
-.artistinfo {
-}
-
-.artistinfo-outter {
-}
-
 .artistinfo-labelbox {
   margin: 0px;
   padding: 0px;
@@ -30,6 +24,7 @@ artistinfo {
 .artistinfo-artistname {
   margin: 2px;
   padding-left: 4px;
+  padding-right: 4px;
   font-weight: bold;
   font-size: 11px;
 }
@@ -40,7 +35,16 @@ artistinfo {
 
 .artistinfo-artistscore {
   margin: 2px;
-  padding-left: 4px;
   font-weight: normal;
   font-size: 9px;
+  text-align: right;
+}
+
+.artistinfo-radioimage {
+  margin: 2px;
+  max-width: 13px; 
+  max-height: 13px;
+}
+.artistinfo-radioimage:hover {
+  cursor: pointer;
 }
