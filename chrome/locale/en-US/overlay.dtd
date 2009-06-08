@@ -4,6 +4,7 @@
 <!ENTITY smarty-pants.track-list.title-column-header "Title">
 <!ENTITY smarty-pants.track-list.artist-column-header "Artist">
 <!ENTITY smarty-pants.track-list.score-column-header "Score">
+<!ENTITY smarty-pants.track-list.album-column-header "Album">
 <!ENTITY smarty-pants.ignore-duplicate-matches-check "Ignore duplicate matches">
 <!ENTITY smarty-pants.output-list.column-header "Details">
 <!ENTITY smarty-pants.show-advanced-options-check "Show advanced options">
@@ -20,7 +21,7 @@
 <!ENTITY smarty-pants.ignore-duplicate-matches-tooltip "If this is turned off, the track's score will increase each time it is found as a similar track">
 <!ENTITY smarty-pants.ignore-scores-below-tooltip "Any track or artist with a score below this value will not be processed or shown in the list">
 <!ENTITY smarty-pants.similar-tracks-weight-tooltip "All similar track scores are multiplied by this value, decrease if the scores are too high">
-<!ENTITY smarty-pants.recommendation-list-note "Note: Double click to open in browser">
+<!ENTITY smarty-pants.note-open-in-browser "Note: Double click to open in browser">
 <!ENTITY smarty-pants.playlist-limit-to-label "Limit to:">
 <!ENTITY smarty-pants.playlist-limit-to-songs "songs or">
 <!ENTITY smarty-pants.playlist-limit-to-time "minutes">
@@ -29,7 +30,6 @@
 <!ENTITY smarty-pants.fuzzy-match-check "Automatically correct results">
 <!ENTITY smarty-pants.fuzzy-match-tooltip "If this option is checked, the results from last.fm do not have to exactly match your library.">
 <!ENTITY smarty-pants.artists-tabpanel-header "Artists">
-<!ENTITY smarty-pants.artist-list-note "Note: Double click to open in browser">
 <!ENTITY smarty-pants.do-similar-tracks-check "Find similar tracks">
 <!ENTITY smarty-pants.do-similar-artists-check "Find similar artists">
 <!ENTITY smarty-pants.do-tracks-from-artist-check "Add all tracks from artists">
@@ -61,3 +61,8 @@
 <!ENTITY smarty-pants.ignore-not-in-library-tooltip "If this option is checked, songs and artists that are not in your library will not be processed">
 <!ENTITY smarty-pants.ignore-similar-tracks-from-same-artist-check "Ignore similar tracks from the same artist">
 <!ENTITY smarty-pants.ignore-similar-tracks-from-same-artist-tooltip "If this option is on, any similar tracks found with the same artist will be ignored">
+<!ENTITY smarty-pants.do-artist-top-albums-check "Get album recommendations">
+<!ENTITY smarty-pants.do-artist-top-albums-tooltip "If this option is checked, albums from the recommended artists that are not in your library will be shown">
+<!ENTITY smarty-pants.album-tabpanel-header "Albums">
+<!ENTITY smarty-pants.max-top-albums-label "Maximum top albums:">
+<!ENTITY smarty-pants.max-top-albums-tooltip "The maximum number of top albums that will be processed for each artist">
