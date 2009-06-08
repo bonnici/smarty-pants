@@ -6,8 +6,16 @@ treechildren::-moz-tree-cell-text(playingSong)
 artistinfo {
   -moz-binding: url("chrome://smarty-pants/content/artistinfo.xml#artistinfo");
 }
+albuminfo {
+  -moz-binding: url("chrome://smarty-pants/content/albuminfo.xml#albuminfo");
+}
 
 .artistinfo-labelbox {
+  margin: 0px;
+  padding: 0px;
+}
+
+.albuminfo-labelbox {
   margin: 0px;
   padding: 0px;
 }
@@ -18,6 +26,15 @@ artistinfo {
   max-height: 128px;
 }
 .artistinfo-image:hover {
+  cursor: pointer;
+}
+
+.albuminfo-image {
+  min-width: 64px;
+  max-width: 128px;
+  max-height: 128px;
+}
+.albuminfo-image:hover {
   cursor: pointer;
 }
 
@@ -47,4 +64,28 @@ artistinfo {
 }
 .artistinfo-radioimage:hover {
   cursor: pointer;
+}
+
+.albuminfo-albumname {
+  margin: 2px;
+  padding-left: 4px;
+  padding-right: 4px;
+  font-weight: bold;
+  font-size: 11px;
+}
+.albuminfo-albumname:hover {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.albuminfo-artistname {
+  margin: 2px;
+  padding-left: 4px;
+  padding-right: 4px;
+  font-weight: normal;
+  font-size: 11px;
+}
+.albuminfo-artistname:hover {
+  cursor: pointer;
+  text-decoration: underline;
 }

@@ -71,7 +71,7 @@ SmartyPants.PaneController = {
     this._ignoreNotInLibraryCheckbox = document.getElementById("ignore-not-in-library-checkbox");
     this._ignoreSimilarTracksFromSameArtistCheckbox = document.getElementById("ignore-similar-tracks-from-same-artist-check");
     this._doArtistTopAlbumsCheckbox = document.getElementById("do-artist-top-albums-check");
-    this._albumTree = document.getElementById("recommended-albums-tree");
+    //this._albumTree = document.getElementById("recommended-albums-tree");
     this._maxTopAlbumsTextbox = document.getElementById("max-top-albums-textbox");
     this._showArtistImagesCheck = document.getElementById("show-artist-images-check");
     this._showArtistScoresCheck = document.getElementById("show-artist-scores-check");
@@ -475,6 +475,7 @@ SmartyPants.PaneController = {
         },
     };
     
+    /*
     this._recommendedAlbumTreeView = {  
         dataArray: [],
         rowCount: 0,
@@ -511,6 +512,7 @@ SmartyPants.PaneController = {
           this.rowCount = this.dataArray.length; 
         } 
     };
+    */
     
     this._outputTreeView = {  
         dataArray: [],
@@ -821,11 +823,13 @@ SmartyPants.PaneController = {
     return candidiateArtist;
   },
   
-  makeCandidateAlbumFromDetails: function(artist, albumName, score) {
+  makeCandidateAlbumFromDetails: function(artist, albumName, score, url, imageUrl) {
     var candidiateAlbum = {
       artist: artist,
       albumName: albumName,
-      score: score
+      score: score,
+      url: url,
+      imageUrl: imageUrl
     };
         
     return candidiateAlbum;
@@ -860,7 +864,7 @@ SmartyPants.PaneController = {
   updateAllTrees: function() {
     this.updateTrackTrees();
     this.updateArtistList();
-    this.updateAlbumTree();
+    this.updateAlbumList();
   },
   
   updateTrackTrees: function() {
@@ -871,11 +875,13 @@ SmartyPants.PaneController = {
     this._recommendationTree.view = this._recommendationTreeView;
   },
   
+  /*
   updateAlbumTree: function() {
     this._candidateAlbums.sortByScore();
     this._recommendedAlbumTreeView.update(this._candidateAlbums);
     this._albumTree.view = this._recommendedAlbumTreeView;
   },
+  */
   
   startOrStopProcessing: function() {
     if (this._processing) {
@@ -1391,6 +1397,19 @@ SmartyPants.PaneController = {
     return null;
   },
   
+  getImageUrlFromAlbumNode: function(albumNode) {
+    var imageElement = artistNode.getElementsByTagName('image');
+    if (imageElement != null && imageElement.length > 0) {
+      for (var tagIndex = 0; tagIndex < imageElement.length; tagIndex++) {
+        if (imageElement[tagIndex].getAttribute("size") == "medium") {
+          return imageElement[tagIndex].textContent;
+        }
+      }
+    }
+    
+    return null;
+  },
+  
   savePlaylist: function() {
     if (this._trackTreeView.dataArray.length < 1) {
       return;
@@ -1809,7 +1828,7 @@ SmartyPants.PaneController = {
       var albumNode = albums[index];
       var albumName = this.getAlbumFromAlbumNode(albumNode);
       var url = this.getUrlFromAlbumNode(albumNode);
-      //todo use url
+      var imageUrl = this.getImageUrlFromAlbumNode(albumNode);
       
       // scale top albums linearly
       var score = (maxAlbums - index) / maxAlbums;
@@ -1830,12 +1849,12 @@ SmartyPants.PaneController = {
         
       // Only add as a recommendation if it isn't already in the library
       if (!albumFound) {
-        this._candidateAlbums.add(this.makeCandidateAlbumFromDetails(artist, albumName, score));
+        this._candidateAlbums.add(this.makeCandidateAlbumFromDetails(artist, albumName, score, url, imageUrl));
       }
     }
   
     this.addOutputText(this._strings.getFormattedString("foundTopAlbumsOutputText", [maxAlbums]));
-    this.updateAlbumTree();
+    this.updateAlbumList();
   },
   
   /*
@@ -1947,6 +1966,54 @@ SmartyPants.PaneController = {
     //todo make this not open a tab
     this._gBrowser.loadURI(radioUrl, null, null, event);
     event.stopPropagation();
+  },
+  
+  
+  addAlbumInfo: function(album, score, index) {
+    var listBox = document.getElementById('album-list');
+    var listitem = document.createElement("richlistitem");
+    var albumInfo = document.createElement("albuminfo");
+    albumInfo.setAttribute("class", "albuminfo");
+    albumInfo.setAttribute("albumName", album.albumName);
+    albumInfo.setAttribute("artistName", album.artist.artistName);
+    albumInfo.setAttribute("albumScore", score.toFixed(2));
+    
+    if (artist.imageUrl) {
+      artistInfo.setAttribute("albumImage", album.imageUrl);
+    }
+    else {
+      albumInfo.setAttribute("albumImage", "chrome://smarty-pants/skin/default-artist-image.png");
+    }
+    
+    //artistInfo.setAttribute("hideArtistImage", !this._showArtistImages);
+    //artistInfo.setAttribute("hideArtistScore", !this._showArtistScores);
+    
+    // not displayed
+    albumInfo.setAttribute("index", index);
+
+    listitem.appendChild(albumInfo);
+
+    listBox.appendChild(listitem);
+  },
+  
+  clearAlbumInfo: function() {
+    var listBox = document.getElementById('album-list');
+    while (listBox.lastChild) {
+      listBox.removeChild(listBox.lastChild);
+    }
+  },
+  
+  updateAlbumList: function() {
+    this._candidateAlbums.sortByScore();
+    this.clearAlbumInfo();
+    var minScore = parseFloat(this._ignoreScoresTextbox.value);
+    for (var index = 0; index < this._candidateAlbums.dataArray.length; index++) {
+      var curAlbum = this._candidateAlbums.dataArray[index];
+      var score = this._candidateAlbums.getScore(curAlbum);
+      if (score >= minScore) {
+        this.addAlbumInfo(curAlbum, score, index);
+      }
+    }
   },
   
   /* Can't get it to work, do it later

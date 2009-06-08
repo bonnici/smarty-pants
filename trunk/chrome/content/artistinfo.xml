@@ -8,13 +8,13 @@
 
   <binding id="artistinfo" flex="1">
     <content flex="1">
-      <xul:hbox class="artistinfo-outter" flex="1">
+      <xul:hbox flex="1">
         <xul:image xbl:inherits="src=artistImage, collapsed=hideArtistImage, tooltiptext=artistName"
                    class="artistinfo-image" 
                    onclick="SmartyPants.PaneController.onArtistClick(document.getBindingParent(this), event)" />
         <xul:vbox class="artistinfo-labelbox" flex="1">
           <xul:hbox flex="1">
-            <xul:label xbl:inherits="value=artistName,tooltiptext=artistName"
+            <xul:label xbl:inherits="value=artistName"
                        class="artistinfo-artistname"
                        crop="end"
                        onclick="SmartyPants.PaneController.onArtistClick(document.getBindingParent(this), event)" />
