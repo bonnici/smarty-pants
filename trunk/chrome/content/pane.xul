@@ -100,18 +100,12 @@
             
             <tabpanel>
               <vbox flex="1">
-                <tree id="recommended-artist-tree" flex="1" seltype="single" ondblclick="SmartyPants.PaneController.onArtistTreeDoubleClick(event);">
-                
-                  <treecols>
-                    <treecol id="recommendation-list-artist-column" label="&smarty-pants.track-list.artist-column-header;" flex="1" />
-                    <splitter class="tree-splitter" />
-                    <treecol id="recommendation-list-score-column" label="&smarty-pants.track-list.score-column-header;" hidden="true" />
-                  </treecols>
-
-                  <treechildren/>
-
-                </tree>
-                <label value="&smarty-pants.note-open-in-browser;" />
+                <richlistbox flex="1" id="artist-list" />
+                <hbox>
+                  <spacer flex="1" />
+                  <checkbox id="show-artist-images-check" label="&smarty-pants.show-artist-images-check;" checked="true" />
+                  <checkbox id="show-artist-scores-check" label="&smarty-pants.show-artist-scores-check;" checked="false" />
+                </hbox>
               </vbox>
             </tabpanel>
             

@@ -2,3 +2,45 @@ treechildren::-moz-tree-cell-text(playingSong)
 {
   font-weight: bold;
 }
+
+artistinfo {
+  -moz-binding: url("chrome://smarty-pants/content/artistinfo.xml#artistinfo");
+}
+
+.artistinfo {
+}
+
+.artistinfo-outter {
+}
+
+.artistinfo-labelbox {
+  margin: 0px;
+  padding: 0px;
+}
+
+.artistinfo-image {
+  min-width: 64px;
+  max-width: 128px;
+  max-height: 128px;
+}
+.artistinfo-image:hover {
+  cursor: pointer;
+}
+
+.artistinfo-artistname {
+  margin: 2px;
+  padding-left: 4px;
+  font-weight: bold;
+  font-size: 11px;
+}
+.artistinfo-artistname:hover {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.artistinfo-artistscore {
+  margin: 2px;
+  padding-left: 4px;
+  font-weight: normal;
+  font-size: 9px;
+}

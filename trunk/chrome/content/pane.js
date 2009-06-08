@@ -56,7 +56,6 @@ SmartyPants.PaneController = {
     this._playlistLimitToTimeTextbox = document.getElementById("playlist-limit-to-time-textbox");
     this._tryOtherArtistCheckbox = document.getElementById("try-other-artist-checkbox");
     this._fuzzyMatchCheckbox = document.getElementById("fuzzy-match-checkbox");
-    this._recommendedArtistTree = document.getElementById("recommended-artist-tree");
     this._doSimilarTracksCheckbox = document.getElementById("do-similar-tracks-check");
     this._doSimilarArtistsCheckbox = document.getElementById("do-similar-artists-check");
     this._doTopTracksCheckbox = document.getElementById("do-artist-top-tracks-check");
@@ -74,6 +73,8 @@ SmartyPants.PaneController = {
     this._doArtistTopAlbumsCheckbox = document.getElementById("do-artist-top-albums-check");
     this._albumTree = document.getElementById("recommended-albums-tree");
     this._maxTopAlbumsTextbox = document.getElementById("max-top-albums-textbox");
+    this._showArtistImagesCheck = document.getElementById("show-artist-images-check");
+    this._showArtistScoresCheck = document.getElementById("show-artist-scores-check");
     
     this._processing = false;
     this._goButton.setAttribute("label", this._strings.getString("goButtonGo"));
@@ -96,9 +97,16 @@ SmartyPants.PaneController = {
           function() { controller.onSimilarArtistTrackWeightChange(true); }, false);
     this._similarArtistSimilarityWeightTextbox.addEventListener("change", 
           function() { controller.onSimilarArtistSimilarityWeightChange(false); }, false);
+    this._showArtistImagesCheck.addEventListener("command", 
+          function() { controller.onShowArtistImagesCheck(); }, false);
+    this._showArtistScoresCheck.addEventListener("command", 
+          function() { controller.onShowArtistScoresCheck(); }, false);
           
     this._recommendationFilterSelection = 0;
     this._numProcessed = 0;
+    
+    this._showArtistScores = this._showArtistScoresCheck.getAttribute("checked") == "true";
+    this._showArtistImages = this._showArtistImagesCheck.getAttribute("checked") == "true";
           
     this._candidateTracks = {
       dataArray: [],
@@ -283,6 +291,9 @@ SmartyPants.PaneController = {
             if (candidateArtist.similarityScore > curArtist.similarityScore) {
               curArtist.similarityScore = candidateArtist.similarityScore;
             }
+            if (candidateArtist.imageUrl != null && curArtist.imageUrl == null) {
+              curArtist.imageUrl = candidateArtist.imageUrl;
+            }
             return;
           }
         }
@@ -464,42 +475,6 @@ SmartyPants.PaneController = {
         },
     };
     
-    this._recommendedArtistTreeView = {  
-        dataArray: [],
-        rowCount: 0,
-        getCellText : function(row,column) {  
-          if (column.id == "recommendation-list-artist-column") return this.dataArray[row].artistName;
-          else if (column.id == "recommendation-list-score-column") return this.dataArray[row].score;
-          else return "";  
-        },  
-        setTree: function(treebox) { this.treebox = treebox; },  
-        isContainer: function(row) { return false; },  
-        isSeparator: function(row) { return false; },  
-        isSorted: function() { return false; },  
-        getLevel: function(row) { return 0; },  
-        getImageSrc: function(row,col) { return null; },  
-        getRowProperties: function(row,props) {},  
-        getCellProperties: function(row,col,props) {},  
-        getColumnProperties: function(colid,col,props) {}, 
-        update: function(candidateArtists) { 
-          this.dataArray = [];
-          var minScore = parseFloat(controller._ignoreScoresTextbox.value);
-          for (var index = 0; index < candidateArtists.dataArray.length; index++) {
-            var curArtist = candidateArtists.dataArray[index];
-            var score = candidateArtists.getScore(curArtist);
-            if (score >= minScore) {
-              this.dataArray.push(
-                    {
-                      artistName: curArtist.artistName, 
-                      score: score,
-                      url: curArtist.url
-                    }); 
-            }
-          }
-          this.rowCount = this.dataArray.length; 
-        } 
-    };
-    
     this._recommendedAlbumTreeView = {  
         dataArray: [],
         rowCount: 0,
@@ -653,23 +628,6 @@ SmartyPants.PaneController = {
     }
   },
   
-  onArtistTreeDoubleClick: function(event) {
-    
-    var clickedIndex = this._recommendedArtistTree.treeBoxObject.getRowAt(event.clientX, event.clientY);
-    if (clickedIndex >= 0 && clickedIndex < this._recommendedArtistTreeView.dataArray.length)
-    {
-      var clickedItem = this._recommendedArtistTreeView.dataArray[clickedIndex];
-      
-      if (clickedItem.url == null) {
-        this.findUrlForArtist(clickedItem);
-      }
-      
-      if (clickedItem.url != null) {
-        this._gBrowser.loadURI(clickedItem.url, null, null, null, '_blank');
-      }
-    }
-  },
-  
   onIgnoreScoresChange: function(event) {
     this.updateAllTrees();
   },
@@ -682,6 +640,16 @@ SmartyPants.PaneController = {
   onSimilarArtistSimilarityWeightChange: function(event) {
     var similarArtistSimilarityWeight = parseFloat(this._similarArtistSimilarityWeightTextbox.value);
     this._similarArtistTrackWeightTextbox.value = (1-similarArtistSimilarityWeight);
+  },
+  
+  onShowArtistImagesCheck: function(event) {
+    this._showArtistImages = this._showArtistImagesCheck.getAttribute("checked") == "true";
+    this.updateArtistList();
+  },
+  
+  onShowArtistScoresCheck: function(event) {
+    this._showArtistScores = this._showArtistScoresCheck.getAttribute("checked") == "true";
+    this.updateArtistList();
   },
   
   addSelectedTracks: function() {
@@ -702,7 +670,7 @@ SmartyPants.PaneController = {
     }
     
     this.updateTrackTrees();
-    this.updateArtistTree();
+    this.updateArtistList();
   },
   
   makeCandidateTrackFromMediaItem: function(mediaItem, parentTrack, score) {
@@ -805,6 +773,7 @@ SmartyPants.PaneController = {
       accumulatedSimilarTrackScore: 0,
       processed: false,
       url: null,
+      imageUrl: null
     }
         
     return candidiateArtist;
@@ -818,12 +787,13 @@ SmartyPants.PaneController = {
       accumulatedSimilarTrackScore: score,
       processed: false,
       url: null,
+      imageUrl: null
     };
         
     return candidiateArtist;
   },
   
-  makeCandidateArtistFromSimilarArtistDetails: function(parentArtist, artistName, score, url) {
+  makeCandidateArtistFromSimilarArtistDetails: function(parentArtist, artistName, score, url, imageUrl) {
     var candidiateArtist = {
       artistName: artistName,
       seedArtist: false,
@@ -831,6 +801,7 @@ SmartyPants.PaneController = {
       accumulatedSimilarTrackScore: 0,
       processed: false,
       url: url,
+      imageUrl: imageUrl
     };
         
     return candidiateArtist;
@@ -844,6 +815,7 @@ SmartyPants.PaneController = {
       accumulatedSimilarTrackScore: score,
       processed: false,
       url: null,
+      imageUrl: null
     };
         
     return candidiateArtist;
@@ -887,7 +859,7 @@ SmartyPants.PaneController = {
   
   updateAllTrees: function() {
     this.updateTrackTrees();
-    this.updateArtistTree();
+    this.updateArtistList();
     this.updateAlbumTree();
   },
   
@@ -897,12 +869,6 @@ SmartyPants.PaneController = {
     this._trackTree.view = this._trackTreeView;
     this._recommendationTreeView.update(this._candidateTracks);
     this._recommendationTree.view = this._recommendationTreeView;
-  },
-  
-  updateArtistTree: function() {
-    this._candidateArtists.sortByScore();
-    this._recommendedArtistTreeView.update(this._candidateArtists);
-    this._recommendedArtistTree.view = this._recommendedArtistTreeView;
   },
   
   updateAlbumTree: function() {
@@ -1394,6 +1360,19 @@ SmartyPants.PaneController = {
     return null;
   },
   
+  getImageUrlFromArtistNode: function(artistNode) {
+    var imageElement = artistNode.getElementsByTagName('image');
+    if (imageElement != null && imageElement.length > 0) {
+      for (var tagIndex = 0; tagIndex < imageElement.length; tagIndex++) {
+        if (imageElement[tagIndex].getAttribute("size") == "medium") {
+          return imageElement[tagIndex].textContent;
+        }
+      }
+    }
+    
+    return null;
+  },
+  
   getAlbumFromAlbumNode: function(albumNode) {
     var nameElement = albumNode.getElementsByTagName('name');
     if (nameElement != null && nameElement.length > 0) {
@@ -1527,7 +1506,7 @@ SmartyPants.PaneController = {
       }
     }
     
-    this.updateArtistTree();
+    this.updateArtistList();
     artist.processed = true;
     this._numProcessed++;
   },
@@ -1590,10 +1569,11 @@ SmartyPants.PaneController = {
       var artistName = this.getArtistFromArtistNode(artistNode);
       var score = this.getScoreFromArtistNode(artistNode);
       var url = this.getUrlFromArtistNode(artistNode);
+      var imageUrl = this.getImageUrlFromArtistNode(artistNode);
       
       var scaledScore = score / 101;
       
-      this._candidateArtists.addOrUpdate(this.makeCandidateArtistFromSimilarArtistDetails(artist, artistName, scaledScore, url))
+      this._candidateArtists.addOrUpdate(this.makeCandidateArtistFromSimilarArtistDetails(artist, artistName, scaledScore, url, imageUrl))
     }
   },
   
@@ -1895,6 +1875,67 @@ SmartyPants.PaneController = {
     if (urlElement.length > 0) {
       artist.url = urlElement[0].textContent;
     }
+  },
+  
+  addArtistInfo: function(artist, score, index) {
+    var listBox = document.getElementById('artist-list');
+    var listitem = document.createElement("richlistitem");
+    var artistInfo = document.createElement("artistinfo");
+    artistInfo.setAttribute("class", "artistinfo");
+    artistInfo.setAttribute("artistName", artist.artistName);
+    artistInfo.setAttribute("artistScore", score.toFixed(2));
+    
+    if (artist.imageUrl) {
+      artistInfo.setAttribute("artistImage", artist.imageUrl);
+    }
+    else {
+      artistInfo.setAttribute("artistImage", "chrome://smarty-pants/skin/default-artist-image.png");
+    }
+    
+    artistInfo.setAttribute("hideArtistImage", !this._showArtistImages);
+    artistInfo.setAttribute("hideArtistScore", !this._showArtistScores);
+    
+    // not displayed
+    artistInfo.setAttribute("index", index);
+
+    listitem.appendChild(artistInfo);
+
+    listBox.appendChild(listitem);
+  },
+  
+  clearArtistInfo: function() {
+    var listBox = document.getElementById('artist-list');
+    while (listBox.lastChild) {
+      listBox.removeChild(listBox.lastChild);
+    }
+  },
+  
+  updateArtistList: function() {
+    this._candidateArtists.sortByScore();
+    this.clearArtistInfo();
+    var minScore = parseFloat(this._ignoreScoresTextbox.value);
+    for (var index = 0; index < this._candidateArtists.dataArray.length; index++) {
+      var curArtist = this._candidateArtists.dataArray[index];
+      var score = this._candidateArtists.getScore(curArtist);
+      if (score >= minScore) {
+        this.addArtistInfo(curArtist, score, index);
+      }
+    }
+  },
+  
+  onArtistClick: function(node, event) {
+    var artistIndex = parseInt(node.getAttribute("index"));
+    var artist = this._candidateArtists.dataArray[artistIndex];
+  
+    if (artist.url == null || artist.url.length == 0) {
+      this.findUrlForArtist(artist);
+    }
+    
+    if (artist.url != null) {
+      this._gBrowser.loadURI(artist.url, null, null, event, '_blank');
+    }
+    
+    event.stopPropagation();
   },
   
   /* Can't get it to work, do it later

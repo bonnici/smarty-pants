@@ -66,3 +66,5 @@
 <!ENTITY smarty-pants.album-tabpanel-header "Albums">
 <!ENTITY smarty-pants.max-top-albums-label "Maximum top albums:">
 <!ENTITY smarty-pants.max-top-albums-tooltip "The maximum number of top albums that will be processed for each artist">
+<!ENTITY smarty-pants.show-artist-images-check "Show images">
+<!ENTITY smarty-pants.show-artist-scores-check "Show scores">
