@@ -13,14 +13,20 @@
                    class="albuminfo-image" 
                    onclick="SmartyPants.PaneController.onAlbumClick(document.getBindingParent(this), event)" />
         <xul:vbox class="albuminfo-labelbox" flex="1">
-        <xul:label xbl:inherits="value=albumName"
-                   class="albuminfo-albumname"
-                   crop="end"
-                   onclick="SmartyPants.PaneController.onAlbumClick(document.getBindingParent(this), event)" />
-        <xul:label xbl:inherits="value=artistName"
-                   class="albuminfo-artistname"
-                   crop="end"
-                   onclick="SmartyPants.PaneController.onAlbumArtistClick(document.getBindingParent(this), event)" />
+          <xul:label xbl:inherits="value=albumName"
+                     class="albuminfo-albumname"
+                     crop="end"
+                     onclick="SmartyPants.PaneController.onAlbumClick(document.getBindingParent(this), event)" />
+                       
+          <xul:hbox flex="1">
+            <xul:label xbl:inherits="value=artistName"
+                     class="albuminfo-artistname"
+                     crop="end"
+                     onclick="SmartyPants.PaneController.onAlbumArtistClick(document.getBindingParent(this), event)" />
+            <xul:spacer flex="1" />
+            <xul:label xbl:inherits="hidden=hideAlbumScore, value=albumScore"
+                         class="albuminfo-albumscore"/>
+          </xul:hbox>
         </xul:vbox>
       </xul:hbox>
     </content>

@@ -75,6 +75,8 @@ SmartyPants.PaneController = {
     this._maxTopAlbumsTextbox = document.getElementById("max-top-albums-textbox");
     this._showArtistImagesCheck = document.getElementById("show-artist-images-check");
     this._showArtistScoresCheck = document.getElementById("show-artist-scores-check");
+    this._showAlbumImagesCheck = document.getElementById("show-album-images-check");
+    this._showAlbumScoresCheck = document.getElementById("show-album-scores-check");
     
     this._processing = false;
     this._goButton.setAttribute("label", this._strings.getString("goButtonGo"));
@@ -101,12 +103,18 @@ SmartyPants.PaneController = {
           function() { controller.onShowArtistImagesCheck(); }, false);
     this._showArtistScoresCheck.addEventListener("command", 
           function() { controller.onShowArtistScoresCheck(); }, false);
+    this._showAlbumImagesCheck.addEventListener("command", 
+          function() { controller.onShowAlbumImagesCheck(); }, false);
+    this._showAlbumScoresCheck.addEventListener("command", 
+          function() { controller.onShowAlbumScoresCheck(); }, false);
           
     this._recommendationFilterSelection = 0;
     this._numProcessed = 0;
     
     this._showArtistScores = this._showArtistScoresCheck.getAttribute("checked") == "true";
     this._showArtistImages = this._showArtistImagesCheck.getAttribute("checked") == "true";
+    this._showAlbumScores = this._showAlbumScoresCheck.getAttribute("checked") == "true";
+    this._showAlbumImages = this._showAlbumImagesCheck.getAttribute("checked") == "true";
           
     this._candidateTracks = {
       dataArray: [],
@@ -475,45 +483,6 @@ SmartyPants.PaneController = {
         },
     };
     
-    /*
-    this._recommendedAlbumTreeView = {  
-        dataArray: [],
-        rowCount: 0,
-        getCellText : function(row,column) {  
-          if (column.id == "album-list-artist-column") return this.dataArray[row].artistName;
-          else if (column.id == "album-list-album-column") return this.dataArray[row].albumName;
-          else if (column.id == "album-list-score-column") return this.dataArray[row].score;
-          else return "";  
-        },  
-        setTree: function(treebox) { this.treebox = treebox; },  
-        isContainer: function(row) { return false; },  
-        isSeparator: function(row) { return false; },  
-        isSorted: function() { return false; },  
-        getLevel: function(row) { return 0; },  
-        getImageSrc: function(row,col) { return null; },  
-        getRowProperties: function(row,props) {},  
-        getCellProperties: function(row,col,props) {},  
-        getColumnProperties: function(colid,col,props) {}, 
-        update: function(candidateAlbums) { 
-          this.dataArray = [];
-          var minScore = parseFloat(controller._ignoreScoresTextbox.value);
-          for (var index = 0; index < candidateAlbums.dataArray.length; index++) {
-            var curAlbum = candidateAlbums.dataArray[index];
-            var score = candidateAlbums.getScore(curAlbum);
-            if (score >= minScore) {
-              this.dataArray.push(
-                    {
-                      artistName: curAlbum.artist.artistName, 
-                      albumName: curAlbum.albumName, 
-                      score: score
-                    }); 
-            }
-          }
-          this.rowCount = this.dataArray.length; 
-        } 
-    };
-    */
-    
     this._outputTreeView = {  
         dataArray: [],
         rowCount: 0,
@@ -652,6 +621,16 @@ SmartyPants.PaneController = {
   onShowArtistScoresCheck: function(event) {
     this._showArtistScores = this._showArtistScoresCheck.getAttribute("checked") == "true";
     this.updateArtistList();
+  },
+  
+  onShowAlbumImagesCheck: function(event) {
+    this._showAlbumImages = this._showAlbumImagesCheck.getAttribute("checked") == "true";
+    this.updateAlbumList();
+  },
+  
+  onShowAlbumScoresCheck: function(event) {
+    this._showAlbumScores = this._showAlbumScoresCheck.getAttribute("checked") == "true";
+    this.updateAlbumList();
   },
   
   addSelectedTracks: function() {
@@ -1398,7 +1377,7 @@ SmartyPants.PaneController = {
   },
   
   getImageUrlFromAlbumNode: function(albumNode) {
-    var imageElement = artistNode.getElementsByTagName('image');
+    var imageElement = albumNode.getElementsByTagName('image');
     if (imageElement != null && imageElement.length > 0) {
       for (var tagIndex = 0; tagIndex < imageElement.length; tagIndex++) {
         if (imageElement[tagIndex].getAttribute("size") == "medium") {
@@ -1840,6 +1819,8 @@ SmartyPants.PaneController = {
       songProps.appendProperty(SBProperties.albumName, albumName);
       var albumFound = false;
       
+      // todo fuzzy matching
+      
       try {
         var albumEnum = LibraryUtils.mainLibrary.getItemsByProperties(songProps);
         albumFound = albumEnum.length > 0;
@@ -1978,15 +1959,15 @@ SmartyPants.PaneController = {
     albumInfo.setAttribute("artistName", album.artist.artistName);
     albumInfo.setAttribute("albumScore", score.toFixed(2));
     
-    if (artist.imageUrl) {
-      artistInfo.setAttribute("albumImage", album.imageUrl);
+    if (album.imageUrl) {
+      albumInfo.setAttribute("albumImage", album.imageUrl);
     }
     else {
-      albumInfo.setAttribute("albumImage", "chrome://smarty-pants/skin/default-artist-image.png");
+      albumInfo.setAttribute("albumImage", "chrome://smarty-pants/skin/default-album-image.gif");
     }
     
-    //artistInfo.setAttribute("hideArtistImage", !this._showArtistImages);
-    //artistInfo.setAttribute("hideArtistScore", !this._showArtistScores);
+    albumInfo.setAttribute("hideAlbumImage", !this._showAlbumImages);
+    albumInfo.setAttribute("hideAlbumScore", !this._showAlbumScores);
     
     // not displayed
     albumInfo.setAttribute("index", index);
@@ -2014,6 +1995,34 @@ SmartyPants.PaneController = {
         this.addAlbumInfo(curAlbum, score, index);
       }
     }
+  },
+  
+  onAlbumClick: function(node, event) {
+    var albumIndex = parseInt(node.getAttribute("index"));
+    var album = this._candidateAlbums.dataArray[albumIndex];
+  
+    var url = album.url;
+    if (url == null || url.length == 0) {
+      url = "http://www.last.fm/music/" + encodeURIComponent(album.artist.artistName) + "/" + encodeURIComponent(album.albumName);
+    }
+    
+    this._gBrowser.loadURI(url, null, null, event, '_blank');
+    
+    event.stopPropagation();
+  },
+  
+  onAlbumArtistClick: function(node, event) {
+    var albumIndex = parseInt(node.getAttribute("index"));
+    var album = this._candidateAlbums.dataArray[albumIndex];
+  
+    var url = album.artist.url;
+    if (url == null || url.length == 0) {
+      url = "http://www.last.fm/music/" + encodeURIComponent(album.artist.artistName);
+    }
+    
+    this._gBrowser.loadURI(url, null, null, event, '_blank');
+    
+    event.stopPropagation();
   },
   
   /* Can't get it to work, do it later
