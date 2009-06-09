@@ -17,6 +17,21 @@
      <stringbundle id="smarty-pants-strings" src="chrome://smarty-pants/locale/overlay.properties"/>
   </stringbundleset>
 
+  <popupset>
+    <popup id="playlist-menu">
+      <menuitem label="&smarty-pants.play-menu-label;" oncommand="SmartyPants.PaneController.playSelectedPlaylistSong();"/>
+      <menuitem label="&smarty-pants.open-song-menu-label;" oncommand="SmartyPants.PaneController.openSelectedPlaylistSong();"/>
+      <menuitem label="&smarty-pants.open-artist-menu-label;" oncommand="SmartyPants.PaneController.openSelectedPlaylistArtist();"/>
+      <menuitem label="&smarty-pants.play-artist-radio-label;" oncommand="SmartyPants.PaneController.playSelectedPlaylistArtistRadio();"/>
+    </popup>
+    <popup id="recommendation-menu">
+      <menuitem label="&smarty-pants.open-song-menu-label;" oncommand="SmartyPants.PaneController.openSelectedRecommendedSong();"/>
+      <menuitem label="&smarty-pants.open-artist-menu-label;" oncommand="SmartyPants.PaneController.openSelectedRecommendedArtist();"/>
+      <menuitem label="&smarty-pants.play-artist-radio-label;" oncommand="SmartyPants.PaneController.playSelectedRecommendedArtistRadio();"/>
+    </popup>
+  </popupset>
+
+
   <vbox flex="1">
     <vbox flex="5">
       <hbox>
@@ -38,7 +53,7 @@
             <tabpanel>
     
               <vbox flex="1">
-                <tree id="track-tree" flex="3" seltype="single" ondblclick="SmartyPants.PaneController.onTrackTreeDoubleClick(event);">
+                <tree id="track-tree" flex="3" seltype="single" ondblclick="SmartyPants.PaneController.onTrackTreeDoubleClick(event);" context="playlist-menu">
                 
                   <treecols>
                     <treecol id="track-list-artist-column" label="&smarty-pants.track-list.artist-column-header;" flex="1" />
@@ -67,7 +82,7 @@
             
             <tabpanel>
               <vbox flex="1">
-                <tree id="recommendation-tree" flex="1" seltype="single" ondblclick="SmartyPants.PaneController.onRecommendationTreeDoubleClick(event);">
+                <tree id="recommendation-tree" flex="1" seltype="single" ondblclick="SmartyPants.PaneController.onRecommendationTreeDoubleClick(event);" context="recommendation-menu">
                 
                   <treecols>
                     <treecol id="recommendation-list-artist-column" label="&smarty-pants.track-list.artist-column-header;" flex="1" />
@@ -207,11 +222,11 @@
     </groupbox>
 	
   </vbox>
-  <splitter collapse="after" />
+  <splitter collapse="none" />
   <vbox flex="1">
     <hbox id="details-group" hidden="false" flex="1">
         <vbox flex="1">
-          <tree id="output-tree" flex="1" hidecolumnpicker="true" seltype="single">
+          <tree id="output-tree" flex="1" hidecolumnpicker="true" seltype="single" rows="4">
 
             <treecols>
               <treecol id="output-list-column" label="&smarty-pants.output-list.column-header;" flex="1" />

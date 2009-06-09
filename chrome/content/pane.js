@@ -71,7 +71,6 @@ SmartyPants.PaneController = {
     this._ignoreNotInLibraryCheckbox = document.getElementById("ignore-not-in-library-checkbox");
     this._ignoreSimilarTracksFromSameArtistCheckbox = document.getElementById("ignore-similar-tracks-from-same-artist-check");
     this._doArtistTopAlbumsCheckbox = document.getElementById("do-artist-top-albums-check");
-    //this._albumTree = document.getElementById("recommended-albums-tree");
     this._maxTopAlbumsTextbox = document.getElementById("max-top-albums-textbox");
     this._showArtistImagesCheck = document.getElementById("show-artist-images-check");
     this._showArtistScoresCheck = document.getElementById("show-artist-scores-check");
@@ -557,10 +556,65 @@ SmartyPants.PaneController = {
   
   onTrackTreeDoubleClick: function(event) {
     var clickedIndex = this._trackTree.treeBoxObject.getRowAt(event.clientX, event.clientY);
-    
-    if (clickedIndex >= 0 && clickedIndex < this._hiddenPlaylist.length)
+    this.playTrackAtIndex(clickedIndex);
+  },
+  
+  playSelectedPlaylistSong: function() {
+    this.playTrackAtIndex(this._trackTree.currentIndex);
+  },
+  
+  playTrackAtIndex: function(index) {
+    if (index >= 0 && index < this._hiddenPlaylist.length)
     {
-      this._mediaCoreManager.sequencer.playView(this._hiddenPlaylistView, clickedIndex);
+      this._mediaCoreManager.sequencer.playView(this._hiddenPlaylistView, index);
+    }
+  },
+  
+  openSelectedPlaylistSong: function() {
+    this.openPlaylistSongInLastFm(this._trackTree.currentIndex);
+  },
+  
+  openSelectedPlaylistArtist: function() {
+    var currentIndex = this._trackTree.currentIndex;
+    
+    if (currentIndex >= 0 && currentIndex < this._trackTreeView.dataArray.length)
+    {
+      var clickedItem = this._trackTreeView.dataArray[currentIndex];
+      this.openArtistInLastFm(clickedItem.artistName);
+    }
+  },
+  
+  playSelectedPlaylistArtistRadio: function() {
+    var currentIndex = this._trackTree.currentIndex;
+    
+    if (currentIndex >= 0 && currentIndex < this._trackTreeView.dataArray.length)
+    {
+      var clickedItem = this._trackTreeView.dataArray[currentIndex];
+      this.playArtistRadio(clickedItem.artistName);
+    }
+  },
+  
+  openSelectedRecommendedSong: function() {
+    this.openRecommendedSongInLastFm(this._recommendationTree.currentIndex);
+  },
+  
+  openSelectedRecommendedArtist: function() {
+    var currentIndex = this._recommendationTree.currentIndex;
+    
+    if (currentIndex >= 0 && currentIndex < this._recommendationTreeView.dataArray.length)
+    {
+      var clickedItem = this._recommendationTreeView.dataArray[currentIndex];
+      this.openArtistInLastFm(clickedItem.artistName);
+    }
+  },
+  
+  playSelectedRecommendedArtistRadio: function() {
+    var currentIndex = this._recommendationTree.currentIndex;
+    
+    if (currentIndex >= 0 && currentIndex < this._recommendationTreeView.dataArray.length)
+    {
+      var clickedItem = this._recommendationTreeView.dataArray[currentIndex];
+      this.playArtistRadio(clickedItem.artistName);
     }
   },
   
@@ -584,19 +638,49 @@ SmartyPants.PaneController = {
   
   onRecommendationTreeDoubleClick: function(event) {
     var clickedIndex = this._recommendationTree.treeBoxObject.getRowAt(event.clientX, event.clientY);
+    this.openRecommendedSongInLastFm(clickedIndex);
+  },
     
-    if (clickedIndex >= 0 && clickedIndex < this._recommendationTreeView.dataArray.length)
+  openRecommendedSongInLastFm: function(index) {
+    if (index >= 0 && index < this._recommendationTreeView.dataArray.length)
     {
-      var clickedItem = this._recommendationTreeView.dataArray[clickedIndex];
-      
-      if (clickedItem.url != null) {
-        var url = clickedItem.url;
-        if (clickedItem.streamable > 0) {
-          url += "?autostart";
-        }
-        this._gBrowser.loadURI(url, null, null, null, '_blank');
-      }
+      var item = this._recommendationTreeView.dataArray[index];
+      this.openSongInLastFm(item);
     }
+  },
+  
+  openPlaylistSongInLastFm: function(index) {
+    if (index >= 0 && index < this._trackTreeView.dataArray.length)
+    {
+      var item = this._trackTreeView.dataArray[index];
+      this.openSongInLastFm(item);
+    }
+  },
+      
+  openSongInLastFm: function(item) {
+    var url = item.url;
+    if (url == null) {
+      url = "http://www.last.fm/music/" + encodeURIComponent(item.artistName) + "/_/" + encodeURIComponent(item.trackName);
+    }
+    
+    if (url != null && item.streamable > 0) {
+      url += "?autostart";
+    }
+      
+    if (url != null) {
+      this._gBrowser.loadURI(url, null, null, null, '_blank');
+    }
+  },
+  
+  openArtistInLastFm: function(artistName) {
+    url = "http://www.last.fm/music/" + encodeURIComponent(artistName);
+    this._gBrowser.loadURI(url, null, null, null, '_blank');
+  },
+  
+  playArtistRadio: function(artistName) {
+    var radioUrl = "http://www.last.fm/listen/artist/" + encodeURIComponent(artistName);
+    //todo make this not open a tab
+    this._gBrowser.loadURI(radioUrl);
   },
   
   onIgnoreScoresChange: function(event) {
@@ -643,6 +727,10 @@ SmartyPants.PaneController = {
 
     var selection = mediaListView.selection;
     var itemEnum = selection.selectedMediaItems;
+
+    if (!itemEnum.hasMoreElements()) {
+      alert(this._strings.getString("nothingAdded"));
+    }
 
     while (itemEnum.hasMoreElements()) {
       var item = itemEnum.getNext();
@@ -1131,7 +1219,7 @@ SmartyPants.PaneController = {
         track.maxSimilarityScore = score+1;
       }
             
-      var guids = VandelayIndustriesSharedForSmartyPants.Functions.findSongInLibrary(artistName, trackName);
+      var guids = VandelayIndustriesSharedForSmartyPants.Functions.findBestSongInLibrary(artistName, trackName);
 
       if (guids != null && guids.length > 0) {
         var mediaItem = LibraryUtils.mainLibrary.getItemByGuid(guids[0]);
@@ -1146,10 +1234,10 @@ SmartyPants.PaneController = {
           // Have we already fixed the artist or track?
           var songGuids = null;
           if (this._fixedResultArtists[artistName] != null) {
-            var songGuids = VandelayIndustriesSharedForSmartyPants.Functions.findSongInLibrary(this._fixedResultArtists[artistName], trackName); 
+            var songGuids = VandelayIndustriesSharedForSmartyPants.Functions.findBestSongInLibrary(this._fixedResultArtists[artistName], trackName);
           }
           else if (this._fixedResultSongs[trackName] != null) {
-            var songGuids = VandelayIndustriesSharedForSmartyPants.Functions.findSongInLibrary(artistName, this._fixedResultSongs[trackName]);
+            var songGuids = VandelayIndustriesSharedForSmartyPants.Functions.findBestSongInLibrary(artistName, this._fixedResultSongs[trackName]);
           }
           
           if (songGuids != null && songGuids.length > 0) {
@@ -1174,7 +1262,16 @@ SmartyPants.PaneController = {
                 var curTrackName = curSongFromArtist.getProperty(SBProperties.trackName);
                 var curDiffScore = VandelayIndustriesSharedForSmartyPants.Functions.getDifferenceScore(trackName, curTrackName);
                 
-                if (curDiffScore > bestSongFromArtistScore) {
+                if 
+                (
+                  curDiffScore > bestSongFromArtistScore
+                  || 
+                  (
+                    curDiffScore == bestSongFromArtistScore
+                    &&
+                    curSongFromArtist.getProperty(SBProperties.bitRate) > bestSongFromArtist.getProperty(SBProperties.bitRate)
+                  )
+                ) {
                   bestSongFromArtist = curSongFromArtist;
                   bestSongFromArtistScore = curDiffScore;
                 }
@@ -1194,7 +1291,16 @@ SmartyPants.PaneController = {
                   var curArtistName = curArtistFromSong.getProperty(SBProperties.artistName);
                   var curDiffScore = VandelayIndustriesSharedForSmartyPants.Functions.getDifferenceScore(artistName, curArtistName);
                   
-                  if (curDiffScore > bestArtistFromSongScore) {
+                  if 
+                  (
+                    curDiffScore > bestArtistFromSongScore
+                    ||
+                    (
+                      curDiffScore == bestArtistFromSongScore
+                      &&
+                      curArtistFromSong.getProperty(SBProperties.bitRate) > bestArtistFromSong.getProperty(SBProperties.bitRate)
+                    )
+                  ) {
                     bestArtistFromSong = curArtistFromSong;
                     bestArtistFromSongScore = curDiffScore;
                   }
@@ -1819,8 +1925,6 @@ SmartyPants.PaneController = {
       songProps.appendProperty(SBProperties.albumName, albumName);
       var albumFound = false;
       
-      // todo fuzzy matching
-      
       try {
         var albumEnum = LibraryUtils.mainLibrary.getItemsByProperties(songProps);
         albumFound = albumEnum.length > 0;
@@ -1828,6 +1932,37 @@ SmartyPants.PaneController = {
       catch (e) {
       }
         
+      if (!albumFound) {
+        var albumDictionary = {};
+        
+        try {
+          var artistEnum = LibraryUtils.mainLibrary.getItemsByProperty(SBProperties.artistName, artist.artistName).enumerate();
+          
+          while (artistEnum.hasMoreElements()) {          
+          	var item = artistEnum.getNext();
+            var curAlbumName = item.getProperty(SBProperties.albumName);
+            
+            if (albumDictionary[curAlbumName] == null) {
+              albumDictionary[curAlbumName] = true;
+              
+              var albumDiffScore = VandelayIndustriesSharedForSmartyPants.Functions.getDifferenceScore(albumName, curAlbumName);
+              
+              if 
+              (
+                albumDiffScore > 0
+                ||
+                (albumDiffScore >= -3 && albumDiffScore*-1 < albumName.length/2)
+              ) {
+                albumFound = true;
+                break;
+              }
+            }
+      		}
+        }
+        catch (e) {
+        }
+      }
+      
       // Only add as a recommendation if it isn't already in the library
       if (!albumFound) {
         this._candidateAlbums.add(this.makeCandidateAlbumFromDetails(artist, albumName, score, url, imageUrl));
@@ -1942,10 +2077,7 @@ SmartyPants.PaneController = {
   onPlayArtistRadioClick: function(node, event) {
     var artistIndex = parseInt(node.getAttribute("index"));
     var artist = this._candidateArtists.dataArray[artistIndex];
-    var radioUrl = "http://www.last.fm/listen/artist/" + encodeURIComponent(artist.artistName);
-    
-    //todo make this not open a tab
-    this._gBrowser.loadURI(radioUrl, null, null, event);
+    this.playArtistRadio(artist.artistName);
     event.stopPropagation();
   },
   
