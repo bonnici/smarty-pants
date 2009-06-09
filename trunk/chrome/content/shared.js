@@ -67,6 +67,29 @@ VandelayIndustriesSharedForSmartyPants.Functions =
 		return guids;
   },
   
+  findBestSongInLibrary: function(artist, track) {
+    var songProps = Cc["@songbirdnest.com/Songbird/Properties/MutablePropertyArray;1"]
+                        .createInstance(Ci.sbIMutablePropertyArray);
+    songProps.appendProperty(SBProperties.artistName, artist);  
+    songProps.appendProperty(SBProperties.trackName, track);
+    
+    var bestSong = null;
+    
+    try {
+      var itemEnum = LibraryUtils.mainLibrary.getItemsByProperties(songProps).enumerate();
+      while (itemEnum.hasMoreElements()) {
+        var item = itemEnum.getNext();
+        if (bestSong == null || item.getProperty(SBProperties.bitRate) > curSongFromArtist.getProperty(SBProperties.bitRate)) {
+          bestSong = item;
+        }
+      }
+    }
+    catch (e) {
+    }
+
+    return bestSong;
+  },
+  
   findArtistInLibrary: function(artist) {
     try {
       var mediaItems = LibraryUtils.mainLibrary.getItemsByProperty(SBProperties.artistName, artist);
