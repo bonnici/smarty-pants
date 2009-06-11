@@ -78,12 +78,12 @@ SmartyPants.PaneController = {
     this._showAlbumScoresCheck = document.getElementById("show-album-scores-check");
     
     //todo move this checkbox
-    //todo keep track of what is played
     //todo limit the number of updates when this is on - change to auto mode options group
     this._automaticModeCheck = document.getElementById("automatic-mode-checkbox");
     
-    this._autoMode = false;
+    this._automaticMode = false;
     this._ignoreTrackChanges = false;
+    this._automaticModeHistory = {};
     
     this._processing = false;
     this._processingTrackOrArtist = null;
@@ -129,7 +129,13 @@ SmartyPants.PaneController = {
     this._candidateTracks = {
       dataArray: [],
       
-      addOrUpdate: function(candidateTrack) {
+      addOrUpdate: function(candidateTrack, force) {
+      
+        if (controller._automaticMode && candidateTrack.guid != null && !force) {
+          if (controller._automaticModeHistory[candidateTrack.guid] == true) {
+            return;
+          }
+        }
       
         for (var index = 0; index < this.dataArray.length; index++) {
           var curTrack = this.dataArray[index];
@@ -733,10 +739,14 @@ SmartyPants.PaneController = {
     this._automaticMode = !this._automaticMode;
   
     if (this._automaticMode) {
-      this.enableButtons(false, true);      
-      this.clearThenProcessPlayingTrack();
+      this.enableButtons(false, true);
+
+      var nowPlayingMediaItem = this._mediaCoreManager.sequencer.currentItem;
+      this._automaticModeHistory[nowPlayingMediaItem.guid] = true;      
+      this.clearThenProcessTrack(nowPlayingMediaItem);
     }
     else {
+      this._automaticModeHistory = {};
       this.enableButtons(true, true);
     }
   },
@@ -758,7 +768,7 @@ SmartyPants.PaneController = {
 
     while (itemEnum.hasMoreElements()) {
       var item = itemEnum.getNext();
-      this._candidateTracks.addOrUpdate(this.makeCandidateTrackFromMediaItem(item, null, 1));
+      this._candidateTracks.addOrUpdate(this.makeCandidateTrackFromMediaItem(item, null, 1), false);
       this._candidateArtists.addOrUpdate(this.makeSeedArtistFromMediaItem(item));
     }
     
@@ -978,7 +988,7 @@ SmartyPants.PaneController = {
   stopProcessing: function(finished) {
     this._processing = false;
     
-    if (!this._autoMode) {
+    if (!this._automaticMode) {
       this.enableButtons(true, false);
     }
     
@@ -993,7 +1003,7 @@ SmartyPants.PaneController = {
   startProcessing: function() {
     this._processing = true;
     
-    if (!this._autoMode) {
+    if (!this._automaticMode) {
       this.enableButtons(false, false);
     }
     
@@ -1266,7 +1276,7 @@ SmartyPants.PaneController = {
 
       if (bestSong != null) {
         var candidateTrack = this.makeCandidateTrackFromMediaItem(bestSong, track, score);
-        this._candidateTracks.addOrUpdate(candidateTrack);
+        this._candidateTracks.addOrUpdate(candidateTrack, false);
         this._candidateArtists.addOrUpdate(this.makeCandidateArtistFromMediaItem(bestSong, score));
         foundTracks++;
       }
@@ -1283,7 +1293,7 @@ SmartyPants.PaneController = {
           
           if (bestSong != null) {
             var candidateTrack = this.makeCandidateTrackFromMediaItem(bestSong, track, score);
-            this._candidateTracks.addOrUpdate(candidateTrack);
+            this._candidateTracks.addOrUpdate(candidateTrack, false);
             this._candidateArtists.addOrUpdate(this.makeCandidateArtistFromMediaItem(bestSong, score));
             foundTracks++;
           }
@@ -1358,7 +1368,7 @@ SmartyPants.PaneController = {
               this.addOutputText(this._strings.getFormattedString("correctedSongOutputText", [artistName, trackName, bestSongFromArtist.getProperty(SBProperties.trackName)]));
               this._fixedResultSongs[trackName] = bestSongFromArtist.getProperty(SBProperties.trackName);
               var candidateTrack = this.makeCandidateTrackFromMediaItem(bestSongFromArtist, track, score);
-              this._candidateTracks.addOrUpdate(candidateTrack);
+              this._candidateTracks.addOrUpdate(candidateTrack, false);
               this._candidateArtists.addOrUpdate(this.makeCandidateArtistFromMediaItem(bestSongFromArtist, score));
               foundTracks++;
             }
@@ -1372,14 +1382,14 @@ SmartyPants.PaneController = {
               this.addOutputText(this._strings.getFormattedString("correctedSongOutputText", [artistName, trackName, bestArtistFromSong.getProperty(SBProperties.artistName)]));
               this._fixedResultArtists[artistName] = bestArtistFromSong.getProperty(SBProperties.artistName);
               var candidateTrack = this.makeCandidateTrackFromMediaItem(bestArtistFromSong, track, score);
-              this._candidateTracks.addOrUpdate(candidateTrack);
+              this._candidateTracks.addOrUpdate(candidateTrack, false);
               this._candidateArtists.addOrUpdate(this.makeCandidateArtistFromMediaItem(bestArtistFromSong, score));
               foundTracks++;
             }
             // Otherwise, use it as a recommendation
             else {
               var candidateTrack = this.makeCandidateTrackFromDetails(trackName, artistName, track, score, url, streamable);
-              this._candidateTracks.addOrUpdate(candidateTrack);
+              this._candidateTracks.addOrUpdate(candidateTrack, false);
               this._candidateArtists.addOrUpdate(this.makeCandidateArtistFromDetails(artistName, score));
             }
           }
@@ -1387,7 +1397,7 @@ SmartyPants.PaneController = {
         // No fuzzy matching
         else {
           var candidateTrack = this.makeCandidateTrackFromDetails(trackName, artistName, track, score, url, streamable);
-          this._candidateTracks.addOrUpdate(candidateTrack);
+          this._candidateTracks.addOrUpdate(candidateTrack, false);
           this._candidateArtists.addOrUpdate(this.makeCandidateArtistFromDetails(artistName, score));
         }
       }
@@ -1586,7 +1596,8 @@ SmartyPants.PaneController = {
     switch (event.type) {
       case Ci.sbIMediacoreEvent.BEFORE_TRACK_CHANGE :
         if (this._automaticMode && !this._ignoreTrackChanges) {
-          this.clearThenProcessPlayingTrack();
+          this._automaticModeHistory[event.data.guid] = true;
+          this.clearThenProcessTrack(event.data);
           this._ignoreTrackChanges = true;
           this._mediaCoreManager.sequencer.playView(this._hiddenPlaylistView, 0);
           this._ignoreTrackChanges = false;
@@ -1599,21 +1610,16 @@ SmartyPants.PaneController = {
     }
   },
   
-  clearThenProcessPlayingTrack: function() {  
-    
-    var mediaCoreManager = Cc["@songbirdnest.com/Songbird/Mediacore/Manager;1"]  
-                            .getService(Components.interfaces.sbIMediacoreManager);  
-    var nowPlayingMediaItem = mediaCoreManager.sequencer.currentItem;
-    
-    if (nowPlayingMediaItem == null) {
+  clearThenProcessTrack: function(mediaItem) {    
+    if (mediaItem == null) {
       return;
     }
     
     this.stopProcessing(true);
     this.clearAllTracks();
     
-    this._candidateTracks.addOrUpdate(this.makeCandidateTrackFromMediaItem(nowPlayingMediaItem, null, 1));
-    this._candidateArtists.addOrUpdate(this.makeSeedArtistFromMediaItem(nowPlayingMediaItem));
+    this._candidateTracks.addOrUpdate(this.makeCandidateTrackFromMediaItem(mediaItem, null, 1), true);
+    this._candidateArtists.addOrUpdate(this.makeSeedArtistFromMediaItem(mediaItem));
     this.updateTrackTrees();
     this.updateArtistList();    
     
@@ -1677,6 +1683,7 @@ SmartyPants.PaneController = {
     
     artist.processed = true;
     this._numProcessed++;
+    return true;
   },
   
   findSimilarArtists: function(artist, artistName) {
@@ -1768,7 +1775,7 @@ SmartyPants.PaneController = {
       
       while (enumerator.hasMoreElements()) {
         var curSongFromArtist = enumerator.getNext();
-        this._candidateTracks.addOrUpdate(this.makeCandidateTrackFromSimilarArtistTopTrackMediaItem(curSongFromArtist, artist, defaultSimilarArtistScore));
+        this._candidateTracks.addOrUpdate(this.makeCandidateTrackFromSimilarArtistTopTrackMediaItem(curSongFromArtist, artist, defaultSimilarArtistScore), false);
         tracksAdded++;
       }
     }
@@ -1857,7 +1864,7 @@ SmartyPants.PaneController = {
       if (guids != null && guids.length > 0) {
         var mediaItem = LibraryUtils.mainLibrary.getItemByGuid(guids[0]);
         if (mediaItem != null) {
-          this._candidateTracks.addOrUpdate(this.makeCandidateTrackFromSimilarArtistTopTrackMediaItem(mediaItem, artist, scoreFromTopTrack));
+          this._candidateTracks.addOrUpdate(this.makeCandidateTrackFromSimilarArtistTopTrackMediaItem(mediaItem, artist, scoreFromTopTrack), false);
           foundTracks++;
           addedTracks++;
         }
@@ -1907,7 +1914,7 @@ SmartyPants.PaneController = {
           ||
           (bestSongFromArtistScore >= -3 && bestSongFromArtistScore*-1 < trackName.length/2 && bestSongFromArtistScore*-1 < bestSongFromArtist.getProperty(SBProperties.trackName).length/2)
         ) {
-          this._candidateTracks.addOrUpdate(this.makeCandidateTrackFromSimilarArtistTopTrackMediaItem(bestSongFromArtist, artist, scoreFromTopTrack));
+          this._candidateTracks.addOrUpdate(this.makeCandidateTrackFromSimilarArtistTopTrackMediaItem(bestSongFromArtist, artist, scoreFromTopTrack), false);
           this.addOutputText(this._strings.getFormattedString("correctedSongOutputText", [artistName, trackName, bestSongFromArtist.getProperty(SBProperties.trackName)]));
           this._fixedResultSongs[trackName] = bestSongFromArtist.getProperty(SBProperties.trackName);
           foundTracks++;
@@ -1916,7 +1923,7 @@ SmartyPants.PaneController = {
         // Otherwise add the song as a recommendation
         else if (!this._ignoreNotInLibrary)
         {
-          this._candidateTracks.addOrUpdate(this.makeCandidateTrackFromSimilarArtistTopTrackDetails(trackName, artistName, artist, scoreFromTopTrack, url, streamable));
+          this._candidateTracks.addOrUpdate(this.makeCandidateTrackFromSimilarArtistTopTrackDetails(trackName, artistName, artist, scoreFromTopTrack, url, streamable), false);
           addedTracks++;
         }  
       }
