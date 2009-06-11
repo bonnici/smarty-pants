@@ -77,7 +77,16 @@ SmartyPants.PaneController = {
     this._showAlbumImagesCheck = document.getElementById("show-album-images-check");
     this._showAlbumScoresCheck = document.getElementById("show-album-scores-check");
     
+    //todo move this checkbox
+    //todo keep track of what is played
+    //todo limit the number of updates when this is on - change to auto mode options group
+    this._automaticModeCheck = document.getElementById("automatic-mode-checkbox");
+    
+    this._autoMode = false;
+    this._ignoreTrackChanges = false;
+    
     this._processing = false;
+    this._processingTrackOrArtist = null;
     this._goButton.setAttribute("label", this._strings.getString("goButtonGo"));
     
     this._addButton.addEventListener("command", 
@@ -106,6 +115,8 @@ SmartyPants.PaneController = {
           function() { controller.onShowAlbumImagesCheck(); }, false);
     this._showAlbumScoresCheck.addEventListener("command", 
           function() { controller.onShowAlbumScoresCheck(); }, false);
+    this._automaticModeCheck.addEventListener("command", 
+          function() { controller.onToggleAutomaticMode(); }, false);
           
     this._recommendationFilterSelection = 0;
     this._numProcessed = 0;
@@ -520,16 +531,16 @@ SmartyPants.PaneController = {
     this._hiddenPlaylist = null;
     try 
     {
-  		var itemEnum = LibraryUtils.mainLibrary.getItemsByProperty(SBProperties.customType, SMARTY_PANTS_HIDDEN_PLAYLIST_PROP).enumerate();
-  		if (itemEnum.hasMoreElements()) 
-  		{
-  			this._hiddenPlaylist = itemEnum.getNext();
-  		}
-  	} 
-  	catch (e if e.result == Cr.NS_ERROR_NOT_AVAILABLE) 
-  	{
-  	  // Don't to anything - playlist will be created
-  	}
+      var itemEnum = LibraryUtils.mainLibrary.getItemsByProperty(SBProperties.customType, SMARTY_PANTS_HIDDEN_PLAYLIST_PROP).enumerate();
+      if (itemEnum.hasMoreElements()) 
+      {
+        this._hiddenPlaylist = itemEnum.getNext();
+      }
+    } 
+    catch (e if e.result == Cr.NS_ERROR_NOT_AVAILABLE) 
+    {
+      // Don't to anything - playlist will be created
+    }
     
     if (this._hiddenPlaylist == null) {
       this._hiddenPlaylist = LibraryUtils.mainLibrary.createMediaList("simple");
@@ -537,7 +548,8 @@ SmartyPants.PaneController = {
       this._hiddenPlaylist.name = "Hidden Smarty Pants Playlist";
       this._hiddenPlaylist.setProperty(SBProperties.hidden, "1");
     }
-    this._hiddenPlaylist.setProperty(SBProperties.hidden, "1");
+    
+    //this._hiddenPlaylist.setProperty(SBProperties.hidden, "1");
     
     this._hiddenPlaylistView = this._hiddenPlaylist.createView();
   },
@@ -715,6 +727,18 @@ SmartyPants.PaneController = {
   onShowAlbumScoresCheck: function(event) {
     this._showAlbumScores = this._showAlbumScoresCheck.getAttribute("checked") == "true";
     this.updateAlbumList();
+  },
+  
+  onToggleAutomaticMode: function(event) {
+    this._automaticMode = !this._automaticMode;
+  
+    if (this._automaticMode) {
+      this.enableButtons(false, true);      
+      this.clearThenProcessPlayingTrack();
+    }
+    else {
+      this.enableButtons(true, true);
+    }
   },
   
   addSelectedTracks: function() {
@@ -942,14 +966,6 @@ SmartyPants.PaneController = {
     this._recommendationTree.view = this._recommendationTreeView;
   },
   
-  /*
-  updateAlbumTree: function() {
-    this._candidateAlbums.sortByScore();
-    this._recommendedAlbumTreeView.update(this._candidateAlbums);
-    this._albumTree.view = this._recommendedAlbumTreeView;
-  },
-  */
-  
   startOrStopProcessing: function() {
     if (this._processing) {
       this.stopProcessing(false);
@@ -961,7 +977,11 @@ SmartyPants.PaneController = {
   
   stopProcessing: function(finished) {
     this._processing = false;
-    this.enableButtons(true);
+    
+    if (!this._autoMode) {
+      this.enableButtons(true, false);
+    }
+    
     if (finished) {
       this._goButton.setAttribute("label", this._strings.getString("goButtonGo"));
     }
@@ -972,7 +992,11 @@ SmartyPants.PaneController = {
   
   startProcessing: function() {
     this._processing = true;
-    this.enableButtons(false);
+    
+    if (!this._autoMode) {
+      this.enableButtons(false, false);
+    }
+    
     this._goButton.setAttribute("label", this._strings.getString("goButtonStop"));
     this._ignoreDuplicateMatches = (this._ignoreDuplicateMatchesCheckbox.getAttribute("checked") == "true" ? true : false);
     this._tryOtherArtist = (this._tryOtherArtistCheckbox.getAttribute("checked") == "true" ? true : false);
@@ -998,11 +1022,17 @@ SmartyPants.PaneController = {
     setTimeout("SmartyPants.PaneController.doProcessNextTrackOrArtist()", 0);
   },
   
-  enableButtons: function(enable) {
+  enableButtons: function(enable, doGoButton) {
     var disabled = enable ? "false" : "true";
     this._addButton.setAttribute("disabled", disabled);
-    this._saveButton.setAttribute("disabled", disabled);
     this._clearButton.setAttribute("disabled", disabled);
+    
+    if (doGoButton) {
+      this._goButton.setAttribute("disabled", disabled);
+    }
+    else {
+      this._saveButton.setAttribute("disabled", disabled);
+    }
   },
   
   doProcessNextTrackOrArtist: function() {
@@ -1039,15 +1069,20 @@ SmartyPants.PaneController = {
         }
         
         if (bestTrack != null && bestTrackScore >= minScore && bestTrackScore >= bestArtistScore) {
-          this.processTrack(bestTrack);
-      
-          setTimeout("SmartyPants.PaneController.doProcessNextTrackOrArtist()", 0);
+          this._processingTrackOrArtist = bestTrack;
+          
+          if (this.processTrack(bestTrack)) {
+            setTimeout("SmartyPants.PaneController.doProcessNextTrackOrArtist()", 0);
+          }
           return;
         }
         else if (bestArtist != null && bestArtistScore >= minScore) {
-          this.processArtist(bestArtist);
-      
-          setTimeout("SmartyPants.PaneController.doProcessNextTrackOrArtist()", 0);
+          this._processingTrackOrArtist = bestArtist;
+          
+          if (this.processArtist(bestArtist)) {
+            setTimeout("SmartyPants.PaneController.doProcessNextTrackOrArtist()", 0);
+          }
+          
           return;
         }
         
@@ -1105,15 +1140,16 @@ SmartyPants.PaneController = {
     return artist[0].textContent;
   },
   
+  // Return true to keep going afterwards, false to get out of the processing loop
   processTrack: function(track) {
     if (!this._doSimilarTracks) {
       track.processed = true;
-      return;
+      return true;
     }
     
     if (this._ignoreNotInLibrary && track.guid == null) {
       track.processed = true;
-      return;
+      return true;
     }
     
     var artistToUse = null;
@@ -1124,6 +1160,10 @@ SmartyPants.PaneController = {
     else if (this._tryOtherArtist) {
       // Find the closest matching artist
       artistToUse = this.findArtistInLastFm(track.artist);
+      
+      if (this._processingTrackOrArtist != track) {
+        return false;
+      }
     }
     
     if (artistToUse == null || artistToUse.length == 0) {
@@ -1133,10 +1173,14 @@ SmartyPants.PaneController = {
     this._fixedQueryArtists[track.artist] = artistToUse;
       
     this.addOutputText(this._strings.getFormattedString("processingTrackOutputText", [artistToUse, track.trackName]));
-    this.processTrackWithDetails(track, track.trackName, artistToUse)
+    
+    if (!this.processTrackWithDetails(track, track.trackName, artistToUse)) {
+      return false;
+    }
     
     track.processed = true;
     this._numProcessed++;
+    return true;
   },
   
   processTrackWithDetails: function(track, trackName, artistName) {
@@ -1154,30 +1198,29 @@ SmartyPants.PaneController = {
     catch (e) {
       // If processing has been stopped
       if (!this._processing) {
-        return true;
+        return false;
       }
 
       this.addOutputText(this._strings.getString("lastfmResponseErrorOutputText"));
       track.processed = true;
-      return false;
+      return true;
     }
 
-    if (!this._processing) {
-      return true;
+    if (!this._processing || this._processingTrackOrArtist != track) {
+      return false;
     }
 
     if (!request.responseXML || request.status != REQUEST_SUCCESS_CODE) {
       this.addOutputText(this._strings.getString("lastfmResponseErrorOutputText"));
       track.processed = true;
-      return false; 
+      return true; 
     }
     
     if (this.parseSimilarTrackXml(track, request.responseXML, artistName)) {
       track.processed = true;
-      return true;
     }
     
-    return false;
+    return true;
   },
   
   parseSimilarTrackXml: function(track, xml, sourceArtistName) {
@@ -1219,32 +1262,29 @@ SmartyPants.PaneController = {
         track.maxSimilarityScore = score+1;
       }
             
-      var guids = VandelayIndustriesSharedForSmartyPants.Functions.findBestSongInLibrary(artistName, trackName);
+      var bestSong = VandelayIndustriesSharedForSmartyPants.Functions.findBestSongInLibrary(artistName, trackName);
 
-      if (guids != null && guids.length > 0) {
-        var mediaItem = LibraryUtils.mainLibrary.getItemByGuid(guids[0]);
-        var candidateTrack = this.makeCandidateTrackFromMediaItem(mediaItem, track, score);
+      if (bestSong != null) {
+        var candidateTrack = this.makeCandidateTrackFromMediaItem(bestSong, track, score);
         this._candidateTracks.addOrUpdate(candidateTrack);
-        this._candidateArtists.addOrUpdate(this.makeCandidateArtistFromMediaItem(mediaItem, score));
+        this._candidateArtists.addOrUpdate(this.makeCandidateArtistFromMediaItem(bestSong, score));
         foundTracks++;
       }
-      else {
-      
+      else {      
         if (this._fuzzyMatch) {
           // Have we already fixed the artist or track?
-          var songGuids = null;
+          var bestSong = null;
           if (this._fixedResultArtists[artistName] != null) {
-            var songGuids = VandelayIndustriesSharedForSmartyPants.Functions.findBestSongInLibrary(this._fixedResultArtists[artistName], trackName);
+            bestSong = VandelayIndustriesSharedForSmartyPants.Functions.findBestSongInLibrary(this._fixedResultArtists[artistName], trackName);
           }
           else if (this._fixedResultSongs[trackName] != null) {
-            var songGuids = VandelayIndustriesSharedForSmartyPants.Functions.findBestSongInLibrary(artistName, this._fixedResultSongs[trackName]);
+            bestSong = VandelayIndustriesSharedForSmartyPants.Functions.findBestSongInLibrary(artistName, this._fixedResultSongs[trackName]);
           }
           
-          if (songGuids != null && songGuids.length > 0) {
-            var mediaItem = LibraryUtils.mainLibrary.getItemByGuid(songGuids[0]);
-            var candidateTrack = this.makeCandidateTrackFromMediaItem(mediaItem, track, score);
+          if (bestSong != null) {
+            var candidateTrack = this.makeCandidateTrackFromMediaItem(bestSong, track, score);
             this._candidateTracks.addOrUpdate(candidateTrack);
-            this._candidateArtists.addOrUpdate(this.makeCandidateArtistFromMediaItem(mediaItem, score));
+            this._candidateArtists.addOrUpdate(this.makeCandidateArtistFromMediaItem(bestSong, score));
             foundTracks++;
           }
           else {
@@ -1313,8 +1353,8 @@ SmartyPants.PaneController = {
             (
               bestSongFromArtistScore > 0 
               ||
-              (bestSongFromArtistScore >= -3 && bestSongFromArtistScore*-1 < trackName.length/2)
-            ) {
+              (bestSongFromArtistScore >= -3 && bestSongFromArtistScore*-1 < trackName.length/2 && bestSongFromArtistScore*-1 < bestSongFromArtist.getProperty(SBProperties.trackName).length/2)
+            ) {            
               this.addOutputText(this._strings.getFormattedString("correctedSongOutputText", [artistName, trackName, bestSongFromArtist.getProperty(SBProperties.trackName)]));
               this._fixedResultSongs[trackName] = bestSongFromArtist.getProperty(SBProperties.trackName);
               var candidateTrack = this.makeCandidateTrackFromMediaItem(bestSongFromArtist, track, score);
@@ -1327,7 +1367,7 @@ SmartyPants.PaneController = {
             (
               bestArtistFromSongScore > 0 
               ||
-              (bestArtistFromSongScore >= -3 && bestArtistFromSongScore*-1 < artistName.length/2)
+              (bestArtistFromSongScore >= -3 && bestArtistFromSongScore*-1 < artistName.length/2 && bestArtistFromSongScore*-1 < bestArtistFromSong.getProperty(SBProperties.artistName).length/2)
             ) {
               this.addOutputText(this._strings.getFormattedString("correctedSongOutputText", [artistName, trackName, bestArtistFromSong.getProperty(SBProperties.artistName)]));
               this._fixedResultArtists[artistName] = bestArtistFromSong.getProperty(SBProperties.artistName);
@@ -1544,16 +1584,47 @@ SmartyPants.PaneController = {
   
   onMediacoreEvent: function(event) {
     switch (event.type) {
+      case Ci.sbIMediacoreEvent.BEFORE_TRACK_CHANGE :
+        if (this._automaticMode && !this._ignoreTrackChanges) {
+          this.clearThenProcessPlayingTrack();
+          this._ignoreTrackChanges = true;
+          this._mediaCoreManager.sequencer.playView(this._hiddenPlaylistView, 0);
+          this._ignoreTrackChanges = false;
+        }
+        break;
+        
       case Ci.sbIMediacoreEvent.TRACK_CHANGE :
-        this._trackTreeView.treebox.invalidate();
+        this._trackTreeView.treebox.invalidate();        
         break;
     }
   },
   
+  clearThenProcessPlayingTrack: function() {  
+    
+    var mediaCoreManager = Cc["@songbirdnest.com/Songbird/Mediacore/Manager;1"]  
+                            .getService(Components.interfaces.sbIMediacoreManager);  
+    var nowPlayingMediaItem = mediaCoreManager.sequencer.currentItem;
+    
+    if (nowPlayingMediaItem == null) {
+      return;
+    }
+    
+    this.stopProcessing(true);
+    this.clearAllTracks();
+    
+    this._candidateTracks.addOrUpdate(this.makeCandidateTrackFromMediaItem(nowPlayingMediaItem, null, 1));
+    this._candidateArtists.addOrUpdate(this.makeSeedArtistFromMediaItem(nowPlayingMediaItem));
+    this.updateTrackTrees();
+    this.updateArtistList();    
+    
+    this.startProcessing();
+  },
+  
+  // return true to keep processing afterwards, false to get out of processing loop
   processArtist: function(artist) {
     if (!this._doSimilarArtists && !this._doTracksFromArtist && !this._doTopTracks && !this._doArtistTopAlbums) {
       artist.processed = true;
-      return;
+      return true;
     }
     
     if (this._ignoreNotInLibrary) {
@@ -1571,7 +1642,7 @@ SmartyPants.PaneController = {
       
       if (!artistInLibrary) {
         artist.processed = true;
-        return;
+        return true;
       }
     }
     
@@ -1583,34 +1654,27 @@ SmartyPants.PaneController = {
     this.addOutputText(this._strings.getFormattedString("processingArtistOutputText", [artistName]));
     
     if (this._doSimilarArtists) {    
-      this.findSimilarArtists(artist, artistName);
-      if (!this._processing) {
-        return;
+      if (!this.findSimilarArtists(artist, artistName) || !this._processing) {
+        return false;
       }
     }
     
     if (this._doTracksFromArtist) {
       this.addTracksFromSimilarArtist(artist);
-      if (!this._processing) {
-        return;
-      }
     }
     
     if (this._doTopTracks) {
-      this.findTopTracks(artist, artistName);
-      if (!this._processing) {
-        return;
+      if (!this.findTopTracks(artist, artistName) || !this._processing) {
+        return false;
       }
     }
     
     if (this._doArtistTopAlbums) {
-      this.findTopAlbums(artist, artistName);
-      if (!this._processing) {
-        return;
+      if (!this.findTopAlbums(artist, artistName) || !this._processing) {
+        return false;
       }
     }
     
-    this.updateArtistList();
     artist.processed = true;
     this._numProcessed++;
   },
@@ -1630,23 +1694,24 @@ SmartyPants.PaneController = {
     catch (e) {
       // If processing has been stopped
       if (!this._processing) {
-        return;
+        return false;
       }
 
       this.addOutputText(this._strings.getString("lastfmResponseErrorOutputText"));
-      return;
+      return true;
     }
 
-    if (!this._processing) {
-      return;
+    if (!this._processing || this._processingTrackOrArtist != artist) {
+      return false;
     }
 
     if (!request.responseXML || request.status != REQUEST_SUCCESS_CODE) {
       this.addOutputText(this._strings.getString("lastfmResponseErrorOutputText"));
-      return; 
+      return true; 
     }
     
     this.processSimilarArtistXml(artist, request.responseXML);
+    return true; 
   },
   
   processSimilarArtistXml: function(artist, xml) {
@@ -1679,6 +1744,8 @@ SmartyPants.PaneController = {
       
       this._candidateArtists.addOrUpdate(this.makeCandidateArtistFromSimilarArtistDetails(artist, artistName, scaledScore, url, imageUrl))
     }
+    
+    this.updateArtistList();
   },
   
   addTracksFromSimilarArtist: function(artist) {
@@ -1711,6 +1778,7 @@ SmartyPants.PaneController = {
     }
     else {
       this.addOutputText(this._strings.getFormattedString("tracksFromSimilarArtistOutputText", [tracksAdded]));
+      this.updateTrackTrees();
     }
   },
   
@@ -1729,23 +1797,24 @@ SmartyPants.PaneController = {
     catch (e) {
       // If processing has been stopped
       if (!this._processing) {
-        return;
+        return false;
       }
 
       this.addOutputText(this._strings.getString("lastfmResponseErrorOutputText"));
-      return;
+      return true;
     }
 
-    if (!this._processing) {
-      return;
+    if (!this._processing || this._processingTrackOrArtist != artist) {
+      return false;
     }
 
     if (!request.responseXML || request.status != REQUEST_SUCCESS_CODE) {
       this.addOutputText(this._strings.getString("lastfmResponseErrorOutputText"));
-      return; 
+      return true; 
     }
     
     this.processTopTracksXml(artist, artistName, request.responseXML);
+    return true;
   },
   
   processTopTracksXml: function(artist, artistName, xml) {
@@ -1836,7 +1905,7 @@ SmartyPants.PaneController = {
         (
           bestSongFromArtistScore > 0 
           ||
-          (bestSongFromArtistScore >= -3 && bestSongFromArtistScore*-1 < trackName.length/2)
+          (bestSongFromArtistScore >= -3 && bestSongFromArtistScore*-1 < trackName.length/2 && bestSongFromArtistScore*-1 < bestSongFromArtist.getProperty(SBProperties.trackName).length/2)
         ) {
           this._candidateTracks.addOrUpdate(this.makeCandidateTrackFromSimilarArtistTopTrackMediaItem(bestSongFromArtist, artist, scoreFromTopTrack));
           this.addOutputText(this._strings.getFormattedString("correctedSongOutputText", [artistName, trackName, bestSongFromArtist.getProperty(SBProperties.trackName)]));
@@ -1854,6 +1923,7 @@ SmartyPants.PaneController = {
     }
     
     this.addOutputText(this._strings.getFormattedString("foundTopTracksOutputText", [addedTracks, foundTracks]));
+    this.updateTrackTrees();
   },
   
   findTopAlbums: function(artist, artistName) {    
@@ -1870,23 +1940,24 @@ SmartyPants.PaneController = {
     catch (e) {
       // If processing has been stopped
       if (!this._processing) {
-        return;
+        return false;
       }
 
       this.addOutputText(this._strings.getString("lastfmResponseErrorOutputText"));
-      return;
+      return true;
     }
 
-    if (!this._processing) {
-      return;
+    if (!this._processing || this._processingTrackOrArtist != artist) {
+      return false;
     }
 
     if (!request.responseXML || request.status != REQUEST_SUCCESS_CODE) {
       this.addOutputText(this._strings.getString("lastfmResponseErrorOutputText"));
-      return; 
+      return true; 
     }
     
     this.processTopAlbumsXml(artist, artistName, request.responseXML);    
+    return true; 
   },
   
   processTopAlbumsXml: function(artist, artistName, xml) {
@@ -1951,7 +2022,7 @@ SmartyPants.PaneController = {
               (
                 albumDiffScore > 0
                 ||
-                (albumDiffScore >= -3 && albumDiffScore*-1 < albumName.length/2)
+                (albumDiffScore >= -3 && albumDiffScore*-1 < albumName.length/2 && albumDiffScore*-1 < curAlbumName.length/2)
               ) {
                 albumFound = true;
                 break;
