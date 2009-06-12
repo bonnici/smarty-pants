@@ -48,7 +48,6 @@
             <tab label="&smarty-pants.playlist-tabpanel-header;"/> 
             <tab label="&smarty-pants.recommendations-tabpanel-header;"/> 
             <tab label="&smarty-pants.artists-tabpanel-header;"/> 
-            <tab label="&smarty-pants.album-tabpanel-header;"/> 
           </tabs> 
           <tabpanels flex="1"> 
             <tabpanel>
@@ -120,18 +119,7 @@
                 <hbox>
                   <spacer flex="1" />
                   <checkbox id="show-artist-images-check" label="&smarty-pants.show-images-check;" checked="true" />
-                  <checkbox id="show-artist-scores-check" label="&smarty-pants.show-scores-check;" checked="false" />
-                </hbox>
-              </vbox>
-            </tabpanel>
-            
-            <tabpanel>
-              <vbox flex="1">
-                <richlistbox flex="1" id="album-list" />
-                <hbox>
-                  <spacer flex="1" />
-                  <checkbox id="show-album-images-check" label="&smarty-pants.show-images-check;" checked="true" />
-                  <checkbox id="show-album-scores-check" label="&smarty-pants.show-scores-check;" checked="false" />
+                  <checkbox id="show-album-images-check" label="&smarty-pants.show-albums-check;" checked="true" />
                 </hbox>
               </vbox>
             </tabpanel>
@@ -154,8 +142,8 @@
             <vbox>
               <checkbox id="do-similar-tracks-check" label="&smarty-pants.do-similar-tracks-check;" checked="true" tooltiptext="&smarty-pants.do-similar-tracks-tooltip;" />
               <checkbox id="do-similar-artists-check" label="&smarty-pants.do-similar-artists-check;" checked="true" tooltiptext="&smarty-pants.do-similar-artists-tooltip;" />
-              <checkbox id="do-artist-top-tracks-check" label="&smarty-pants.do-artist-top-tracks-check;" checked="true" tooltiptext="&smarty-pants.do-artist-top-tracks-tooltip;" />
               <checkbox id="do-artist-top-albums-check" label="&smarty-pants.do-artist-top-albums-check;" checked="true" tooltiptext="&smarty-pants.do-artist-top-albums-tooltip;" />
+              <checkbox id="do-artist-top-tracks-check" label="&smarty-pants.do-artist-top-tracks-check;" checked="true" tooltiptext="&smarty-pants.do-artist-top-tracks-tooltip;" />
               
               <checkbox id="try-other-artist-checkbox" label="&smarty-pants.try-other-artist-check;" checked="true" tooltiptext="&smarty-pants.try-other-artist-tooltip;" />
               <checkbox id="fuzzy-match-checkbox" label="&smarty-pants.fuzzy-match-check;" checked="true" tooltiptext="&smarty-pants.fuzzy-match-tooltip;" />
@@ -210,10 +198,6 @@
               <hbox align="center">
                 <label value="&smarty-pants.max-top-tracks-label;" width="200" tooltiptext="&smarty-pants.max-top-tracks-tooltip;" />
                 <textbox id="max-top-tracks-textbox" value="10" type="number" min="1" max="50" increment="1" width="50" tooltiptext="&smarty-pants.max-top-tracks-tooltip;" />
-              </hbox>
-              <hbox align="center">
-                <label value="&smarty-pants.max-top-albums-label;" width="200" tooltiptext="&smarty-pants.max-top-albums-tooltip;" />
-                <textbox id="max-top-albums-textbox" value="5" type="number" min="1" max="100" increment="1" width="50" tooltiptext="&smarty-pants.max-top-albums-tooltip;" />
               </hbox>
             </vbox>
           </tabpanel>

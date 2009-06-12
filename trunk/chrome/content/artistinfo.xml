@@ -8,25 +8,65 @@
 
   <binding id="artistinfo" flex="1">
     <content flex="1">
-      <xul:hbox flex="1">
-        <xul:image xbl:inherits="src=artistImage, collapsed=hideArtistImage, tooltiptext=artistName"
-                   class="artistinfo-image" 
-                   onclick="SmartyPants.PaneController.onArtistClick(document.getBindingParent(this), event)" />
-        <xul:vbox class="artistinfo-labelbox" flex="1">
-          <xul:label xbl:inherits="value=artistName"
-                     class="artistinfo-artistname"
-                     crop="end"
-                     onclick="SmartyPants.PaneController.onArtistClick(document.getBindingParent(this), event)" />
-          <xul:hbox flex="1">
-            <xul:image src="chrome://smarty-pants/skin/radio-icon.png" tooltiptext="Play Radio"
-                   class="artistinfo-radioimage" 
-                   onclick="SmartyPants.PaneController.onPlayArtistRadioClick(document.getBindingParent(this), event)" />
+      <xul:vbox flex="1">
+        <xul:hbox>
+          <xul:vbox>
+            <xul:image xbl:inherits="src=artistImage, collapsed=hideArtistImage, tooltiptext=artistName"
+                       class="artistinfo-image" 
+                       onclick="SmartyPants.PaneController.onArtistClick(document.getBindingParent(this), event)" />
+          </xul:vbox>
+          <xul:vbox>
+            <xul:hbox>
+              <xul:image src="chrome://smarty-pants/skin/radio-icon.png" tooltiptext="Play Radio"
+                         class="artistinfo-radioimage" 
+                         onclick="SmartyPants.PaneController.onPlayArtistRadioClick(document.getBindingParent(this), event)" />
+              <xul:label xbl:inherits="value=artistName"
+                         class="artistinfo-artistname"
+                         crop="end"
+                         onclick="SmartyPants.PaneController.onArtistClick(document.getBindingParent(this), event)" />
+            </xul:hbox>
             <xul:spacer flex="1" />
-            <xul:label xbl:inherits="hidden=hideArtistScore, value=artistScore"
-                         class="artistinfo-artistscore"/>
-          </xul:hbox>
-        </xul:vbox>
-      </xul:hbox>
+            <xul:hbox class="artistinfo-albumsbox">
+              <xul:vbox>
+                <xul:image  class="artistinfo-albumimage" 
+                            xbl:inherits="src=album1Image, tooltiptext=album1Name, collapsed=hideAlbum1Image"
+                            onclick="SmartyPants.PaneController.onAlbumClick(document.getBindingParent(this), event, 1)" />
+                <xul:label xbl:inherits="value=album1Name, tooltiptext=album1Name"
+                           class="artistinfo-albumname"
+                           crop="end" 
+                           onclick="SmartyPants.PaneController.onAlbumClick(document.getBindingParent(this), event, 1)"/>
+              </xul:vbox>
+              <xul:vbox>
+                <xul:image  class="artistinfo-albumimage" 
+                            xbl:inherits="src=album2Image, tooltiptext=album2Name, collapsed=hideAlbum2Image"
+                            onclick="SmartyPants.PaneController.onAlbumClick(document.getBindingParent(this), event, 2)" />
+                <xul:label xbl:inherits="value=album2Name, tooltiptext=album2Name"
+                           class="artistinfo-albumname"
+                           crop="end" 
+                           onclick="SmartyPants.PaneController.onAlbumClick(document.getBindingParent(this), event, 2)"/>
+              </xul:vbox>
+              <xul:vbox>
+                <xul:image  class="artistinfo-albumimage" 
+                            xbl:inherits="src=album3Image, tooltiptext=album3Name, collapsed=hideAlbum3Image"
+                            onclick="SmartyPants.PaneController.onAlbumClick(document.getBindingParent(this), event, 3)" />
+                <xul:label xbl:inherits="value=album3Name, tooltiptext=album3Name"
+                           class="artistinfo-albumname"
+                           crop="end" 
+                           onclick="SmartyPants.PaneController.onAlbumClick(document.getBindingParent(this), event, 3)"/>
+              </xul:vbox>
+              <xul:vbox>
+                <xul:image  class="artistinfo-albumimage" 
+                            xbl:inherits="src=album4Image, tooltiptext=album4Name, collapsed=hideAlbum4Image"
+                            onclick="SmartyPants.PaneController.onAlbumClick(document.getBindingParent(this), event, 4)" />
+                <xul:label xbl:inherits="value=album4Name, tooltiptext=album4Name"
+                           class="artistinfo-albumname"
+                           crop="end" 
+                           onclick="SmartyPants.PaneController.onAlbumClick(document.getBindingParent(this), event, 4)"/>
+              </xul:vbox>
+            </xul:hbox>
+          </xul:vbox>
+        </xul:hbox>
+      </xul:vbox>
     </content>
     
     <implementation>
