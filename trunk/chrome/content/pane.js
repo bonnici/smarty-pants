@@ -656,13 +656,16 @@ SmartyPants.PaneController = {
     this._gBrowser.loadURI(url, null, null, null, '_blank');
   },
   
-  playArtistRadio: function(artistName) {
-    // Might need to do it this way if last.fm isn't installed
-    //var radioUrl = "http://www.last.fm/listen/artist/" + encodeURIComponent(artistName);
-    //this._gBrowser.loadURI(radioUrl);
+  playArtistRadio: function(artistName) {    
     
-    var lastFmRadioSvc = Cc['@songbirdnest.com/lastfm;1'].getService().wrappedJSObject;
-    lastFmRadioSvc.radioPlay("lastfm://artist/" + artistName + "/similarartists"); 
+    try {
+      var lastFmRadioSvc = Cc['@songbirdnest.com/lastfm;1'].getService().wrappedJSObject;
+      lastFmRadioSvc.radioPlay("lastfm://artist/" + encodeURIComponent(artistName) + "/similarartists"); 
+    }
+    catch (e) {
+      var radioUrl = "http://www.last.fm/listen/artist/" + encodeURIComponent(artistName);
+      this._gBrowser.loadURI(radioUrl);
+    }
   },
   
   onIgnoreScoresChange: function(event) {
