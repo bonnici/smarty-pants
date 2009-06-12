@@ -361,7 +361,6 @@ SmartyPants.PaneController = {
         getLevel: function(row) { return 0; },  
         getImageSrc: function(row,col) { return null; },  
         getRowProperties: function(row,props) {},  
-        getCellProperties: function(row,col,props) {},  
         getColumnProperties: function(colid,col,props) {}, 
         update: function(candidateTracks) { 
           this.dataArray = [];
@@ -390,7 +389,14 @@ SmartyPants.PaneController = {
             var curTrack = this.dataArray[row];
             if (curTrack.guid != null) {
               var curMediaItem = LibraryUtils.mainLibrary.getItemByGuid(curTrack.guid);
-              if (curMediaItem != null && controller._mediaCoreManager.sequencer.currentItem == curMediaItem) {
+              if 
+              (
+                curMediaItem != null 
+                && 
+                controller._mediaCoreManager.sequencer.currentItem == curMediaItem
+                && 
+                controller._mediaCoreManager.sequencer.view.mediaList.getProperty(SBProperties.customType) == SMARTY_PANTS_HIDDEN_PLAYLIST_PROP
+              ) {
                 var aserv = Cc["@mozilla.org/atom-service;1"].getService(Ci.nsIAtomService);
                 props.AppendElement(aserv.getAtom("playingSong"));
               }
