@@ -35,7 +35,6 @@ SmartyPants.PaneController = {
     var controller = this;
     this._strings = document.getElementById("smarty-pants-strings");
     
-    this._addButton = document.getElementById("add-button");
     this._goButton = document.getElementById("go-button");
     this._saveButton = document.getElementById("save-button");
     this._clearButton = document.getElementById("clear-button");
@@ -74,7 +73,6 @@ SmartyPants.PaneController = {
     this._showArtistImagesCheck = document.getElementById("show-artist-images-check");
     this._showAlbumImagesCheck = document.getElementById("show-album-images-check");
     
-    //todo move this checkbox
     //todo limit the number of updates when this is on - change to auto mode options group
     this._automaticModeCheck = document.getElementById("automatic-mode-checkbox");
     
@@ -86,8 +84,6 @@ SmartyPants.PaneController = {
     this._processingTrackOrArtist = null;
     this._goButton.setAttribute("label", this._strings.getString("goButtonGo"));
     
-    this._addButton.addEventListener("command", 
-          function() { controller.addSelectedTracks(); }, false);
     this._goButton.addEventListener("command", 
           function() { controller.startOrStopProcessing(); }, false);
     this._clearButton.addEventListener("command", 
@@ -661,9 +657,12 @@ SmartyPants.PaneController = {
   },
   
   playArtistRadio: function(artistName) {
-    var radioUrl = "http://www.last.fm/listen/artist/" + encodeURIComponent(artistName);
-    //todo make this not open a tab
-    this._gBrowser.loadURI(radioUrl);
+    // Might need to do it this way if last.fm isn't installed
+    //var radioUrl = "http://www.last.fm/listen/artist/" + encodeURIComponent(artistName);
+    //this._gBrowser.loadURI(radioUrl);
+    
+    var lastFmRadioSvc = Cc['@songbirdnest.com/lastfm;1'].getService().wrappedJSObject;
+    lastFmRadioSvc.radioPlay("lastfm://artist/" + artistName + "/similarartists"); 
   },
   
   onIgnoreScoresChange: function(event) {
@@ -926,6 +925,9 @@ SmartyPants.PaneController = {
       this.stopProcessing(false);
     }
     else {
+      if (this._candidateTracks.dataArray.length == 0) {
+        this.addSelectedTracks();
+      }
       this.startProcessing();
     }
   },
@@ -978,7 +980,6 @@ SmartyPants.PaneController = {
   
   enableButtons: function(enable, doGoButton) {
     var disabled = enable ? "false" : "true";
-    this._addButton.setAttribute("disabled", disabled);
     this._clearButton.setAttribute("disabled", disabled);
     
     if (doGoButton) {
