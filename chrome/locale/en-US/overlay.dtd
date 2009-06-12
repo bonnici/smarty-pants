@@ -63,11 +63,8 @@
 <!ENTITY smarty-pants.ignore-similar-tracks-from-same-artist-tooltip "If this option is on, any similar tracks found with the same artist will be ignored">
 <!ENTITY smarty-pants.do-artist-top-albums-check "Get album recommendations">
 <!ENTITY smarty-pants.do-artist-top-albums-tooltip "If this option is checked, albums from the recommended artists that are not in your library will be shown">
-<!ENTITY smarty-pants.album-tabpanel-header "Albums">
-<!ENTITY smarty-pants.max-top-albums-label "Maximum top albums:">
-<!ENTITY smarty-pants.max-top-albums-tooltip "The maximum number of top albums that will be processed for each artist">
-<!ENTITY smarty-pants.show-images-check "Show images">
-<!ENTITY smarty-pants.show-scores-check "Show scores">
+<!ENTITY smarty-pants.show-images-check "Show artist images">
+<!ENTITY smarty-pants.show-albums-check "Show album images">
 <!ENTITY smarty-pants.play-menu-label "Play in Songbird">
 <!ENTITY smarty-pants.open-song-menu-label "Open song in Last.fm">
 <!ENTITY smarty-pants.open-artist-menu-label "Open artist in Last.fm">
