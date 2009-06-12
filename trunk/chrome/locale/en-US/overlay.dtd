@@ -1,6 +1,5 @@
-<!ENTITY smarty-pants.add-button-label "Add">
 <!ENTITY smarty-pants.save-button-label "Save">
-<!ENTITY smarty-pants.clear-button-label "Clear">
+<!ENTITY smarty-pants.clear-button-label "Reset">
 <!ENTITY smarty-pants.track-list.title-column-header "Title">
 <!ENTITY smarty-pants.track-list.artist-column-header "Artist">
 <!ENTITY smarty-pants.track-list.score-column-header "Score">
@@ -69,5 +68,5 @@
 <!ENTITY smarty-pants.open-song-menu-label "Open song in Last.fm">
 <!ENTITY smarty-pants.open-artist-menu-label "Open artist in Last.fm">
 <!ENTITY smarty-pants.play-artist-radio-label "Play artist radio">
-<!ENTITY smarty-pants.automatic-mode-check "Automatic mode">
+<!ENTITY smarty-pants.automatic-mode-check "Update automatically">
 <!ENTITY smarty-pants.automatic-mode-tooltip "With this option enabled, Smarty Pants will automatically update every time the track changes">

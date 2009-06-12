@@ -34,10 +34,9 @@
 
   <vbox flex="1">
     <vbox flex="5">
-      <checkbox id="automatic-mode-checkbox" label="&smarty-pants.automatic-mode-check;" checked="false" tooltiptext="&smarty-pants.automatic-mode-tooltip;" />
       <hbox>
-        <button id="add-button" label="&smarty-pants.add-button-label;" width="60" />
         <button id="go-button" width="60" />
+        <checkbox id="automatic-mode-checkbox" label="&smarty-pants.automatic-mode-check;" checked="false" tooltiptext="&smarty-pants.automatic-mode-tooltip;" />
         <spacer flex="1" />
         <button id="clear-button" label="&smarty-pants.clear-button-label;" width="60" />
       </hbox>
@@ -68,12 +67,12 @@
                 </tree>
                 
                 <hbox align="center">
+                  <spacer flex="1" />
                   <label value="&smarty-pants.playlist-limit-to-label;" />
                   <textbox id="playlist-limit-to-songs-textbox" value="50" type="number" min="0" increment="5" decimalplaces="0" width="40" />
                   <label value="&smarty-pants.playlist-limit-to-songs;" />
                   <textbox id="playlist-limit-to-time-textbox" value="0" type="number" min="0" increment="5" decimalplaces="0" width="40" />
                   <label value="&smarty-pants.playlist-limit-to-time;" />
-                  <spacer flex="1" />
                   <button id="save-button" label="&smarty-pants.save-button-label;" width="60" />
                 </hbox>
                 
