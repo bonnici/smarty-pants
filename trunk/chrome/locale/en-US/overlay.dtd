@@ -71,3 +71,15 @@
 <!ENTITY smarty-pants.automatic-mode-check "Update automatically">
 <!ENTITY smarty-pants.automatic-mode-tooltip "With this option enabled, Smarty Pants will automatically update every time the track changes">
 <!ENTITY smarty-pants.help-button-label "Help">
+<!ENTITY smarty-pants.preferences-label "Preferences:">
+<!ENTITY smarty-pants.preferences-list-default "Default">
+<!ENTITY smarty-pants.preferences-list-best-results "Best results">
+<!ENTITY smarty-pants.preferences-list-quick "Quick">
+<!ENTITY smarty-pants.preferences-list-super-quick "Super quick">
+<!ENTITY smarty-pants.preferences-list-multiple-selection "Multiple selection">
+<!ENTITY smarty-pants.preferences-list-varied-results "Varied results">
+<!ENTITY smarty-pants.preferences-list-artist-top-tracks "Artist's top tracks">
+<!ENTITY smarty-pants.preferences-list-artist-and-similar-top-tracks "Artist and similar top tracks">
+<!ENTITY smarty-pants.preferences-list-artist-album-recommendations "Artist and album recommendations">
+<!ENTITY smarty-pants.preferences-list-all-from-artist-and-similar "All from artist and similar">
+<!ENTITY smarty-pants.preferences-list-auto-mode "Auto mode">
