@@ -73,6 +73,7 @@ SmartyPants.PaneController = {
     this._doArtistTopAlbumsCheckbox = document.getElementById("do-artist-top-albums-check");
     this._showArtistImagesCheck = document.getElementById("show-artist-images-check");
     this._showAlbumImagesCheck = document.getElementById("show-album-images-check");
+    this._preferencesList = document.getElementById("preferences-list");
     
     //todo limit the number of updates when this is on - change to auto mode options group
     this._automaticModeCheck = document.getElementById("automatic-mode-checkbox");
@@ -109,6 +110,8 @@ SmartyPants.PaneController = {
           function() { controller.onShowAlbumImagesCheck(); }, false);
     this._automaticModeCheck.addEventListener("command", 
           function() { controller.onToggleAutomaticMode(); }, false);
+    this._preferencesList.addEventListener("command", 
+          function() { controller.onChangePreferences(); }, false);
           
     this._recommendationFilterSelection = 0;
     this._numProcessed = 0;
@@ -623,6 +626,43 @@ SmartyPants.PaneController = {
     this._recommendationTreeView.update(this._candidateTracks);
     this._recommendationTree.view = this._recommendationTreeView;
   },
+  
+  onChangePreferences: function() {
+    if (this._preferencesList.selectedItem == document.getElementById("preferences-list-default")) {
+      this.setDefaultPreferences();
+    }
+    else if (this._preferencesList.selectedItem == document.getElementById("preferences-list-best-results")) {
+      this.setBestResultsPreferences();
+    }
+    else if (this._preferencesList.selectedItem == document.getElementById("preferences-list-quick")) {
+      this.setQuickPreferences();
+    }
+    else if (this._preferencesList.selectedItem == document.getElementById("preferences-list-super-quick")) {
+      this.setSuperQuickPreferences();
+    }
+    else if (this._preferencesList.selectedItem == document.getElementById("preferences-list-multiple-selection")) {
+      this.setMultipleSelectionPreferences();
+    }
+    else if (this._preferencesList.selectedItem == document.getElementById("preferences-list-varied-results")) {
+      this.setVariedResultsPreferences();
+    }
+    else if (this._preferencesList.selectedItem == document.getElementById("preferences-list-artist-top-tracks")) {
+      this.setArtistTopTracksPreferences();
+    }
+    else if (this._preferencesList.selectedItem == document.getElementById("preferences-list-artist-and-similar-top-tracks")) { 
+      this.setArtistAndSimilarTopTracksPreferences();
+    }
+    else if (this._preferencesList.selectedItem == document.getElementById("preferences-list-artist-album-recommendations")) {
+      this.setArtistAndAlbumRecommendationsPreferences();
+    }
+    else if (this._preferencesList.selectedItem == document.getElementById("preferences-list-all-from-artist-and-similar")) {
+      this.setAllFromArtistAndSimilarPreferences();
+    }
+    else if (this._preferencesList.selectedItem == document.getElementById("preferences-list-auto-mode")) {
+      this.setAutoModePreferences();
+    }
+    
+  },  
   
   onRecommendationTreeDoubleClick: function(event) {
     var clickedIndex = this._recommendationTree.treeBoxObject.getRowAt(event.clientX, event.clientY);
@@ -2184,104 +2224,135 @@ SmartyPants.PaneController = {
     event.stopPropagation();
   },
   
-  onAlbumMouseOver: function(node, event, albumNumber) {
-    var artistIndex = parseInt(node.getAttribute("index"));
-    var artist = this._candidateArtists.dataArray[artistIndex];
+  setDefaultPreferences: function() {
+    this._doSimilarTracksCheckbox.setAttribute("checked", "true");
+    this._doSimilarArtistsCheckbox.setAttribute("checked", "true");
+    this._doArtistTopAlbumsCheckbox.setAttribute("checked", "true");
+    this._doTopTracksCheckbox.setAttribute("checked", "true");
+    this._tryOtherArtistCheckbox.setAttribute("checked", "true");
+    this._fuzzyMatchCheckbox.setAttribute("checked", "true");
+    this._ignoreNotInLibraryCheckbox.setAttribute("checked", "false");
+    this._ignoreScoresTextbox.value = 0.15;
+    this._maxNumToProcessTextbox.value = 25;
     
-    if (artist == null || albumNumber > artist.albums.length) {
-      return;
-    }
+    this._ignoreDuplicateMatchesCheckbox.setAttribute("checked", "true");
+    this._ignoreSimilarTracksFromSameArtistCheckbox.setAttribute("checked", "true");
+    this._diminishTrackScoresCheckbox.setAttribute("checked", "true");
+    this._diminishTracksAfterTextbox.value = 3;
+    this._similarTrackWeightTextbox.value = 1.0;
     
-    var album = artist.albums[albumNumber-1];
-    alert(album);
-    alert("album-name-" + artistIndex);
-    
-    var label = document.getElementById("album-name-0");
-    alert(label);
-    
-    label.value = album.albumName;
-    
-    alert(label);
-    alert(album.albumName);
-    
-    event.stopPropagation();
+    this._doTracksFromArtistCheckbox.setAttribute("checked", "false");
+    this._defaultSimilarArtistTrackScoreTextbox.value = 0.15;
+    this._artistTopTrackWeightTextbox.value = 0.70;
+    this._similarArtistTrackWeightTextbox.value = 0.25;
+    this._similarArtistSimilarityWeightTextbox.value = 0.75;
+    this._maxTopTracksTextbox.value = 10;
   },
   
-  /* Can't get it to work, do it later
-  loadPrefs: function() {
-    if (Application.prefs.get("extensions.smarty-pants.song-limit").value) {
-      this._playlistLimitToSongsTextbox.value = Application.prefs.get("extensions.smarty-pants.song-limit").value;
-    }
+  setBestResultsPreferences: function() {
+    this.setDefaultPreferences();
     
-    if (Application.prefs.get("extensions.smarty-pants.time-limit").value) {
-      this._playlistLimitToTimeTextbox.value = Application.prefs.get("extensions.smarty-pants.time-limit").value;
-    }
-    
-    if (Application.prefs.get("extensions.smarty-pants.show-advanced").value) {
-      this._showAdvancedOptionsCheckbox.setAttribute("checked", Application.prefs.get("extensions.smarty-pants.show-advanced").value ? "true" : "false");
-      this.onShowAdvancedOptionsCheck();
-    }
-    
-    if (Application.prefs.get("extensions.smarty-pants.ignore-duplicate").value) {
-      this._ignoreDuplicateMatchesCheckbox.setAttribute("checked", Application.prefs.get("extensions.smarty-pants.ignore-duplicate").value ? "true" : "false");
-    }
-    
-    if (Application.prefs.get("extensions.smarty-pants.auto-correct-source").value) {
-      this._tryOtherArtistCheckbox.setAttribute("checked", Application.prefs.get("extensions.smarty-pants.auto-correct-source").value ? "true" : "false");
-    }
-    
-    if (Application.prefs.get("extensions.smarty-pants.auto-correct-results").value) {
-      this._fuzzyMatchCheckbox.setAttribute("checked", Application.prefs.get("extensions.smarty-pants.auto-correct-results").value ? "true" : "false");
-    }
-    
-    if (Application.prefs.get("extensions.smarty-pants.score-cutoff").value) {
-      this._ignoreScoresTextbox.value = Application.prefs.get("extensions.smarty-pants.score-cutoff").value;
-    }
-    
-    if (Application.prefs.get("extensions.smarty-pants.sim-track-weight").value) {
-      this._similarTrackWeightTextbox.value = Application.prefs.get("extensions.smarty-pants.sim-track-weight").value;
-    }
-    
-    if (Application.prefs.get("extensions.smarty-pants.recommendation-filter").value) {
-      if (Application.prefs.get("extensions.smarty-pants.recommendation-filter").value == 0) {
-        this._recommendationFilterList.selectedItem == this._recommendationFilterAll;
-      }
-      else if (Application.prefs.get("extensions.smarty-pants.recommendation-filter").value == 1) {
-        this._recommendationFilterList.selectedItem == this._recommendationFilterStreamable;
-      }
-      else if (Application.prefs.get("extensions.smarty-pants.recommendation-filter").value == 2) {
-        this._recommendationFilterList.selectedItem == this._recommendationFilterFull;
-      }
-    }
+    this._doTopTracksCheckbox.setAttribute("checked", "false");
+    this._ignoreScoresTextbox.value = 0.25;
+    this._maxNumToProcessTextbox.value = 10;
   },
   
-  savePrefs: function() {
-  
-    if (!this._loaded) {
-      return;
-    }
-  
-    Application.prefs.setValue("extensions.smarty-pants.song-limit", parseInt(this._playlistLimitToSongsTextbox.value));
-    Application.prefs.setValue("extensions.smarty-pants.time-limit", parseInt(this._playlistLimitToTimeTextbox.value));
-    Application.prefs.setValue("extensions.smarty-pants.show-advanced", this._showAdvancedOptionsCheckbox.getAttribute("checked") == "true");
-    Application.prefs.setValue("extensions.smarty-pants.ignore-duplicate", this._ignoreDuplicateMatchesCheckbox.getAttribute("checked") == "true");
-    Application.prefs.setValue("extensions.smarty-pants.auto-correct-source", this._tryOtherArtistCheckbox.getAttribute("checked") == "true");
-    Application.prefs.setValue("extensions.smarty-pants.auto-correct-results", this._fuzzyMatchCheckbox.getAttribute("checked") == "true");
-    Application.prefs.setValue("extensions.smarty-pants.score-cutoff", parseFloat(this._ignoreScoresTextbox.value));
-    Application.prefs.setValue("extensions.smarty-pants.sim-track-weight", parseFloat(this._similarTrackWeightTextbox.value));
+  setQuickPreferences: function() {
+    this.setDefaultPreferences();
     
-    if (this._recommendationFilterList.selectedItem == this._recommendationFilterStreamable) {
-      Application.prefs.setValue("extensions.smarty-pants.recommendation-filter", 1);
-    }
-    else if (this._recommendationFilterList.selectedItem == this._recommendationFilterFull) {
-      Application.prefs.setValue("extensions.smarty-pants.recommendation-filter", 2);
-    }
-    else {
-      Application.prefs.setValue("extensions.smarty-pants.recommendation-filter", 0);
-    }
+    this._doArtistTopAlbumsCheckbox.setAttribute("checked", "false");
+    this._ignoreNotInLibraryCheckbox.setAttribute("checked", "true");
+    this._maxNumToProcessTextbox.value = 15;
   },
-  */
   
+  setSuperQuickPreferences: function() {
+    this.setDefaultPreferences();
+    
+    this._doSimilarTracksCheckbox.setAttribute("checked", "false");
+    this._doArtistTopAlbumsCheckbox.setAttribute("checked", "false");
+    this._ignoreNotInLibraryCheckbox.setAttribute("checked", "true");
+    this._tryOtherArtistCheckbox.setAttribute("checked", "false");
+    this._maxNumToProcessTextbox.value = 10;
+    this._diminishTracksAfterTextbox.value = 2;
+    this._maxTopTracksTextbox.value = 5;
+  },
+  
+  setMultipleSelectionPreferences: function() {
+    this.setDefaultPreferences();
+    
+    this._doSimilarTracksCheckbox.setAttribute("checked", "true");
+    this._doSimilarArtistsCheckbox.setAttribute("checked", "false");
+    this._doArtistTopAlbumsCheckbox.setAttribute("checked", "false");
+    this._doTopTracksCheckbox.setAttribute("checked", "false");
+    this._ignoreDuplicateMatchesCheckbox.setAttribute("checked", "false");
+    this._similarTrackWeightTextbox.value = 0.4;
+    this._ignoreScoresTextbox.value = 0.05;
+  },
+  
+  setVariedResultsPreferences: function() {
+    this.setDefaultPreferences();
+    
+    this._ignoreScoresTextbox.value = 0.25;
+    this._diminishTracksAfterTextbox.value = 1;
+    this._maxTopTracksTextbox.value = 2;
+    this._similarArtistTrackWeightTextbox.value = 0.5;
+    this._similarArtistSimilarityWeightTextbox.value = 0.5;
+  },
+  
+  setArtistTopTracksPreferences: function() {
+    this.setDefaultPreferences();
+    
+    this._doSimilarTracksCheckbox.setAttribute("checked", "false");
+    this._doSimilarArtistsCheckbox.setAttribute("checked", "false");
+    this._maxNumToProcessTextbox.value = 1;
+    this._ignoreScoresTextbox.value = 0.0;
+    this._diminishTrackScoresCheckbox.setAttribute("checked", "false");
+    this._artistTopTrackWeightTextbox.value = 1.0;
+    this._maxTopTracksTextbox.value = 50;
+  },
+  
+  setArtistAndSimilarTopTracksPreferences: function() {
+    this.setDefaultPreferences();
+    
+    this._doSimilarTracksCheckbox.setAttribute("checked", "false");
+    this._maxNumToProcessTextbox.value = 5;
+    this._ignoreScoresTextbox.value = 0.0;
+    this._diminishTrackScoresCheckbox.setAttribute("checked", "false");
+    this._artistTopTrackWeightTextbox.value = 1.0;
+    this._maxTopTracksTextbox.value = 50;
+    this._similarArtistTrackWeightTextbox.value = 0.0;
+    this._similarArtistSimilarityWeightTextbox.value = 1.0;
+  },
+  
+  setArtistAndAlbumRecommendationsPreferences: function() {
+    this.setDefaultPreferences();
+    
+    this._doSimilarTracksCheckbox.setAttribute("checked", "false");
+    this._doTopTracksCheckbox.setAttribute("checked", "false");
+    this._maxNumToProcessTextbox.value = 20;
+    this._similarArtistTrackWeightTextbox.value = 0.0;
+    this._similarArtistSimilarityWeightTextbox.value = 1.0;
+  },
+  
+  setAllFromArtistAndSimilarPreferences: function() {
+    this.setDefaultPreferences();
+    
+    this._doSimilarTracksCheckbox.setAttribute("checked", "false");
+    this._maxNumToProcessTextbox.value = 5;
+    this._similarArtistTrackWeightTextbox.value = 0.0;
+    this._similarArtistSimilarityWeightTextbox.value = 1.0;
+    this._doTracksFromArtistCheckbox.setAttribute("checked", "true");
+    this._ignoreNotInLibraryCheckbox.setAttribute("checked", "true");
+    this._ignoreScoresTextbox.value = 0.0;
+    this._diminishTrackScoresCheckbox.setAttribute("checked", "false");
+    this._artistTopTrackWeightTextbox.value = 1.0;
+    this._maxTopTracksTextbox.value = 50;
+  },
+  
+  setAutoModePreferences: function() {
+    this.setDefaultPreferences();
+    this._maxNumToProcessTextbox.value = 10;
+  },  
   
 };
 
