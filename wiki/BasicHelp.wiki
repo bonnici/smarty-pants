@@ -1,0 +1,5 @@
+#summary How to use Smarty Pants
+
+= Basic Usage =
+
+Highlight a song and press Start.
