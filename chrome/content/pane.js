@@ -892,11 +892,19 @@ SmartyPants.PaneController = {
   },
   
   clearAllTracks: function() {
+    this.stopProcessing(true);
+    this._goButton.setAttribute("disabled", false);
+  
+    this._fixedQueryArtists = {};
+    this._fixedResultArtists = {};
+    this._fixedResultSongs = {};
+  
     this._candidateTracks.clear();
     this._candidateArtists.clear();
     this.updateAllTrees();
     this.clearOutputText();
     this._goButton.setAttribute("label", this._strings.getString("goButtonGo"));
+    this._goButton.setAttribute("enabled", true);
     
     this._numProcessed = 0;
   },
@@ -944,12 +952,9 @@ SmartyPants.PaneController = {
   stopProcessing: function(finished) {
     this._processing = false;
     
-    if (!this._automaticMode) {
-      this.enableButtons(true, false);
-    }
-    
     if (finished) {
       this._goButton.setAttribute("label", this._strings.getString("goButtonGo"));
+      this._goButton.setAttribute("disabled", true);
     }
     else {
       this._goButton.setAttribute("label", this._strings.getString("goButtonResume"));
@@ -958,10 +963,6 @@ SmartyPants.PaneController = {
   
   startProcessing: function() {
     this._processing = true;
-    
-    if (!this._automaticMode) {
-      this.enableButtons(false, false);
-    }
     
     this._goButton.setAttribute("label", this._strings.getString("goButtonStop"));
     this._ignoreDuplicateMatches = (this._ignoreDuplicateMatchesCheckbox.getAttribute("checked") == "true" ? true : false);

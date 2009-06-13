@@ -83,4 +83,5 @@ albuminfo {
 }
 .artistinfo-albumname:hover {
   cursor: pointer;
+  text-decoration: underline;
 }
