@@ -38,6 +38,7 @@ SmartyPants.PaneController = {
     this._goButton = document.getElementById("go-button");
     this._saveButton = document.getElementById("save-button");
     this._clearButton = document.getElementById("clear-button");
+    this._helpButton = document.getElementById("help-button");
     this._trackTree = document.getElementById("track-tree");
     this._outputTree = document.getElementById("output-tree");
     this._ignoreDuplicateMatchesCheckbox = document.getElementById("ignore-duplicate-matches-checkbox");
@@ -86,6 +87,8 @@ SmartyPants.PaneController = {
     
     this._goButton.addEventListener("command", 
           function() { controller.startOrStopProcessing(); }, false);
+    this._helpButton.addEventListener("command", 
+          function() { controller.openHelp(); }, false);
     this._clearButton.addEventListener("command", 
           function() { controller.clearAllTracks(); }, false);
     this._saveButton.addEventListener("command", 
@@ -935,6 +938,11 @@ SmartyPants.PaneController = {
     this._trackTree.view = this._trackTreeView;
     this._recommendationTreeView.update(this._candidateTracks);
     this._recommendationTree.view = this._recommendationTreeView;
+  },
+  
+  openHelp: function() {
+    var helpUrl = "http://code.google.com/p/smarty-pants/wiki/BasicHelp";
+    this._gBrowser.loadURI(helpUrl, null, null, null, '_blank');
   },
   
   startOrStopProcessing: function() {

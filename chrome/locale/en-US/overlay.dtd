@@ -70,3 +70,4 @@
 <!ENTITY smarty-pants.play-artist-radio-label "Play artist radio">
 <!ENTITY smarty-pants.automatic-mode-check "Update automatically">
 <!ENTITY smarty-pants.automatic-mode-tooltip "With this option enabled, Smarty Pants will automatically update every time the track changes">
+<!ENTITY smarty-pants.help-button-label "Help">
