@@ -722,7 +722,7 @@ SmartyPants.PaneController = {
     var mediaListView = songbirdWindow.gBrowser.currentMediaListView;
 
     if (mediaListView == null) {
-      return;
+      return false;
     }
 
     var selection = mediaListView.selection;
@@ -730,6 +730,7 @@ SmartyPants.PaneController = {
 
     if (!itemEnum.hasMoreElements()) {
       alert(this._strings.getString("nothingAdded"));
+      return false;
     }
 
     while (itemEnum.hasMoreElements()) {
@@ -740,6 +741,7 @@ SmartyPants.PaneController = {
     
     this.updateTrackTrees();
     this.updateArtistList();
+    return true;
   },
   
   makeCandidateTrackFromMediaItem: function(mediaItem, parentTrack, score) {
@@ -950,10 +952,14 @@ SmartyPants.PaneController = {
       this.stopProcessing(false);
     }
     else {
+      var startProcessing = true;
       if (this._candidateTracks.dataArray.length == 0) {
-        this.addSelectedTracks();
+        startProcessing = this.addSelectedTracks();
       }
-      this.startProcessing();
+      
+      if (startProcessing) {
+        this.startProcessing();
+      }
     }
   },
   
@@ -1213,6 +1219,8 @@ SmartyPants.PaneController = {
     var foundTracks = 0;
     var totalTracks = tracks.length;
     
+    var addedTracks = {};
+    
     for (var index = 0; index < totalTracks; index++) {
       
       var trackNode = tracks[index];
@@ -1241,6 +1249,8 @@ SmartyPants.PaneController = {
         var candidateTrack = this.makeCandidateTrackFromMediaItem(bestSong, track, score);
         this._candidateTracks.addOrUpdate(candidateTrack, false);
         this._candidateArtists.addOrUpdate(this.makeCandidateArtistFromMediaItem(bestSong, score));
+        addedTracks[candidateTrack.artist] = true;
+        addedTracks[candidateTrack.artist][candidateTrack.trackName] = true;
         foundTracks++;
       }
       else {      
@@ -1258,6 +1268,8 @@ SmartyPants.PaneController = {
             var candidateTrack = this.makeCandidateTrackFromMediaItem(bestSong, track, score);
             this._candidateTracks.addOrUpdate(candidateTrack, false);
             this._candidateArtists.addOrUpdate(this.makeCandidateArtistFromMediaItem(bestSong, score));
+            addedTracks[candidateTrack.artist] = true;
+            addedTracks[candidateTrack.artist][candidateTrack.trackName] = true;
             foundTracks++;
           }
           else {
@@ -1322,31 +1334,49 @@ SmartyPants.PaneController = {
             }
             
             // If we have a good track match for the artist, use it
+            // Don't use it if we have already found that track in this list of similar tracks
             if 
             (
-              bestSongFromArtistScore > 0 
-              ||
-              (bestSongFromArtistScore >= -3 && bestSongFromArtistScore*-1 < trackName.length/2 && bestSongFromArtistScore*-1 < bestSongFromArtist.getProperty(SBProperties.trackName).length/2)
-            ) {            
+              (
+                bestSongFromArtistScore > 0 
+                ||
+                (bestSongFromArtistScore >= -3 && bestSongFromArtistScore*-1 < trackName.length/2 && bestSongFromArtistScore*-1 < bestSongFromArtist.getProperty(SBProperties.trackName).length/2)
+              )
+              &&
+              (
+                addedTracks[artistName] == null || addedTracks[artistName][bestSongFromArtist.getProperty(SBProperties.trackName)] == null
+              )
+            ) {
               this.addOutputText(this._strings.getFormattedString("correctedSongOutputText", [artistName, trackName, bestSongFromArtist.getProperty(SBProperties.trackName)]));
               this._fixedResultSongs[trackName] = bestSongFromArtist.getProperty(SBProperties.trackName);
               var candidateTrack = this.makeCandidateTrackFromMediaItem(bestSongFromArtist, track, score);
               this._candidateTracks.addOrUpdate(candidateTrack, false);
               this._candidateArtists.addOrUpdate(this.makeCandidateArtistFromMediaItem(bestSongFromArtist, score));
+              addedTracks[candidateTrack.artist] = true;
+              addedTracks[candidateTrack.artist][candidateTrack.trackName] = true;
               foundTracks++;
             }
             // Otherwise if we have a good artist match for the track, use that
+            // Don't use it if we have already found that track in this list of similar tracks
             else if
             (
-              bestArtistFromSongScore > 0 
-              ||
-              (bestArtistFromSongScore >= -3 && bestArtistFromSongScore*-1 < artistName.length/2 && bestArtistFromSongScore*-1 < bestArtistFromSong.getProperty(SBProperties.artistName).length/2)
+              (
+                bestArtistFromSongScore > 0 
+                ||
+                (bestArtistFromSongScore >= -3 && bestArtistFromSongScore*-1 < artistName.length/2 && bestArtistFromSongScore*-1 < bestArtistFromSong.getProperty(SBProperties.artistName).length/2)
+              )
+              &&
+              (
+                addedTracks[bestArtistFromSong.getProperty(SBProperties.artistName)] == null || addedTracks[bestArtistFromSong.getProperty(SBProperties.artistName)][trackName] == null
+              )
             ) {
               this.addOutputText(this._strings.getFormattedString("correctedSongOutputText", [artistName, trackName, bestArtistFromSong.getProperty(SBProperties.artistName)]));
               this._fixedResultArtists[artistName] = bestArtistFromSong.getProperty(SBProperties.artistName);
               var candidateTrack = this.makeCandidateTrackFromMediaItem(bestArtistFromSong, track, score);
               this._candidateTracks.addOrUpdate(candidateTrack, false);
               this._candidateArtists.addOrUpdate(this.makeCandidateArtistFromMediaItem(bestArtistFromSong, score));
+              addedTracks[candidateTrack.artist] = true;
+              addedTracks[candidateTrack.artist][candidateTrack.trackName] = true;
               foundTracks++;
             }
             // Otherwise, use it as a recommendation
