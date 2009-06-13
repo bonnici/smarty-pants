@@ -38,6 +38,7 @@
         <button id="go-button" width="60" />
         <checkbox id="automatic-mode-checkbox" label="&smarty-pants.automatic-mode-check;" checked="false" tooltiptext="&smarty-pants.automatic-mode-tooltip;" />
         <spacer flex="1" />
+        <button id="help-button" label="&smarty-pants.help-button-label;" width="60" />
         <button id="clear-button" label="&smarty-pants.clear-button-label;" width="60" />
       </hbox>
       
