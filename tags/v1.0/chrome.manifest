@@ -1,0 +1,3 @@
+content smarty-pants  chrome/content/
+locale  smarty-pants  en-US  chrome/locale/en-US/
+skin    smarty-pants  classic/1.0 chrome/skin/
