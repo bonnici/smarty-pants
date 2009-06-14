@@ -81,6 +81,7 @@ SmartyPants.PaneController = {
     this._automaticMode = false;
     this._ignoreTrackChanges = false;
     this._automaticModeHistory = {};
+    this._playingAutoModePlaylist = false;
     
     this._processing = false;
     this._processingTrackOrArtist = null;
@@ -558,6 +559,10 @@ SmartyPants.PaneController = {
     if (index >= 0 && index < this._hiddenPlaylist.length)
     {
       this._mediaCoreManager.sequencer.playView(this._hiddenPlaylistView, index);
+      
+      if (this._automaticMode) {
+        this._playingAutoModePlaylist = true;
+      }
     }
   },
   
@@ -746,7 +751,10 @@ SmartyPants.PaneController = {
   
     if (this._automaticMode) {
       this.enableButtons(false, true);
-
+      
+      this.setAutoModePreferences();
+      this._preferencesList.selectedItem = document.getElementById("preferences-list-auto-mode");
+      
       var nowPlayingMediaItem = this._mediaCoreManager.sequencer.currentItem;
       this._automaticModeHistory[nowPlayingMediaItem.guid] = true;      
       this.clearThenProcessTrack(nowPlayingMediaItem);
@@ -1609,9 +1617,15 @@ SmartyPants.PaneController = {
         if (this._automaticMode && !this._ignoreTrackChanges) {
           this._automaticModeHistory[event.data.guid] = true;
           this.clearThenProcessTrack(event.data);
-          this._ignoreTrackChanges = true;
-          this._mediaCoreManager.sequencer.playView(this._hiddenPlaylistView, 0);
-          this._ignoreTrackChanges = false;
+          
+          if (this._playingAutoModePlaylist) {
+            this._ignoreTrackChanges = true;
+            this._mediaCoreManager.sequencer.playView(this._hiddenPlaylistView, 0);
+            this._ignoreTrackChanges = false;
+          }          
+        }
+        else {
+          this.playingAutoModePlaylist = false;
         }
         break;
         
@@ -2262,7 +2276,7 @@ SmartyPants.PaneController = {
     
     this._doArtistTopAlbumsCheckbox.setAttribute("checked", "false");
     this._ignoreNotInLibraryCheckbox.setAttribute("checked", "true");
-    this._maxNumToProcessTextbox.value = 15;
+    this._maxNumToProcessTextbox.value = 10;
   },
   
   setSuperQuickPreferences: function() {
@@ -2275,6 +2289,7 @@ SmartyPants.PaneController = {
     this._maxNumToProcessTextbox.value = 10;
     this._diminishTracksAfterTextbox.value = 2;
     this._maxTopTracksTextbox.value = 5;
+    this._artistTopTrackWeightTextbox.value = 1.0;
   },
   
   setMultipleSelectionPreferences: function() {

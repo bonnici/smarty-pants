@@ -83,3 +83,14 @@
 <!ENTITY smarty-pants.preferences-list-artist-album-recommendations "Artist and album recommendations">
 <!ENTITY smarty-pants.preferences-list-all-from-artist-and-similar "All from artist and similar">
 <!ENTITY smarty-pants.preferences-list-auto-mode "Auto mode">
+<!ENTITY smarty-pants.preferences-list-default-tooltip "Gets the tracks from a number of different sources and should get decent results for most tracks">
+<!ENTITY smarty-pants.preferences-list-best-results-tooltip "Gets better results than the default but might not work for all songs">
+<!ENTITY smarty-pants.preferences-list-quick-tooltip "Choose this for faster results without losing much quality">
+<!ENTITY smarty-pants.preferences-list-super-quick-tooltip "Choose this for much faster results, but with reduced quality">
+<!ENTITY smarty-pants.preferences-list-multiple-selection-tooltip "This mode will try to find the songs that best match all the items that you select">
+<!ENTITY smarty-pants.preferences-list-varied-results-tooltip "This will give harsher penalties to songs from the same artists, leading to results that come from a larger number of artists">
+<!ENTITY smarty-pants.preferences-list-artist-top-tracks-tooltip "Just gets the top tracks from the artist that is selected">
+<!ENTITY smarty-pants.preferences-list-artist-and-similar-top-tracks-tooltip "Gets the top tracks from the selected artist and similar artists">
+<!ENTITY smarty-pants.preferences-list-artist-album-recommendations-tooltip "Only finds related artists and their top albums">
+<!ENTITY smarty-pants.preferences-list-all-from-artist-and-similar-tooltip "Finds all songs in your library from the selected artist and related artists">
+<!ENTITY smarty-pants.preferences-list-auto-mode-tooltip "Processes less songs that the default">
