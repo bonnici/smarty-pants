@@ -93,4 +93,4 @@
 <!ENTITY smarty-pants.preferences-list-artist-and-similar-top-tracks-tooltip "Gets the top tracks from the selected artist and similar artists">
 <!ENTITY smarty-pants.preferences-list-artist-album-recommendations-tooltip "Only finds related artists and their top albums">
 <!ENTITY smarty-pants.preferences-list-all-from-artist-and-similar-tooltip "Finds all songs in your library from the selected artist and related artists">
-<!ENTITY smarty-pants.preferences-list-auto-mode-tooltip "Processes less songs that the default">
+<!ENTITY smarty-pants.preferences-list-auto-mode-tooltip "Processes less songs and has a more strict score cutoff than the default settings">

@@ -1624,7 +1624,7 @@ SmartyPants.PaneController = {
             this._ignoreTrackChanges = false;
           }          
         }
-        else {
+        else if (!this._automaticMode) {
           this.playingAutoModePlaylist = false;
         }
         break;
