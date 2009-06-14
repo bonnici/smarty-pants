@@ -2367,6 +2367,7 @@ SmartyPants.PaneController = {
   setAutoModePreferences: function() {
     this.setDefaultPreferences();
     this._maxNumToProcessTextbox.value = 10;
+    this._ignoreScoresTextbox.value = 0.4;
   },  
   
 };
