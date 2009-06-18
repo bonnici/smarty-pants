@@ -375,9 +375,18 @@ SmartyPants.PaneController = {
         getImageSrc: function(row,col) { return null; },  
         getRowProperties: function(row,props) {},  
         getColumnProperties: function(colid,col,props) {}, 
-        update: function(candidateTracks) { 
+        update: function(candidateTracks, reset) { 
           this.dataArray = [];
-          controller._hiddenPlaylist.clear();
+          
+          if (reset) {
+            controller._hiddenPlaylist.clear();
+          }
+          else {
+            for (var indexToRemove = controller._hiddenPlaylist.length-1; indexToRemove > 0; indexToRemove--) {
+              controller._hiddenPlaylist.removeByIndex(indexToRemove);
+            }
+          }
+          
           var minScore = parseFloat(controller._ignoreScoresTextbox.value);
           for (var index = 0; index < candidateTracks.dataArray.length; index++) {
             var curTrack = candidateTracks.dataArray[index];
@@ -387,7 +396,10 @@ SmartyPants.PaneController = {
                 var curMediaItem = LibraryUtils.mainLibrary.getItemByGuid(curTrack.guid);
                 if (curMediaItem != null) {
                   this.dataArray.push({trackName: curTrack.trackName, artistName: curTrack.artist, albumName: curTrack.album, score: scoreToUse, guid: curTrack.guid}); 
-                  controller._hiddenPlaylist.add(curMediaItem);
+                  
+                  if (reset || index > 0) {
+                    controller._hiddenPlaylist.add(curMediaItem);
+                  }
                 }
               }
             }
@@ -397,6 +409,7 @@ SmartyPants.PaneController = {
           controller._hiddenPlaylistView = controller._hiddenPlaylist.createView();
           this.rowCount = this.dataArray.length; 
         },
+        
         getCellProperties: function(row,col,props) {
           if (row >= 0 && row < this.dataArray.length) {
             var curTrack = this.dataArray[row];
@@ -762,8 +775,10 @@ SmartyPants.PaneController = {
       this._preferencesList.selectedItem = document.getElementById("preferences-list-auto-mode");
       
       var nowPlayingMediaItem = this._mediaCoreManager.sequencer.currentItem;
-      this._automaticModeHistory[nowPlayingMediaItem.guid] = true;      
-      this.clearThenProcessTrack(nowPlayingMediaItem);
+      if (nowPlayingMediaItem) {
+        this._automaticModeHistory[nowPlayingMediaItem.guid] = true;      
+        this.clearThenProcessTrack(nowPlayingMediaItem);
+      }
     }
     else {
       this._automaticModeHistory = {};
@@ -793,7 +808,7 @@ SmartyPants.PaneController = {
       this._candidateArtists.addOrUpdate(this.makeSeedArtistFromMediaItem(item));
     }
     
-    this.updateTrackTrees();
+    this.updateTrackTrees(true);
     this.updateArtistList();
     return true;
   },
@@ -988,9 +1003,9 @@ SmartyPants.PaneController = {
     this.updateArtistList();
   },
   
-  updateTrackTrees: function() {
+  updateTrackTrees: function(reset) {
     this._candidateTracks.sortByScore();
-    this._trackTreeView.update(this._candidateTracks);
+    this._trackTreeView.update(this._candidateTracks, reset);
     this._trackTree.view = this._trackTreeView;
     this._recommendationTreeView.update(this._candidateTracks);
     this._recommendationTree.view = this._recommendationTreeView;
@@ -1656,7 +1671,7 @@ SmartyPants.PaneController = {
     
     this._candidateTracks.addOrUpdate(this.makeCandidateTrackFromMediaItem(mediaItem, null, 1), true);
     this._candidateArtists.addOrUpdate(this.makeSeedArtistFromMediaItem(mediaItem));
-    this.updateTrackTrees();
+    this.updateTrackTrees(true);
     this.updateArtistList();    
     
     this.startProcessing();
