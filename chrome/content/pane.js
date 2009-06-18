@@ -75,6 +75,7 @@ SmartyPants.PaneController = {
     this._showAlbumImagesCheck = document.getElementById("show-album-images-check");
     this._preferencesList = document.getElementById("preferences-list");
     this._automaticModeCheck = document.getElementById("automatic-mode-checkbox");
+    this._dontShowAllAlbumsCheck = document.getElementById("dont-show-all-albums-check");
     
     this._automaticMode = false;
     this._ignoreTrackChanges = false;
@@ -1051,6 +1052,7 @@ SmartyPants.PaneController = {
     this._ignoreNotInLibrary = (this._ignoreNotInLibraryCheckbox.getAttribute("checked") == "true" ? true : false);
     this._ignoreSimilarTracksFromSameArtist = (this._ignoreSimilarTracksFromSameArtistCheckbox.getAttribute("checked") == "true" ? true : false);
     this._doArtistTopAlbums = (this._doArtistTopAlbumsCheckbox.getAttribute("checked") == "true" ? true : false);
+    this._dontShowAllAlbums = (this._dontShowAllAlbumsCheck.getAttribute("checked") == "true" ? true : false);
     
     setTimeout("SmartyPants.PaneController.doProcessNextTrackOrArtist()", 0);
   },
@@ -2084,8 +2086,8 @@ SmartyPants.PaneController = {
         }
       }
       
-      // Only add as a recommendation if it isn't already in the library
-      if (!albumFound) {        
+      if (!this._dontShowAllAlbums || !albumFound) {        
+        // Only add as a recommendation if it isn't already in the library
         artist.albums.push({albumName: albumName, url: url, imageUrl: imageUrl});
       }
     }

@@ -94,3 +94,5 @@
 <!ENTITY smarty-pants.preferences-list-artist-album-recommendations-tooltip "Only finds related artists and their top albums">
 <!ENTITY smarty-pants.preferences-list-all-from-artist-and-similar-tooltip "Finds all songs in your library from the selected artist and related artists">
 <!ENTITY smarty-pants.preferences-list-auto-mode-tooltip "Processes less songs and has a more strict score cutoff than the default settings">
+<!ENTITY smarty-pants.dont-show-all-albums-check "Only show albums not in library">
+<!ENTITY smarty-pants.dont-show-all-albums-tooltip "If this is checked, only the albums that are not in your library will be shown on the Artist tab">

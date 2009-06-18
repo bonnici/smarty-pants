@@ -198,6 +198,7 @@
             <tabpanel>
               <vbox>
                 <checkbox id="do-tracks-from-artist-check" label="&smarty-pants.do-tracks-from-artist-check;" checked="false" tooltiptext="&smarty-pants.do-tracks-from-artist-tooltip;" />
+                <checkbox id="dont-show-all-albums-check" label="&smarty-pants.dont-show-all-albums-check;" checked="true"  tooltiptext="&smarty-pants.dont-show-all-albums-tooltip;" />
                 <hbox align="center">
                   <label value="&smarty-pants.default-similar-artist-track-score-label;" width="200" tooltiptext="&smarty-pants.default-similar-artist-track-score-tooltip;" />
                   <textbox id="default-similar-artist-track-score-textbox" value="0.15" type="number" min="0" max="1" increment="0.05" decimalplaces="2" width="50" tooltiptext="&smarty-pants.default-similar-artist-track-score-tooltip;" />
