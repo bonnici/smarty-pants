@@ -18,7 +18,7 @@
 <!ENTITY smarty-pants.recommendation-filter-steamable "Streamable">
 <!ENTITY smarty-pants.recommendation-filter-full "Full">
 <!ENTITY smarty-pants.ignore-duplicate-matches-tooltip "If this is turned off, the track's score will increase each time it is found as a similar track">
-<!ENTITY smarty-pants.ignore-scores-below-tooltip "Any track or artist with a score below this value will not be processed or shown in the list">
+<!ENTITY smarty-pants.ignore-scores-below-tooltip "Any track with a score below this value will not be processed or shown in the list">
 <!ENTITY smarty-pants.similar-tracks-weight-tooltip "All similar track scores are multiplied by this value, decrease if the scores are too high">
 <!ENTITY smarty-pants.note-open-in-browser "Note: Double click to open in browser">
 <!ENTITY smarty-pants.playlist-limit-to-label "Limit to:">

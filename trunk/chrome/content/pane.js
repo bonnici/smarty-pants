@@ -74,8 +74,6 @@ SmartyPants.PaneController = {
     this._showArtistImagesCheck = document.getElementById("show-artist-images-check");
     this._showAlbumImagesCheck = document.getElementById("show-album-images-check");
     this._preferencesList = document.getElementById("preferences-list");
-    
-    //todo limit the number of updates when this is on - change to auto mode options group
     this._automaticModeCheck = document.getElementById("automatic-mode-checkbox");
     
     this._automaticMode = false;
@@ -126,7 +124,14 @@ SmartyPants.PaneController = {
       addOrUpdate: function(candidateTrack, force) {
       
         if (controller._automaticMode && candidateTrack.guid != null && !force) {
-          if (controller._automaticModeHistory[candidateTrack.guid] == true) {
+          if 
+          (
+            controller._automaticModeHistory != null 
+            && 
+            controller._automaticModeHistory[candidateTrack.guid] != null
+            &&
+            controller._automaticModeHistory[candidateTrack.guid] == true
+          ) {
             return;
           }
         }
@@ -1622,7 +1627,7 @@ SmartyPants.PaneController = {
             this._ignoreTrackChanges = true;
             this._mediaCoreManager.sequencer.playView(this._hiddenPlaylistView, 0);
             this._ignoreTrackChanges = false;
-          }          
+          }
         }
         else if (!this._automaticMode) {
           this.playingAutoModePlaylist = false;
@@ -1630,7 +1635,9 @@ SmartyPants.PaneController = {
         break;
         
       case Ci.sbIMediacoreEvent.TRACK_CHANGE :
-        this._trackTreeView.treebox.invalidate();        
+        if (this._trackTreeView.treebox != null) {
+          this._trackTreeView.treebox.invalidate();        
+        }
         break;
     }
   },
@@ -2188,7 +2195,7 @@ SmartyPants.PaneController = {
   updateArtistList: function() {
     this._candidateArtists.sortByScore();
     this.clearArtistInfo();
-    var minScore = parseFloat(this._ignoreScoresTextbox.value);
+    var minScore = 0.05;
     for (var index = 0; index < this._candidateArtists.dataArray.length; index++) {
       var curArtist = this._candidateArtists.dataArray[index];
       var score = this._candidateArtists.getScore(curArtist);
@@ -2268,7 +2275,7 @@ SmartyPants.PaneController = {
     
     this._doTopTracksCheckbox.setAttribute("checked", "false");
     this._ignoreScoresTextbox.value = 0.25;
-    this._maxNumToProcessTextbox.value = 10;
+    this._maxNumToProcessTextbox.value = 20;
   },
   
   setQuickPreferences: function() {
