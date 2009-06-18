@@ -1135,6 +1135,8 @@ SmartyPants.PaneController = {
 
     var request = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"].createInstance(Ci.nsIXMLHttpRequest);
 
+    this.addOutputText(this._strings.getFormattedString("findingArtistOutputText", [artistName]));
+    
     request.open("GET", requestUri, false);
     try {
     	request.send(null);
