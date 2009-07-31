@@ -96,3 +96,6 @@
 <!ENTITY smarty-pants.preferences-list-auto-mode-tooltip "Processes less songs and has a more strict score cutoff than the default settings">
 <!ENTITY smarty-pants.dont-show-all-albums-check "Only show albums not in library">
 <!ENTITY smarty-pants.dont-show-all-albums-tooltip "If this is checked, only the albums that are not in your library will be shown on the Artist tab">
+<!ENTITY smarty-pants-gen-playlist.label "Generate Smarty Pants playlist">
+<!ENTITY smarty-pants.track-rating-weight-label "Track rating weight">
+<!ENTITY smarty-pants.track-rating-weight-tooltip "This controls the bonus or penalty applied to a track's score due to its rating">

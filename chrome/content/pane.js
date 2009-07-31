@@ -10,73 +10,35 @@ if (typeof(Cr) == 'undefined')
 Cu.import("resource://app/jsmodules/sbProperties.jsm");
 Cu.import("resource://app/jsmodules/sbLibraryUtils.jsm");
 
-const LAST_FM_ROOT_URL = "http://ws.audioscrobbler.com/2.0/";
-const LAST_FM_API_KEY = "72b14fe3e1fd7f8ff8a993b1f1e78a50";
-const TRACK_GETSIMILAR_METHOD = "track.getSimilar";
-const ARTIST_SEARCH_METHOD = "artist.search";
-const ARTIST_GETSIMILAR_METHOD = "artist.getSimilar";
-const ARTIST_GETTOPTRACKS_METHOD = "artist.getTopTracks";
-const ARTIST_GETTOPALBUMS_METHOD = "artist.getTopAlbums";
-const REQUEST_SUCCESS_CODE = 200;
+
+if (typeof LAST_FM_ROOT_URL == 'undefined') {
+  const LAST_FM_ROOT_URL = "http://ws.audioscrobbler.com/2.0/";
+  const LAST_FM_API_KEY = "72b14fe3e1fd7f8ff8a993b1f1e78a50";
+  const TRACK_GETSIMILAR_METHOD = "track.getSimilar";
+  const ARTIST_SEARCH_METHOD = "artist.search";
+  const ARTIST_GETSIMILAR_METHOD = "artist.getSimilar";
+  const ARTIST_GETTOPTRACKS_METHOD = "artist.getTopTracks";
+  const ARTIST_GETTOPALBUMS_METHOD = "artist.getTopAlbums";
+  const REQUEST_SUCCESS_CODE = 200;
+}
 
 if (typeof SmartyPants == 'undefined') {
   var SmartyPants = {};
 }
 
 const SMARTY_PANTS_HIDDEN_PLAYLIST_PROP = "smarty-pants_hidden-playlist";
+const SMARTY_PANTS_VISIBLE_PLAYLIST_PROP = "smarty-pants_visible-playlist";
 
 /**
  * Controller for pane.xul
  */
 SmartyPants.PaneController = {
-  
-  onLoad: function() {
-  
+
+  setup: function() {
     var controller = this;
-    this._strings = document.getElementById("smarty-pants-strings");
-    
-    this._goButton = document.getElementById("go-button");
-    this._saveButton = document.getElementById("save-button");
-    this._clearButton = document.getElementById("clear-button");
-    this._helpButton = document.getElementById("help-button");
-    this._trackTree = document.getElementById("track-tree");
-    this._outputTree = document.getElementById("output-tree");
-    this._ignoreDuplicateMatchesCheckbox = document.getElementById("ignore-duplicate-matches-checkbox");
-    this._showAdvancedOptionsCheckbox = document.getElementById("show-advanced-options-checkbox");
-    this._advancedOptionsGroup = document.getElementById("advanced-options-group");
-    this._detailsGroup = document.getElementById("details-group");
-    this._recommendationTree = document.getElementById("recommendation-tree");
-    this._ignoreScoresTextbox = document.getElementById("ignore-scores-below-textbox");
-    this._similarTrackWeightTextbox = document.getElementById("similar-track-weight-textbox");
-    this._recommendationFilterList = document.getElementById("recommendation-filter-list");
-    this._recommendationFilterAll = document.getElementById("recommendation-filter-all");
-    this._recommendationFilterStreamable = document.getElementById("recommendation-filter-steamable");
-    this._recommendationFilterFull = document.getElementById("recommendation-filter-full");
-    this._playlistLimitToSongsTextbox = document.getElementById("playlist-limit-to-songs-textbox");
-    this._playlistLimitToTimeTextbox = document.getElementById("playlist-limit-to-time-textbox");
-    this._tryOtherArtistCheckbox = document.getElementById("try-other-artist-checkbox");
-    this._fuzzyMatchCheckbox = document.getElementById("fuzzy-match-checkbox");
-    this._doSimilarTracksCheckbox = document.getElementById("do-similar-tracks-check");
-    this._doSimilarArtistsCheckbox = document.getElementById("do-similar-artists-check");
-    this._doTopTracksCheckbox = document.getElementById("do-artist-top-tracks-check");
-    this._doTracksFromArtistCheckbox = document.getElementById("do-tracks-from-artist-check");
-    this._diminishTrackScoresCheckbox = document.getElementById("diminish-track-scores-check");
-    this._diminishTracksAfterTextbox = document.getElementById("diminish-tracks-after-textbox");
-    this._defaultSimilarArtistTrackScoreTextbox = document.getElementById("default-similar-artist-track-score-textbox");
-    this._artistTopTrackWeightTextbox = document.getElementById("artist-top-track-weight-textbox");
-    this._similarArtistTrackWeightTextbox = document.getElementById("similar-artist-track-weight-textbox");
-    this._similarArtistSimilarityWeightTextbox = document.getElementById("similar-artist-similarity-weight-textbox");
-    this._maxTopTracksTextbox = document.getElementById("max-top-tracks-textbox");
-    this._maxNumToProcessTextbox = document.getElementById("max-num-to-process-textbox");
-    this._ignoreNotInLibraryCheckbox = document.getElementById("ignore-not-in-library-checkbox");
-    this._ignoreSimilarTracksFromSameArtistCheckbox = document.getElementById("ignore-similar-tracks-from-same-artist-check");
-    this._doArtistTopAlbumsCheckbox = document.getElementById("do-artist-top-albums-check");
-    this._showArtistImagesCheck = document.getElementById("show-artist-images-check");
-    this._showAlbumImagesCheck = document.getElementById("show-album-images-check");
-    this._preferencesList = document.getElementById("preferences-list");
-    this._automaticModeCheck = document.getElementById("automatic-mode-checkbox");
-    this._dontShowAllAlbumsCheck = document.getElementById("dont-show-all-albums-check");
-    
+    this._paneIsLoaded = false;
+  
+    // non-ui stuff
     this._automaticMode = false;
     this._ignoreTrackChanges = false;
     this._automaticModeHistory = {};
@@ -84,41 +46,10 @@ SmartyPants.PaneController = {
     
     this._processing = false;
     this._processingTrackOrArtist = null;
-    this._goButton.setAttribute("label", this._strings.getString("goButtonGo"));
-    
-    this._goButton.addEventListener("command", 
-          function() { controller.startOrStopProcessing(); }, false);
-    this._helpButton.addEventListener("command", 
-          function() { controller.openHelp(); }, false);
-    this._clearButton.addEventListener("command", 
-          function() { controller.clearAllTracks(); }, false);
-    this._saveButton.addEventListener("command", 
-          function() { controller.savePlaylist(); }, false);
-    this._showAdvancedOptionsCheckbox.addEventListener("command", 
-          function() { controller.onShowAdvancedOptionsCheck(); }, false);
-    this._recommendationFilterList.addEventListener("command", 
-          function() { controller.onRecommendationFilterCommand(); }, false);
-    this._ignoreScoresTextbox.addEventListener("change", 
-          function() { controller.onIgnoreScoresChange(); }, false);
-    this._similarArtistTrackWeightTextbox.addEventListener("change", 
-          function() { controller.onSimilarArtistTrackWeightChange(true); }, false);
-    this._similarArtistSimilarityWeightTextbox.addEventListener("change", 
-          function() { controller.onSimilarArtistSimilarityWeightChange(false); }, false);
-    this._showArtistImagesCheck.addEventListener("command", 
-          function() { controller.onShowArtistImagesCheck(); }, false);
-    this._showAlbumImagesCheck.addEventListener("command", 
-          function() { controller.onShowAlbumImagesCheck(); }, false);
-    this._automaticModeCheck.addEventListener("command", 
-          function() { controller.onToggleAutomaticMode(); }, false);
-    this._preferencesList.addEventListener("command", 
-          function() { controller.onChangePreferences(); }, false);
           
     this._recommendationFilterSelection = 0;
     this._numProcessed = 0;
     
-    this._showArtistImages = this._showArtistImagesCheck.getAttribute("checked") == "true";
-    this._showAlbumImages = this._showAlbumImagesCheck.getAttribute("checked") == "true";
-          
     this._candidateTracks = {
       dataArray: [],
       
@@ -206,6 +137,8 @@ SmartyPants.PaneController = {
         else {
           this.diminishScores(false);
         }
+        
+        this.applyRatingModifier();
       },
       
       scoreTrack: function(track) {
@@ -294,6 +227,35 @@ SmartyPants.PaneController = {
           }
         }
       },
+      
+      applyRatingModifier: function() {
+        for (var index = 0; index < this.dataArray.length; index++) {
+          curTrack = this.dataArray[index];
+          if (curTrack.guid != null) {
+            var mediaItem = LibraryUtils.mainLibrary.getItemByGuid(curTrack.guid);
+            if (mediaItem != null) {        
+              var trackRating = mediaItem.getProperty(SBProperties.rating);
+              
+              if (trackRating == 1) {
+                curTrack.diminishedScore = curTrack.diminishedScore / (1+controller._trackRatingWeight);
+              }
+              else if (trackRating == 2) {
+                curTrack.diminishedScore = curTrack.diminishedScore / (1+(controller._trackRatingWeight/2));
+              }
+              else if (trackRating == 4) {
+                curTrack.diminishedScore = curTrack.diminishedScore * (1+(controller._trackRatingWeight/2));
+              }
+              else if (trackRating == 5) {
+                curTrack.diminishedScore = curTrack.diminishedScore * (1+controller._trackRatingWeight);
+              }
+              
+              if (curTrack.diminishedScore > 1) {
+                curTrack.diminishedScore = 1;
+              }
+            }
+          }
+        }
+      },
     };
     
     this._candidateArtists = {
@@ -358,6 +320,7 @@ SmartyPants.PaneController = {
       }
     };
     
+    
     this._trackTreeView = {  
         dataArray: [],
         rowCount: 0,
@@ -387,7 +350,7 @@ SmartyPants.PaneController = {
             }
           }
           
-          var minScore = parseFloat(controller._ignoreScoresTextbox.value);
+          var minScore = parseFloat(controller.getIgnoreScoresBelow());
           for (var index = 0; index < candidateTracks.dataArray.length; index++) {
             var curTrack = candidateTracks.dataArray[index];
             if (curTrack.guid != null) {
@@ -405,7 +368,7 @@ SmartyPants.PaneController = {
             }
           }
           
-          this.dataArray.sort(this.sortByScoreFunc);          
+          this.dataArray.sort(this.sortByScoreFunc);
           controller._hiddenPlaylistView = controller._hiddenPlaylist.createView();
           this.rowCount = this.dataArray.length; 
         },
@@ -465,7 +428,7 @@ SmartyPants.PaneController = {
         getColumnProperties: function(colid,col,props) {}, 
         update: function(candidateTracks) { 
           this.dataArray = [];
-          var minScore = parseFloat(controller._ignoreScoresTextbox.value);
+          var minScore = parseFloat(controller.getIgnoreScoresBelow());
           for (var index = 0; index < candidateTracks.dataArray.length; index++) {
             var curTrack = candidateTracks.dataArray[index];
             if (curTrack.guid == null) {
@@ -492,26 +455,6 @@ SmartyPants.PaneController = {
         },
     };
     
-    this._outputTreeView = {  
-        dataArray: [],
-        rowCount: 0,
-        getCellText : function(row,column) {  
-          return this.dataArray[row];  
-        },  
-        setTree: function(treebox) { this.treebox = treebox; },  
-        isContainer: function(row) { return false; },  
-        isSeparator: function(row) { return false; },  
-        isSorted: function() { return false; },  
-        getLevel: function(row) { return 0; },  
-        getImageSrc: function(row,col) { return null; },  
-        getRowProperties: function(row,props) {},  
-        getCellProperties: function(row,col,props) {},  
-        getColumnProperties: function(colid,col,props) {}, 
-        update: function(candidateTracks) {
-          this.rowCount = this.dataArray.length; 
-        } 
-    };
-    
     this._fixedQueryArtists = {};
     this._fixedResultArtists = {};
     this._fixedResultSongs = {};
@@ -523,8 +466,6 @@ SmartyPants.PaneController = {
                             .getService(Components.interfaces.sbIMediacoreManager);  
                             
     this._gBrowser = this._windowMediator.getMostRecentWindow("Songbird:Main").gBrowser;
-    
-    this._mediaCoreManager.addListener(this);
     
     // try to find an existing playlist
     this._hiddenPlaylist = null;
@@ -548,12 +489,160 @@ SmartyPants.PaneController = {
       this._hiddenPlaylist.setProperty(SBProperties.hidden, "1");
     }
     
-    //this._hiddenPlaylist.setProperty(SBProperties.hidden, "1");
+    this._hiddenPlaylist.setProperty(SBProperties.hidden, "1");
     
     this._hiddenPlaylistView = this._hiddenPlaylist.createView();
   },
   
+  resetVisiblePlaylist: function() {
+    this.clearAllTracks()
+    
+    // _hiddenPlaylist should be renamed
+    this._hiddenPlaylist = null;
+    try 
+    {
+      var itemEnum = LibraryUtils.mainLibrary.getItemsByProperty(SBProperties.customType, SMARTY_PANTS_VISIBLE_PLAYLIST_PROP).enumerate();
+      if (itemEnum.hasMoreElements()) 
+      {
+        this._hiddenPlaylist = itemEnum.getNext();
+      }
+    } 
+    catch (e if e.result == Cr.NS_ERROR_NOT_AVAILABLE) 
+    {
+      // Don't to anything - playlist will be created
+    }
+    
+    if (this._hiddenPlaylist == null) {
+      this._hiddenPlaylist = LibraryUtils.mainLibrary.createMediaList("simple");
+      this._hiddenPlaylist.setProperty(SBProperties.customType, SMARTY_PANTS_VISIBLE_PLAYLIST_PROP); // Set a custom property so we know which playlist is ours
+      this._hiddenPlaylist.name = "Smarty Pants Playlist";
+      this._hiddenPlaylist.setProperty(SBProperties.hidden, "0");
+    }
+    
+    this._hiddenPlaylistView = this._hiddenPlaylist.createView();
+  },
+  
+  showPlaylist: function() {
+    this._gBrowser.loadMediaList(this._hiddenPlaylist);
+  },
+  
+  onLoad: function() {
+  
+    var controller = this;
+    
+    this.setup();
+
+    this._paneIsLoaded = true;
+    
+    this._strings = document.getElementById("smarty-pants-strings");
+    
+    this._goButton = document.getElementById("go-button");
+    this._saveButton = document.getElementById("save-button");
+    this._clearButton = document.getElementById("clear-button");
+    this._helpButton = document.getElementById("help-button");
+    this._trackTree = document.getElementById("track-tree");
+    this._outputTree = document.getElementById("output-tree");
+    this._ignoreDuplicateMatchesCheckbox = document.getElementById("ignore-duplicate-matches-checkbox");
+    this._showAdvancedOptionsCheckbox = document.getElementById("show-advanced-options-checkbox");
+    this._advancedOptionsGroup = document.getElementById("advanced-options-group");
+    this._detailsGroup = document.getElementById("details-group");
+    this._recommendationTree = document.getElementById("recommendation-tree");
+    this._ignoreScoresTextbox = document.getElementById("ignore-scores-below-textbox");
+    this._similarTrackWeightTextbox = document.getElementById("similar-track-weight-textbox");
+    this._recommendationFilterList = document.getElementById("recommendation-filter-list");
+    this._recommendationFilterAll = document.getElementById("recommendation-filter-all");
+    this._recommendationFilterStreamable = document.getElementById("recommendation-filter-steamable");
+    this._recommendationFilterFull = document.getElementById("recommendation-filter-full");
+    this._playlistLimitToSongsTextbox = document.getElementById("playlist-limit-to-songs-textbox");
+    this._playlistLimitToTimeTextbox = document.getElementById("playlist-limit-to-time-textbox");
+    this._tryOtherArtistCheckbox = document.getElementById("try-other-artist-checkbox");
+    this._fuzzyMatchCheckbox = document.getElementById("fuzzy-match-checkbox");
+    this._doSimilarTracksCheckbox = document.getElementById("do-similar-tracks-check");
+    this._doSimilarArtistsCheckbox = document.getElementById("do-similar-artists-check");
+    this._doTopTracksCheckbox = document.getElementById("do-artist-top-tracks-check");
+    this._doTracksFromArtistCheckbox = document.getElementById("do-tracks-from-artist-check");
+    this._diminishTrackScoresCheckbox = document.getElementById("diminish-track-scores-check");
+    this._diminishTracksAfterTextbox = document.getElementById("diminish-tracks-after-textbox");
+    this._defaultSimilarArtistTrackScoreTextbox = document.getElementById("default-similar-artist-track-score-textbox");
+    this._artistTopTrackWeightTextbox = document.getElementById("artist-top-track-weight-textbox");
+    this._similarArtistTrackWeightTextbox = document.getElementById("similar-artist-track-weight-textbox");
+    this._similarArtistSimilarityWeightTextbox = document.getElementById("similar-artist-similarity-weight-textbox");
+    this._maxTopTracksTextbox = document.getElementById("max-top-tracks-textbox");
+    this._maxNumToProcessTextbox = document.getElementById("max-num-to-process-textbox");
+    this._ignoreNotInLibraryCheckbox = document.getElementById("ignore-not-in-library-checkbox");
+    this._ignoreSimilarTracksFromSameArtistCheckbox = document.getElementById("ignore-similar-tracks-from-same-artist-check");
+    this._doArtistTopAlbumsCheckbox = document.getElementById("do-artist-top-albums-check");
+    this._showArtistImagesCheck = document.getElementById("show-artist-images-check");
+    this._showAlbumImagesCheck = document.getElementById("show-album-images-check");
+    this._preferencesList = document.getElementById("preferences-list");
+    this._automaticModeCheck = document.getElementById("automatic-mode-checkbox");
+    this._dontShowAllAlbumsCheck = document.getElementById("dont-show-all-albums-check");
+    this._trackRatingWeightTextbox = document.getElementById("track-rating-weight-textbox");
+    
+    this._goButton.setAttribute("label", this._strings.getString("goButtonGo"));
+    
+    this._goButton.addEventListener("command", 
+          function() { controller.startOrStopProcessing(); }, false);
+    this._helpButton.addEventListener("command", 
+          function() { controller.openHelp(); }, false);
+    this._clearButton.addEventListener("command", 
+          function() { controller.clearAllTracks(); }, false);
+    this._saveButton.addEventListener("command", 
+          function() { controller.savePlaylist(); }, false);
+    this._showAdvancedOptionsCheckbox.addEventListener("command", 
+          function() { controller.onShowAdvancedOptionsCheck(); }, false);
+    this._recommendationFilterList.addEventListener("command", 
+          function() { controller.onRecommendationFilterCommand(); }, false);
+    this._ignoreScoresTextbox.addEventListener("change", 
+          function() { controller.onIgnoreScoresChange(); }, false);
+    this._similarArtistTrackWeightTextbox.addEventListener("change", 
+          function() { controller.onSimilarArtistTrackWeightChange(true); }, false);
+    this._similarArtistSimilarityWeightTextbox.addEventListener("change", 
+          function() { controller.onSimilarArtistSimilarityWeightChange(false); }, false);
+    this._showArtistImagesCheck.addEventListener("command", 
+          function() { controller.onShowArtistImagesCheck(); }, false);
+    this._showAlbumImagesCheck.addEventListener("command", 
+          function() { controller.onShowAlbumImagesCheck(); }, false);
+    this._automaticModeCheck.addEventListener("command", 
+          function() { controller.onToggleAutomaticMode(); }, false);
+    this._preferencesList.addEventListener("command", 
+          function() { controller.onChangePreferences(); }, false);
+    
+    this._showArtistImages = this._showArtistImagesCheck.getAttribute("checked") == "true";
+    this._showAlbumImages = this._showAlbumImagesCheck.getAttribute("checked") == "true";
+    
+    this._outputTreeView = {  
+        dataArray: [],
+        rowCount: 0,
+        getCellText : function(row,column) {  
+          return this.dataArray[row];  
+        },  
+        setTree: function(treebox) { this.treebox = treebox; },  
+        isContainer: function(row) { return false; },  
+        isSeparator: function(row) { return false; },  
+        isSorted: function() { return false; },  
+        getLevel: function(row) { return 0; },  
+        getImageSrc: function(row,col) { return null; },  
+        getRowProperties: function(row,props) {},  
+        getCellProperties: function(row,col,props) {},  
+        getColumnProperties: function(colid,col,props) {}, 
+        update: function(candidateTracks) {
+          this.rowCount = this.dataArray.length; 
+        } 
+    };
+    
+    this._mediaCoreManager.addListener(this);
+  },
+  
   onUnLoad: function() {
+  },
+  
+  getIgnoreScoresBelow: function() {
+    if (this._ignoreScoresTextbox) {
+      return this._ignoreScoresTextbox.value;
+    }
+    
+    return 0.25;
   },
   
   onShowAdvancedOptionsCheck: function() {
@@ -787,7 +876,7 @@ SmartyPants.PaneController = {
   },
   
   addSelectedTracks: function() {
-    var songbirdWindow = this._windowMediator.getMostRecentWindow("Songbird:Main");     
+    var songbirdWindow = this._windowMediator.getMostRecentWindow("Songbird:Main");   
     var mediaListView = songbirdWindow.gBrowser.currentMediaListView;
 
     if (mediaListView == null) {
@@ -798,7 +887,6 @@ SmartyPants.PaneController = {
     var itemEnum = selection.selectedMediaItems;
 
     if (!itemEnum.hasMoreElements()) {
-      alert(this._strings.getString("nothingAdded"));
       return false;
     }
 
@@ -967,7 +1055,10 @@ SmartyPants.PaneController = {
   
   clearAllTracks: function() {
     this.stopProcessing(true);
-    this._goButton.setAttribute("disabled", false);
+    
+    if (this._goButton) {
+      this._goButton.setAttribute("disabled", false);
+    }
   
     this._fixedQueryArtists = {};
     this._fixedResultArtists = {};
@@ -977,25 +1068,32 @@ SmartyPants.PaneController = {
     this._candidateArtists.clear();
     this.updateAllTrees();
     this.clearOutputText();
-    this._goButton.setAttribute("label", this._strings.getString("goButtonGo"));
-    this._goButton.setAttribute("enabled", true);
+    
+    if (this._goButton) {
+      this._goButton.setAttribute("label", this._strings.getString("goButtonGo"));
+      this._goButton.setAttribute("enabled", true);
+    }
     
     this._numProcessed = 0;
   },
   
   addOutputText: function(text) {
-    this._outputTreeView.dataArray.push(text);
-    this._outputTreeView.update();
-    this._outputTree.view = this._outputTreeView;
-    
-    var boxobject = this._outputTree.boxObject;
-    boxobject.ensureRowIsVisible(this._outputTreeView.dataArray.length - 1);
+    if (this._outputTreeView) {
+      this._outputTreeView.dataArray.push(text);
+      this._outputTreeView.update();
+      this._outputTree.view = this._outputTreeView;
+      
+      var boxobject = this._outputTree.boxObject;
+      boxobject.ensureRowIsVisible(this._outputTreeView.dataArray.length - 1);
+    }
   },
   
   clearOutputText: function() {
-    this._outputTreeView.dataArray = [];
-    this._outputTreeView.update();
-    this._outputTree.view = this._outputTreeView;
+    if (this._outputTreeView) {
+      this._outputTreeView.dataArray = [];
+      this._outputTreeView.update();
+      this._outputTree.view = this._outputTreeView;
+    }
   },
   
   updateAllTrees: function() {
@@ -1006,9 +1104,14 @@ SmartyPants.PaneController = {
   updateTrackTrees: function(reset) {
     this._candidateTracks.sortByScore();
     this._trackTreeView.update(this._candidateTracks, reset);
-    this._trackTree.view = this._trackTreeView;
+    if (this._trackTree) {
+      this._trackTree.view = this._trackTreeView;
+    }
+    
     this._recommendationTreeView.update(this._candidateTracks);
-    this._recommendationTree.view = this._recommendationTreeView;
+    if (this._recommendationTree) {
+      this._recommendationTree.view = this._recommendationTreeView;
+    }
   },
   
   openHelp: function() {
@@ -1035,11 +1138,11 @@ SmartyPants.PaneController = {
   stopProcessing: function(finished) {
     this._processing = false;
     
-    if (finished) {
+    if (this._goButton && finished) {
       this._goButton.setAttribute("label", this._strings.getString("goButtonGo"));
       this._goButton.setAttribute("disabled", true);
     }
-    else {
+    else if (this._goButton) {
       this._goButton.setAttribute("label", this._strings.getString("goButtonResume"));
     }
   },
@@ -1047,27 +1150,53 @@ SmartyPants.PaneController = {
   startProcessing: function() {
     this._processing = true;
     
-    this._goButton.setAttribute("label", this._strings.getString("goButtonStop"));
-    this._ignoreDuplicateMatches = (this._ignoreDuplicateMatchesCheckbox.getAttribute("checked") == "true" ? true : false);
-    this._tryOtherArtist = (this._tryOtherArtistCheckbox.getAttribute("checked") == "true" ? true : false);
-    this._fuzzyMatch = (this._fuzzyMatchCheckbox.getAttribute("checked") == "true" ? true : false);
-    this._similarTrackWeight = parseFloat(this._similarTrackWeightTextbox.value);
-    this._doSimilarTracks = (this._doSimilarTracksCheckbox.getAttribute("checked") == "true" ? true : false);
-    this._doSimilarArtists = (this._doSimilarArtistsCheckbox.getAttribute("checked") == "true" ? true : false);
-    this._doTopTracks = (this._doTopTracksCheckbox.getAttribute("checked") == "true" ? true : false);
-    this._doTracksFromArtist = (this._doTracksFromArtistCheckbox.getAttribute("checked") == "true" ? true : false);
-    this._diminishTrackScores = (this._diminishTrackScoresCheckbox.getAttribute("checked") == "true" ? true : false);
-    this._diminishTracksAfter = parseInt(this._diminishTracksAfterTextbox.value);
-    this._defaultSimilarArtistTrackScore = parseFloat(this._defaultSimilarArtistTrackScoreTextbox.value);
-    this._artistTopTrackWeight = parseFloat(this._artistTopTrackWeightTextbox.value);
-    this._similarArtistTrackWeight = parseFloat(this._similarArtistTrackWeightTextbox.value);
-    this._similarArtistSimilarityWeight = parseFloat(this._similarArtistSimilarityWeightTextbox.value);
-    this._maxTopTracks = parseInt(this._maxTopTracksTextbox.value);
-    this._maxNumToProcess = parseInt(this._maxNumToProcessTextbox.value);
-    this._ignoreNotInLibrary = (this._ignoreNotInLibraryCheckbox.getAttribute("checked") == "true" ? true : false);
-    this._ignoreSimilarTracksFromSameArtist = (this._ignoreSimilarTracksFromSameArtistCheckbox.getAttribute("checked") == "true" ? true : false);
-    this._doArtistTopAlbums = (this._doArtistTopAlbumsCheckbox.getAttribute("checked") == "true" ? true : false);
-    this._dontShowAllAlbums = (this._dontShowAllAlbumsCheck.getAttribute("checked") == "true" ? true : false);
+    if (this._goButton) {
+      this._goButton.setAttribute("label", this._strings.getString("goButtonStop"));
+      this._ignoreDuplicateMatches = (this._ignoreDuplicateMatchesCheckbox.getAttribute("checked") == "true" ? true : false);
+      this._tryOtherArtist = (this._tryOtherArtistCheckbox.getAttribute("checked") == "true" ? true : false);
+      this._fuzzyMatch = (this._fuzzyMatchCheckbox.getAttribute("checked") == "true" ? true : false);
+      this._similarTrackWeight = parseFloat(this._similarTrackWeightTextbox.value);
+      this._doSimilarTracks = (this._doSimilarTracksCheckbox.getAttribute("checked") == "true" ? true : false);
+      this._doSimilarArtists = (this._doSimilarArtistsCheckbox.getAttribute("checked") == "true" ? true : false);
+      this._doTopTracks = (this._doTopTracksCheckbox.getAttribute("checked") == "true" ? true : false);
+      this._doTracksFromArtist = (this._doTracksFromArtistCheckbox.getAttribute("checked") == "true" ? true : false);
+      this._diminishTrackScores = (this._diminishTrackScoresCheckbox.getAttribute("checked") == "true" ? true : false);
+      this._diminishTracksAfter = parseInt(this._diminishTracksAfterTextbox.value);
+      this._defaultSimilarArtistTrackScore = parseFloat(this._defaultSimilarArtistTrackScoreTextbox.value);
+      this._artistTopTrackWeight = parseFloat(this._artistTopTrackWeightTextbox.value);
+      this._similarArtistTrackWeight = parseFloat(this._similarArtistTrackWeightTextbox.value);
+      this._similarArtistSimilarityWeight = parseFloat(this._similarArtistSimilarityWeightTextbox.value);
+      this._maxTopTracks = parseInt(this._maxTopTracksTextbox.value);
+      this._maxNumToProcess = parseInt(this._maxNumToProcessTextbox.value);
+      this._ignoreNotInLibrary = (this._ignoreNotInLibraryCheckbox.getAttribute("checked") == "true" ? true : false);
+      this._ignoreSimilarTracksFromSameArtist = (this._ignoreSimilarTracksFromSameArtistCheckbox.getAttribute("checked") == "true" ? true : false);
+      this._doArtistTopAlbums = (this._doArtistTopAlbumsCheckbox.getAttribute("checked") == "true" ? true : false);
+      this._dontShowAllAlbums = (this._dontShowAllAlbumsCheck.getAttribute("checked") == "true" ? true : false);
+      this._trackRatingWeight = parseFloat(this._trackRatingWeightTextbox.value);
+    }
+    else {
+      this._ignoreDuplicateMatches = true;
+      this._tryOtherArtist = false;
+      this._fuzzyMatch = true;
+      this._similarTrackWeight = 1.0;
+      this._doSimilarTracks = true;
+      this._doSimilarArtists = true;
+      this._doTopTracks = true;
+      this._doTracksFromArtist = false;
+      this._diminishTrackScores = true;
+      this._diminishTracksAfter = 2;
+      this._defaultSimilarArtistTrackScore = 0.15;
+      this._artistTopTrackWeight = 0.7;
+      this._similarArtistTrackWeight = 0.25;
+      this._similarArtistSimilarityWeight = 0.75;
+      this._maxTopTracks = 5;
+      this._maxNumToProcess = 15;
+      this._ignoreNotInLibrary = true;
+      this._ignoreSimilarTracksFromSameArtist = true;
+      this._doArtistTopAlbums = false;
+      this._dontShowAllAlbums = true;
+      this._trackRatingWeight = 0.25;
+    }
     
     setTimeout("SmartyPants.PaneController.doProcessNextTrackOrArtist()", 0);
   },
@@ -1094,7 +1223,7 @@ SmartyPants.PaneController = {
         this.stopProcessing(true);
       }
       else {
-        var minScore = parseFloat(this._ignoreScoresTextbox.value);
+        var minScore = this._ignoreScoresTextbox ? parseFloat(this._ignoreScoresTextbox.value) : 0.15;
       
         var bestTrackScore = 0;
         for (var index = 0; index < this._candidateTracks.dataArray.length; index++) {
@@ -2154,6 +2283,11 @@ SmartyPants.PaneController = {
   
   addArtistInfo: function(artist, score, index) {
     var listBox = document.getElementById('artist-list');
+    
+    if (!listBox) {
+      return;
+    }
+    
     var listitem = document.createElement("richlistitem");
     var artistInfo = document.createElement("artistinfo");
     artistInfo.setAttribute("class", "artistinfo");
@@ -2206,7 +2340,7 @@ SmartyPants.PaneController = {
   
   clearArtistInfo: function() {
     var listBox = document.getElementById('artist-list');
-    while (listBox.lastChild) {
+    while (listBox && listBox.lastChild) {
       listBox.removeChild(listBox.lastChild);
     }
   },
@@ -2214,6 +2348,7 @@ SmartyPants.PaneController = {
   updateArtistList: function() {
     this._candidateArtists.sortByScore();
     this.clearArtistInfo();
+    
     var minScore = 0.05;
     for (var index = 0; index < this._candidateArtists.dataArray.length; index++) {
       var curArtist = this._candidateArtists.dataArray[index];

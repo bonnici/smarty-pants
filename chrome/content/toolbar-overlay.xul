@@ -1,0 +1,16 @@
+<?xml version="1.0"?> 
+
+<?xml-stylesheet href="chrome://smarty-pants/skin/overlay.css" type="text/css"?>
+<!DOCTYPE overlay SYSTEM "chrome://smarty-pants/locale/overlay.dtd">
+<overlay
+  id="smarty-pants-toolbar-overlay"
+  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+    <toolbarpalette id="BrowserToolbarPalette">
+        <toolbarbutton id="smarty-pants-toolbarbutton" 
+            tooltiptext="&smarty-pants-gen-playlist.label;" 
+            class="toolbarbutton-1 chromeclass-toolbar-additional" 
+            command="smarty-pants-gen-playlist-cmd" />
+    </toolbarpalette>
+
+</overlay>
