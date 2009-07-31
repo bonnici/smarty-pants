@@ -578,6 +578,7 @@ SmartyPants.PaneController = {
     this._automaticModeCheck = document.getElementById("automatic-mode-checkbox");
     this._dontShowAllAlbumsCheck = document.getElementById("dont-show-all-albums-check");
     this._trackRatingWeightTextbox = document.getElementById("track-rating-weight-textbox");
+    this._similarArtistWeightTextbox = document.getElementById("similar-artist-weight-textbox");
     
     this._goButton.setAttribute("label", this._strings.getString("goButtonGo"));
     
@@ -1173,6 +1174,7 @@ SmartyPants.PaneController = {
       this._doArtistTopAlbums = (this._doArtistTopAlbumsCheckbox.getAttribute("checked") == "true" ? true : false);
       this._dontShowAllAlbums = (this._dontShowAllAlbumsCheck.getAttribute("checked") == "true" ? true : false);
       this._trackRatingWeight = parseFloat(this._trackRatingWeightTextbox.value);
+      this._similarArtistWeight = parseFloat(this._similarArtistWeightTextbox.value);
     }
     else {
       this._ignoreDuplicateMatches = true;
@@ -1196,6 +1198,7 @@ SmartyPants.PaneController = {
       this._doArtistTopAlbums = false;
       this._dontShowAllAlbums = true;
       this._trackRatingWeight = 0.25;
+      this._similarArtistWeight = 0.75;
     }
     
     setTimeout("SmartyPants.PaneController.doProcessNextTrackOrArtist()", 0);
@@ -1929,6 +1932,8 @@ SmartyPants.PaneController = {
       
       var scaledScore = score / 101;
       
+      scaledScore *= this._similarArtistWeight;
+      
       this._candidateArtists.addOrUpdate(this.makeCandidateArtistFromSimilarArtistDetails(artist, artistName, scaledScore, url, imageUrl))
     }
     
@@ -2422,6 +2427,9 @@ SmartyPants.PaneController = {
     this._similarArtistTrackWeightTextbox.value = 0.25;
     this._similarArtistSimilarityWeightTextbox.value = 0.75;
     this._maxTopTracksTextbox.value = 10;
+    
+    this._trackRatingWeightTextbox = 0.25;
+    this._similarArtistWeightTextbox.value = 0.75;
   },
   
   setBestResultsPreferences: function() {
@@ -2498,6 +2506,7 @@ SmartyPants.PaneController = {
     this._maxTopTracksTextbox.value = 50;
     this._similarArtistTrackWeightTextbox.value = 0.0;
     this._similarArtistSimilarityWeightTextbox.value = 1.0;
+    this._similarArtistWeightTextbox.value = 1.0;
   },
   
   setArtistAndAlbumRecommendationsPreferences: function() {
@@ -2508,6 +2517,7 @@ SmartyPants.PaneController = {
     this._maxNumToProcessTextbox.value = 20;
     this._similarArtistTrackWeightTextbox.value = 0.0;
     this._similarArtistSimilarityWeightTextbox.value = 1.0;
+    this._similarArtistWeightTextbox.value = 1.0;
   },
   
   setAllFromArtistAndSimilarPreferences: function() {
@@ -2523,6 +2533,7 @@ SmartyPants.PaneController = {
     this._diminishTrackScoresCheckbox.setAttribute("checked", "false");
     this._artistTopTrackWeightTextbox.value = 1.0;
     this._maxTopTracksTextbox.value = 50;
+    this._similarArtistWeightTextbox.value = 1.0;
   },
   
   setAutoModePreferences: function() {

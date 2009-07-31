@@ -99,3 +99,5 @@
 <!ENTITY smarty-pants-gen-playlist.label "Generate Smarty Pants playlist">
 <!ENTITY smarty-pants.track-rating-weight-label "Track rating weight">
 <!ENTITY smarty-pants.track-rating-weight-tooltip "This controls the bonus or penalty applied to a track's score due to its rating">
+<!ENTITY smarty-pants.similar-artist-weight-label "Similar artist weight">
+<!ENTITY smarty-pants.similar-artist-weight-tooltip "This is a penalty applied to the similar artist score">
