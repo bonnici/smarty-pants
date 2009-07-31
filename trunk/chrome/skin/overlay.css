@@ -1,0 +1,18 @@
+#smarty-pants-toolbarbutton
+{
+  list-style-image: url(chrome://smarty-pants/skin/toolbar.png);
+  -moz-image-region: rect(0px 16px 16px 0px);
+}
+#smarty-pants-toolbarbutton:hover
+{
+  -moz-image-region: rect(16px 16px 32px 0px);
+}
+#smarty-pants-toolbarbutton[disabled="true"]
+{
+  -moz-image-region: rect(48px 16px 64px 0px);
+}
+#smarty-pants-toolbarbutton[active="true"]
+{
+  -moz-image-region: rect(32px 16px 48px 0px);
+}  
+

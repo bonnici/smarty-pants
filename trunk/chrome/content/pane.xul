@@ -192,6 +192,10 @@
                   <label value="&smarty-pants.similar-track-weight-label;" width="110" tooltiptext="&smarty-pants.similar-tracks-weight-tooltip;" />
                   <textbox id="similar-track-weight-textbox" value="1.0" type="number" min="0" max="1" increment="0.05" decimalplaces="2" width="50" tooltiptext="&smarty-pants.similar-tracks-weight-tooltip;" />
                 </hbox>
+                <hbox align="center">
+                  <label value="&smarty-pants.track-rating-weight-label;" width="110" tooltiptext="&smarty-pants.track-rating-weight-tooltip;" />
+                  <textbox id="track-rating-weight-textbox" value="0.25" type="number" min="0" max="1" increment="0.05" decimalplaces="2" width="50" tooltiptext="&smarty-pants.track-rating-weight-tooltip;" />
+                </hbox>
               </vbox>
             </tabpanel>
             
