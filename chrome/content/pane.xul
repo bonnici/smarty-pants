@@ -99,7 +99,6 @@
                 </tree>
                 
                 <hbox align="center">
-                  <label value="&smarty-pants.note-open-in-browser;" />
                   <spacer flex="1" />
                   <label value="&smarty-pants.recommendation-filter-caption;" />
                   <menulist id="recommendation-filter-list" label="&smarty-pants.recommendation-filter-all;" width="90">
@@ -109,6 +108,7 @@
                       <menuitem id="recommendation-filter-full" label="&smarty-pants.recommendation-filter-full;" />
                     </menupopup>
                   </menulist>
+                  <button id="export-recommended-button" label="&smarty-pants.export-button-label;" width="60" />
                 </hbox>
               </vbox>
             </tabpanel>
@@ -120,6 +120,7 @@
                   <spacer flex="1" />
                   <checkbox id="show-artist-images-check" label="&smarty-pants.show-images-check;" checked="true" />
                   <checkbox id="show-album-images-check" label="&smarty-pants.show-albums-check;" checked="true" />
+                  <button id="export-artist-button" label="&smarty-pants.export-button-label;" width="60" />
                 </hbox>
               </vbox>
             </tabpanel>
