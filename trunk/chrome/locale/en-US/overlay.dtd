@@ -20,7 +20,6 @@
 <!ENTITY smarty-pants.ignore-duplicate-matches-tooltip "If this is turned off, the track's score will increase each time it is found as a similar track">
 <!ENTITY smarty-pants.ignore-scores-below-tooltip "Any track with a score below this value will not be processed or shown in the list">
 <!ENTITY smarty-pants.similar-tracks-weight-tooltip "All similar track scores are multiplied by this value, decrease if the scores are too high">
-<!ENTITY smarty-pants.note-open-in-browser "Note: Double click to open in browser">
 <!ENTITY smarty-pants.playlist-limit-to-label "Limit to:">
 <!ENTITY smarty-pants.playlist-limit-to-songs "songs or">
 <!ENTITY smarty-pants.playlist-limit-to-time "minutes">
@@ -101,3 +100,4 @@
 <!ENTITY smarty-pants.track-rating-weight-tooltip "This controls the bonus or penalty applied to a track's score due to its rating">
 <!ENTITY smarty-pants.similar-artist-weight-label "Similar artist weight">
 <!ENTITY smarty-pants.similar-artist-weight-tooltip "This is a penalty applied to the similar artist score">
+<!ENTITY smarty-pants.export-button-label "Export">

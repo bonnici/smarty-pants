@@ -579,6 +579,8 @@ SmartyPants.PaneController = {
     this._dontShowAllAlbumsCheck = document.getElementById("dont-show-all-albums-check");
     this._trackRatingWeightTextbox = document.getElementById("track-rating-weight-textbox");
     this._similarArtistWeightTextbox = document.getElementById("similar-artist-weight-textbox");
+    this._exportRecommendedButton = document.getElementById("export-recommended-button");
+    this._exportArtistButton = document.getElementById("export-artist-button");
     
     this._goButton.setAttribute("label", this._strings.getString("goButtonGo"));
     
@@ -608,6 +610,10 @@ SmartyPants.PaneController = {
           function() { controller.onToggleAutomaticMode(); }, false);
     this._preferencesList.addEventListener("command", 
           function() { controller.onChangePreferences(); }, false);
+    this._exportRecommendedButton.addEventListener("command", 
+          function() { controller.onExportRecommended(); }, false);
+    this._exportArtistButton.addEventListener("command", 
+          function() { controller.onExportArtist(); }, false);
     
     this._showArtistImages = this._showArtistImagesCheck.getAttribute("checked") == "true";
     this._showAlbumImages = this._showAlbumImagesCheck.getAttribute("checked") == "true";
@@ -2404,12 +2410,101 @@ SmartyPants.PaneController = {
     event.stopPropagation();
   },
   
+  onExportRecommended: function() {
+    var seedTrack = this._trackTreeView.dataArray[0];
+    if (!seedTrack) {
+      return;
+    }
+
+    var nsIFilePicker = Components.interfaces.nsIFilePicker;
+    var fileChooser = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+    fileChooser.init(window, this._strings.getString("exportTitle"), nsIFilePicker.modeSave);
+    fileChooser.appendFilters(nsIFilePicker.filterText | nsIFilePicker.filterAll); 
+
+    var defaultFileName = this._strings.getString("exportRecommendedDefaultFile") + " " + seedTrack.artistName + " - " + seedTrack.trackName;
+
+    fileChooser.defaultString = defaultFileName + ".txt";
+    var fileBox = fileChooser.show();
+
+    if (fileBox == nsIFilePicker.returnOK || fileBox == nsIFilePicker.returnReplace) {     
+       var foStream = Components.classes["@mozilla.org/network/file-output-stream;1"].createInstance(Components.interfaces.nsIFileOutputStream);
+       foStream.init(fileChooser.file, 0x02 | 0x08 | 0x20, 0666, 0);
+       var converter = Components.classes["@mozilla.org/intl/converter-output-stream;1"].createInstance(Components.interfaces.nsIConverterOutputStream);
+       converter.init(foStream, "UTF-8", 0, 0);
+
+       for (var index = 0; index < this._recommendationTreeView.dataArray.length; index++) {
+         var item = this._recommendationTreeView.dataArray[index];
+         var dataString = item.artistName + " - " + item.trackName + "\n";
+         converter.writeString(dataString);
+       }
+
+       converter.close();
+    }
+  },
+  
+  onExportArtist: function() {
+    var seedTrack = this._trackTreeView.dataArray[0];
+    if (!seedTrack) {
+      return;
+    }
+
+    var nsIFilePicker = Components.interfaces.nsIFilePicker;
+    var fileChooser = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+    fileChooser.init(window, this._strings.getString("exportTitle"), nsIFilePicker.modeSave);
+    fileChooser.appendFilters(nsIFilePicker.filterText | nsIFilePicker.filterAll); 
+    
+    var defaultFileName = this._strings.getString("exportArtistDefaultFile") + " " + seedTrack.artistName;
+
+    fileChooser.defaultString = defaultFileName + ".txt";
+    var fileBox = fileChooser.show();
+
+    if (fileBox == nsIFilePicker.returnOK || fileBox == nsIFilePicker.returnReplace) {     
+      var foStream = Components.classes["@mozilla.org/network/file-output-stream;1"].createInstance(Components.interfaces.nsIFileOutputStream);
+      foStream.init(fileChooser.file, 0x02 | 0x08 | 0x20, 0666, 0);
+      var converter = Components.classes["@mozilla.org/intl/converter-output-stream;1"].createInstance(Components.interfaces.nsIConverterOutputStream);
+      converter.init(foStream, "UTF-8", 0, 0);
+
+      var artistList = document.getElementById('artist-list');
+
+      if (!artistList) {
+        return;
+      }
+
+      var artists = artistList.getElementsByTagName('artistinfo');
+      for (var index = 0; index < artists.length; index++) {
+        var dataString = artists[index].getAttribute('artistName');
+        var album1Name = artists[index].getAttribute('album1Name');
+        var album2Name = artists[index].getAttribute('album2Name');
+        var album3Name = artists[index].getAttribute('album3Name');
+        var album4Name = artists[index].getAttribute('album4Name');
+        
+        if (album1Name && album1Name.length > 0) {
+          dataString += " - " + album1Name;
+          if (album2Name && album2Name.length > 0) {
+            dataString += ", " + album2Name;
+            if (album3Name && album3Name.length > 0) {
+              dataString += ", " + album3Name;
+              if (album4Name && album4Name.length > 0) {
+                dataString += ", " + album4Name;
+              }
+            }
+          }
+        }
+        
+        dataString += "\n";
+        converter.writeString(dataString);
+      }
+
+      converter.close();
+    }
+  },
+  
   setDefaultPreferences: function() {
     this._doSimilarTracksCheckbox.setAttribute("checked", "true");
     this._doSimilarArtistsCheckbox.setAttribute("checked", "true");
     this._doArtistTopAlbumsCheckbox.setAttribute("checked", "true");
     this._doTopTracksCheckbox.setAttribute("checked", "true");
-    this._tryOtherArtistCheckbox.setAttribute("checked", "true");
+    this._tryOtherArtistCheckbox.setAttribute("checked", "false");
     this._fuzzyMatchCheckbox.setAttribute("checked", "true");
     this._ignoreNotInLibraryCheckbox.setAttribute("checked", "false");
     this._ignoreScoresTextbox.value = 0.15;
@@ -2418,12 +2513,12 @@ SmartyPants.PaneController = {
     this._ignoreDuplicateMatchesCheckbox.setAttribute("checked", "true");
     this._ignoreSimilarTracksFromSameArtistCheckbox.setAttribute("checked", "true");
     this._diminishTrackScoresCheckbox.setAttribute("checked", "true");
-    this._diminishTracksAfterTextbox.value = 3;
+    this._diminishTracksAfterTextbox.value = 4;
     this._similarTrackWeightTextbox.value = 1.0;
     
     this._doTracksFromArtistCheckbox.setAttribute("checked", "false");
     this._defaultSimilarArtistTrackScoreTextbox.value = 0.15;
-    this._artistTopTrackWeightTextbox.value = 0.70;
+    this._artistTopTrackWeightTextbox.value = 0.5;
     this._similarArtistTrackWeightTextbox.value = 0.25;
     this._similarArtistSimilarityWeightTextbox.value = 0.75;
     this._maxTopTracksTextbox.value = 10;
@@ -2454,7 +2549,6 @@ SmartyPants.PaneController = {
     this._doSimilarTracksCheckbox.setAttribute("checked", "false");
     this._doArtistTopAlbumsCheckbox.setAttribute("checked", "false");
     this._ignoreNotInLibraryCheckbox.setAttribute("checked", "true");
-    this._tryOtherArtistCheckbox.setAttribute("checked", "false");
     this._maxNumToProcessTextbox.value = 10;
     this._diminishTracksAfterTextbox.value = 2;
     this._maxTopTracksTextbox.value = 5;
