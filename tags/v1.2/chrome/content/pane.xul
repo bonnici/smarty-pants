@@ -1,0 +1,257 @@
+<?xml version="1.0"?>
+
+<?xml-stylesheet href="chrome://global/skin" type="text/css"?>
+<?xml-stylesheet href="chrome://songbird/content/bindings/bindings.css" type="text/css"?>
+<?xml-stylesheet href="chrome://songbird/skin/songbird.css" type="text/css" title="Skin"?>
+<?xml-stylesheet href="chrome://smarty-pants/skin/pane.css" type="text/css"?>
+
+<!DOCTYPE page SYSTEM "chrome://smarty-pants/locale/overlay.dtd">
+
+<page id="smarty-pants-pane" title="Smarty Pants"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+  <script src="shared.js"/>
+  <script src="pane.js"/>
+  
+  <stringbundleset id="stringbundleset"> 
+     <stringbundle id="smarty-pants-strings" src="chrome://smarty-pants/locale/overlay.properties"/>
+  </stringbundleset>
+
+  <popupset>
+    <popup id="playlist-menu">
+      <menuitem label="&smarty-pants.play-menu-label;" oncommand="SmartyPants.PaneController.playSelectedPlaylistSong();"/>
+      <menuitem label="&smarty-pants.open-song-menu-label;" oncommand="SmartyPants.PaneController.openSelectedPlaylistSong();"/>
+      <menuitem label="&smarty-pants.open-artist-menu-label;" oncommand="SmartyPants.PaneController.openSelectedPlaylistArtist();"/>
+      <menuitem label="&smarty-pants.play-artist-radio-label;" oncommand="SmartyPants.PaneController.playSelectedPlaylistArtistRadio();"/>
+    </popup>
+    <popup id="recommendation-menu">
+      <menuitem label="&smarty-pants.open-song-menu-label;" oncommand="SmartyPants.PaneController.openSelectedRecommendedSong();"/>
+      <menuitem label="&smarty-pants.open-artist-menu-label;" oncommand="SmartyPants.PaneController.openSelectedRecommendedArtist();"/>
+      <menuitem label="&smarty-pants.play-artist-radio-label;" oncommand="SmartyPants.PaneController.playSelectedRecommendedArtistRadio();"/>
+    </popup>
+  </popupset>
+
+
+  <vbox flex="1">
+    <vbox flex="5">
+      <hbox>
+        <button id="go-button" width="60" />
+        <checkbox id="automatic-mode-checkbox" label="&smarty-pants.automatic-mode-check;" checked="false" tooltiptext="&smarty-pants.automatic-mode-tooltip;" />
+        <spacer flex="1" />
+        <button id="help-button" label="&smarty-pants.help-button-label;" width="60" />
+        <button id="clear-button" label="&smarty-pants.clear-button-label;" width="60" />
+      </hbox>
+      
+      <hbox flex="1">
+        <tabbox flex="1"> 
+          <tabs> 
+            <tab label="&smarty-pants.playlist-tabpanel-header;"/> 
+            <tab label="&smarty-pants.recommendations-tabpanel-header;"/> 
+            <tab label="&smarty-pants.artists-tabpanel-header;"/> 
+          </tabs> 
+          <tabpanels flex="1"> 
+            <tabpanel>
+    
+              <vbox flex="1">
+                <tree id="track-tree" flex="3" seltype="single" ondblclick="SmartyPants.PaneController.onTrackTreeDoubleClick(event);" context="playlist-menu">
+                
+                  <treecols>
+                    <treecol id="track-list-artist-column" label="&smarty-pants.track-list.artist-column-header;" flex="1" />
+                    <splitter class="tree-splitter" />
+                    <treecol id="track-list-title-column" label="&smarty-pants.track-list.title-column-header;" flex="1" />
+                    <splitter class="tree-splitter" />
+                    <treecol id="track-list-score-column" label="&smarty-pants.track-list.score-column-header;" hidden="true" />
+                  </treecols>
+
+                  <treechildren/>
+
+                </tree>
+                
+                <hbox align="center">
+                  <spacer flex="1" />
+                  <label value="&smarty-pants.playlist-limit-to-label;" />
+                  <textbox id="playlist-limit-to-songs-textbox" value="50" type="number" min="0" increment="5" decimalplaces="0" width="40" />
+                  <label value="&smarty-pants.playlist-limit-to-songs;" />
+                  <textbox id="playlist-limit-to-time-textbox" value="0" type="number" min="0" increment="5" decimalplaces="0" width="40" />
+                  <label value="&smarty-pants.playlist-limit-to-time;" />
+                  <button id="save-button" label="&smarty-pants.save-button-label;" width="60" />
+                </hbox>
+                
+              </vbox>
+            </tabpanel>
+            
+            <tabpanel>
+              <vbox flex="1">
+                <tree id="recommendation-tree" flex="1" seltype="single" ondblclick="SmartyPants.PaneController.onRecommendationTreeDoubleClick(event);" context="recommendation-menu">
+                
+                  <treecols>
+                    <treecol id="recommendation-list-artist-column" label="&smarty-pants.track-list.artist-column-header;" flex="1" />
+                    <splitter class="tree-splitter" />
+                    <treecol id="recommendation-list-title-column" label="&smarty-pants.track-list.title-column-header;" flex="1" />
+                    <splitter class="tree-splitter" />
+                    <treecol id="recommendation-list-score-column" label="&smarty-pants.track-list.score-column-header;" hidden="true" />
+                    <splitter class="tree-splitter" />
+                    <treecol id="recommendation-list-streamable-column" label="&smarty-pants.recommendation-list-streamable-column-header;" />
+                  </treecols>
+
+                  <treechildren/>
+
+                </tree>
+                
+                <hbox align="center">
+                  <label value="&smarty-pants.note-open-in-browser;" />
+                  <spacer flex="1" />
+                  <label value="&smarty-pants.recommendation-filter-caption;" />
+                  <menulist id="recommendation-filter-list" label="&smarty-pants.recommendation-filter-all;" width="90">
+                    <menupopup>
+                      <menuitem id="recommendation-filter-all" label="&smarty-pants.recommendation-filter-all;" selected="true" />
+                      <menuitem id="recommendation-filter-steamable" label="&smarty-pants.recommendation-filter-steamable;" />
+                      <menuitem id="recommendation-filter-full" label="&smarty-pants.recommendation-filter-full;" />
+                    </menupopup>
+                  </menulist>
+                </hbox>
+              </vbox>
+            </tabpanel>
+            
+            <tabpanel>
+              <vbox flex="1">
+                <richlistbox flex="1" id="artist-list" />
+                <hbox>
+                  <spacer flex="1" />
+                  <checkbox id="show-artist-images-check" label="&smarty-pants.show-images-check;" checked="true" />
+                  <checkbox id="show-album-images-check" label="&smarty-pants.show-albums-check;" checked="true" />
+                </hbox>
+              </vbox>
+            </tabpanel>
+            
+          </tabpanels>
+        </tabbox>
+      </hbox>
+      
+      <hbox align="center">
+        <label value="&smarty-pants.preferences-label;" />
+        <menulist id="preferences-list" label="&smarty-pants.preferences-list-default;" flex="1" sizetopopup="none">
+          <menupopup>
+            <menuitem id="preferences-list-default" label="&smarty-pants.preferences-list-default;" selected="true" tooltiptext="&smarty-pants.preferences-list-default-tooltip;" />
+            <menuitem id="preferences-list-best-results" label="&smarty-pants.preferences-list-best-results;" tooltiptext="&smarty-pants.preferences-list-best-results-tooltip;" />
+            <menuitem id="preferences-list-quick" label="&smarty-pants.preferences-list-quick;" tooltiptext="&smarty-pants.preferences-list-quick-tooltip;" />
+            <menuitem id="preferences-list-super-quick" label="&smarty-pants.preferences-list-super-quick;" tooltiptext="&smarty-pants.preferences-list-super-quick-tooltip;" />
+            <menuitem id="preferences-list-multiple-selection" label="&smarty-pants.preferences-list-multiple-selection;" tooltiptext="&smarty-pants.preferences-list-multiple-selection-tooltip;" />
+            <menuitem id="preferences-list-varied-results" label="&smarty-pants.preferences-list-varied-results;" tooltiptext="&smarty-pants.preferences-list-varied-results-tooltip;" />
+            <menuitem id="preferences-list-artist-top-tracks" label="&smarty-pants.preferences-list-artist-top-tracks;" tooltiptext="&smarty-pants.preferences-list-artist-top-tracks-tooltip;" />
+            <menuitem id="preferences-list-artist-and-similar-top-tracks" label="&smarty-pants.preferences-list-artist-and-similar-top-tracks;" tooltiptext="&smarty-pants.preferences-list-artist-and-similar-top-tracks-tooltip;" />
+            <menuitem id="preferences-list-artist-album-recommendations" label="&smarty-pants.preferences-list-artist-album-recommendations;" tooltiptext="&smarty-pants.preferences-list-artist-album-recommendations-tooltip;" />
+            <menuitem id="preferences-list-all-from-artist-and-similar" label="&smarty-pants.preferences-list-all-from-artist-and-similar;" tooltiptext="&smarty-pants.preferences-list-all-from-artist-and-similar-tooltip;" />
+            <menuitem id="preferences-list-auto-mode" label="&smarty-pants.preferences-list-auto-mode;" tooltiptext="&smarty-pants.preferences-list-auto-mode-tooltip;" />
+          </menupopup>
+        </menulist>
+        <checkbox id="show-advanced-options-checkbox" dir="reverse" label="&smarty-pants.show-advanced-options-check;" checked="false" />
+      </hbox>
+      
+      <groupbox id="advanced-options-group" hidden="true">
+    
+        <tabbox flex="1"> 
+          <tabs> 
+            <tab label="&smarty-pants.advanced-options-general-header;"/> 
+            <tab label="&smarty-pants.advanced-options-track-header;"/> 
+            <tab label="&smarty-pants.advanced-options-artist-header;"/> 
+          </tabs> 
+          <tabpanels flex="1"> 
+            <tabpanel>
+              <vbox>
+                <checkbox id="do-similar-tracks-check" label="&smarty-pants.do-similar-tracks-check;" checked="true" tooltiptext="&smarty-pants.do-similar-tracks-tooltip;" />
+                <checkbox id="do-similar-artists-check" label="&smarty-pants.do-similar-artists-check;" checked="true" tooltiptext="&smarty-pants.do-similar-artists-tooltip;" />
+                <checkbox id="do-artist-top-albums-check" label="&smarty-pants.do-artist-top-albums-check;" checked="true" tooltiptext="&smarty-pants.do-artist-top-albums-tooltip;" />
+                <checkbox id="do-artist-top-tracks-check" label="&smarty-pants.do-artist-top-tracks-check;" checked="true" tooltiptext="&smarty-pants.do-artist-top-tracks-tooltip;" />
+                
+                <checkbox id="try-other-artist-checkbox" label="&smarty-pants.try-other-artist-check;" checked="true" tooltiptext="&smarty-pants.try-other-artist-tooltip;" />
+                <checkbox id="fuzzy-match-checkbox" label="&smarty-pants.fuzzy-match-check;" checked="true" tooltiptext="&smarty-pants.fuzzy-match-tooltip;" />
+                <checkbox id="ignore-not-in-library-checkbox" label="&smarty-pants.ignore-not-in-library-check;" checked="false" tooltiptext="&smarty-pants.ignore-not-in-library-tooltip;" />
+                
+                <hbox align="center">
+                  <label value="&smarty-pants.ignore-scores-below-label;" width="150" tooltiptext="&smarty-pants.ignore-scores-below-tooltip;"/>
+                  <textbox id="ignore-scores-below-textbox" width="50" value="0.15" type="number" min="0" max="1" increment="0.01" decimalplaces="2" tooltiptext="&smarty-pants.ignore-scores-below-tooltip;"/>
+                </hbox>
+                <hbox align="center">
+                  <label value="&smarty-pants.max-num-to-process-label;" width="150" tooltiptext="&smarty-pants.max-num-to-process-tooltip;" />
+                  <textbox id="max-num-to-process-textbox" width="50" value="25" type="number" min="1" max="1000" increment="1" tooltiptext="&smarty-pants.max-num-to-process-tooltip;" />
+                </hbox>
+              </vbox>
+            </tabpanel>
+            
+            <tabpanel>
+              <vbox>
+                <checkbox id="ignore-duplicate-matches-checkbox" label="&smarty-pants.ignore-duplicate-matches-check;" checked="true" tooltiptext="&smarty-pants.ignore-duplicate-matches-tooltip;" />
+                <checkbox id="ignore-similar-tracks-from-same-artist-check" label="&smarty-pants.ignore-similar-tracks-from-same-artist-check;" checked="true" tooltiptext="&smarty-pants.ignore-similar-tracks-from-same-artist-tooltip;" />
+                <checkbox id="diminish-track-scores-check" label="&smarty-pants.diminish-track-scores-check;" checked="true" tooltiptext="&smarty-pants.diminish-track-scores-tooltip;" />
+                <hbox align="center">
+                  <label value="&smarty-pants.diminish-tracks-after-label;" width="110" tooltiptext="&smarty-pants.diminish-tracks-after-tooltip;"/>
+                  <textbox id="diminish-tracks-after-textbox" value="3" type="number" min="1" max="100" increment="1" width="50" tooltiptext="&smarty-pants.diminish-tracks-after-tooltip;"/>
+                </hbox>
+                <hbox align="center">
+                  <label value="&smarty-pants.similar-track-weight-label;" width="110" tooltiptext="&smarty-pants.similar-tracks-weight-tooltip;" />
+                  <textbox id="similar-track-weight-textbox" value="1.0" type="number" min="0" max="1" increment="0.05" decimalplaces="2" width="50" tooltiptext="&smarty-pants.similar-tracks-weight-tooltip;" />
+                </hbox>
+                <hbox align="center">
+                  <label value="&smarty-pants.track-rating-weight-label;" width="110" tooltiptext="&smarty-pants.track-rating-weight-tooltip;" />
+                  <textbox id="track-rating-weight-textbox" value="0.25" type="number" min="0" max="1" increment="0.05" decimalplaces="2" width="50" tooltiptext="&smarty-pants.track-rating-weight-tooltip;" />
+                </hbox>
+              </vbox>
+            </tabpanel>
+            
+            <tabpanel>
+              <vbox>
+                <checkbox id="do-tracks-from-artist-check" label="&smarty-pants.do-tracks-from-artist-check;" checked="false" tooltiptext="&smarty-pants.do-tracks-from-artist-tooltip;" />
+                <checkbox id="dont-show-all-albums-check" label="&smarty-pants.dont-show-all-albums-check;" checked="true"  tooltiptext="&smarty-pants.dont-show-all-albums-tooltip;" />
+                <hbox align="center">
+                  <label value="&smarty-pants.default-similar-artist-track-score-label;" width="200" tooltiptext="&smarty-pants.default-similar-artist-track-score-tooltip;" />
+                  <textbox id="default-similar-artist-track-score-textbox" value="0.15" type="number" min="0" max="1" increment="0.05" decimalplaces="2" width="50" tooltiptext="&smarty-pants.default-similar-artist-track-score-tooltip;" />
+                </hbox>
+                <hbox align="center">
+                  <label value="&smarty-pants.artist-top-track-weight-label;" width="200" tooltiptext="&smarty-pants.artist-top-track-weight-tooltip;" />
+                  <textbox id="artist-top-track-weight-textbox" value="0.7" type="number" min="0" max="1" increment="0.05" decimalplaces="2" width="50" tooltiptext="&smarty-pants.artist-top-track-weight-tooltip;" />
+                </hbox>
+                <hbox align="center">
+                  <label value="&smarty-pants.similar-artist-track-weight-label;" width="200" tooltiptext="&smarty-pants.similar-artist-track-weight-tooltip;" />
+                  <textbox id="similar-artist-track-weight-textbox" value="0.25" type="number" min="0" max="1" increment="0.05" decimalplaces="2" width="50" tooltiptext="&smarty-pants.similar-artist-track-weight-tooltip;" />
+                </hbox>
+                <hbox align="center">
+                  <label value="&smarty-pants.similar-artist-similarity-weight-label;" width="200" tooltiptext="&smarty-pants.similar-artist-similarity-weight-tooltip;" />
+                  <textbox id="similar-artist-similarity-weight-textbox" value="0.75" type="number" min="0" max="1" increment="0.05" decimalplaces="2" width="50" tooltiptext="&smarty-pants.similar-artist-similarity-weight-tooltip;" />
+                </hbox>
+                <hbox align="center">
+                  <label value="&smarty-pants.max-top-tracks-label;" width="200" tooltiptext="&smarty-pants.max-top-tracks-tooltip;" />
+                  <textbox id="max-top-tracks-textbox" value="10" type="number" min="1" max="50" increment="1" width="50" tooltiptext="&smarty-pants.max-top-tracks-tooltip;" />
+                </hbox>
+                <hbox align="center">
+                  <label value="&smarty-pants.similar-artist-weight-label;" width="200" tooltiptext="&smarty-pants.similar-artist-weight-tooltip;" />
+                  <textbox id="similar-artist-weight-textbox" value="0.75" type="number" min="0" max="1" increment="0.05" decimalplaces="2" width="50" tooltiptext="&smarty-pants.similar-artist-weight-tooltip;" />
+                </hbox>
+              </vbox>
+            </tabpanel>
+          </tabpanels>
+        </tabbox>
+        
+      </groupbox>
+	
+    </vbox>
+    <splitter collapse="none" />
+    <vbox>
+      <hbox id="details-group" hidden="false" flex="1">
+        <vbox flex="1">
+          <tree id="output-tree" flex="1" hidecolumnpicker="true" seltype="single" rows="4">
+
+            <treecols>
+              <treecol id="output-list-column" label="&smarty-pants.output-list.column-header;" flex="1" />
+            </treecols>
+
+            <treechildren/>
+
+          </tree>
+        </vbox>
+      </hbox>
+    </vbox>
+    
+  </vbox>
+  
+</page>
