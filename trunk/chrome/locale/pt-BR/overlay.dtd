@@ -1,0 +1,96 @@
+<!ENTITY smarty-pants.save-button-label "Salvar">
+<!ENTITY smarty-pants.clear-button-label "Reset">
+<!ENTITY smarty-pants.track-list.title-column-header "Título">
+<!ENTITY smarty-pants.track-list.artist-column-header "Artista">
+<!ENTITY smarty-pants.track-list.score-column-header "Escore">
+<!ENTITY smarty-pants.track-list.album-column-header "Album">
+<!ENTITY smarty-pants.ignore-duplicate-matches-check "Ignorar duplicações">
+<!ENTITY smarty-pants.output-list.column-header "Detalhes">
+<!ENTITY smarty-pants.show-advanced-options-check "Mostrar opções avançadas">
+<!ENTITY smarty-pants.show-output-check "Mostrar detalhes">
+<!ENTITY smarty-pants.playlist-tabpanel-header "Lista de execução">
+<!ENTITY smarty-pants.recommendations-tabpanel-header "Recomendado">
+<!ENTITY smarty-pants.recommendation-list-streamable-column-header "Fluxo (Stream)">
+<!ENTITY smarty-pants.ignore-scores-below-label "Ignorar pontuações abaixo:">
+<!ENTITY smarty-pants.similar-track-weight-label "Faixa de peso similares:">
+<!ENTITY smarty-pants.recommendation-filter-caption "Mostrar">
+<!ENTITY smarty-pants.recommendation-filter-all "Tudo">
+<!ENTITY smarty-pants.recommendation-filter-steamable "Processável">
+<!ENTITY smarty-pants.recommendation-filter-full "Completo">
+<!ENTITY smarty-pants.ignore-duplicate-matches-tooltip "Se desligar, a pontuação completa aumentará cada vez que for encontrada uma faixa semelhante">
+<!ENTITY smarty-pants.ignore-scores-below-tooltip "Qualquer faixa ou artista com uma pontuação inferior a este valor não será processado ou apresentado na lista">
+<!ENTITY smarty-pants.similar-tracks-weight-tooltip "Todas as pontuações de faixas são multiplicados por este valor; diminua esse valor se o número ficar muito longo">
+<!ENTITY smarty-pants.note-open-in-browser "Aviso: Dê clique duplo para abrir no navegador">
+<!ENTITY smarty-pants.playlist-limit-to-label "Limiar em:">
+<!ENTITY smarty-pants.playlist-limit-to-songs "músicas ou">
+<!ENTITY smarty-pants.playlist-limit-to-time "minutos">
+<!ENTITY smarty-pants.try-other-artist-check "Corrigir a fonte do artista automaticamente">
+<!ENTITY smarty-pants.try-other-artist-tooltip "Esta opção irá procurar o last.fm para o nome do artista e usar o melhor resultado se nenhuma faixa semelhante puder ser encontrada.">
+<!ENTITY smarty-pants.fuzzy-match-check "Corrigir automaticamente os resultados">
+<!ENTITY smarty-pants.fuzzy-match-tooltip "Se esta opção for escolhida, será permitido que os resultados do last.fm não sejam exatamente semelhantes aos dados de sua biblioteca.">
+<!ENTITY smarty-pants.artists-tabpanel-header "Artistas">
+<!ENTITY smarty-pants.do-similar-tracks-check "Encontrar faixas semelhantes">
+<!ENTITY smarty-pants.do-similar-artists-check "Encontrar artistas semelhantes">
+<!ENTITY smarty-pants.do-tracks-from-artist-check "Acrescentar todas as faixas dos artistas">
+<!ENTITY smarty-pants.do-artist-top-tracks-check "Encontrar melhores faixas">
+<!ENTITY smarty-pants.do-similar-tracks-tooltip "Isto irá usar last.fm para encontrar faixas semelhantes às faixas que você escolher">
+<!ENTITY smarty-pants.do-similar-artists-tooltip "Isto irá usar last.fm para encontrar artistas semelhantes aos que você escolher">
+<!ENTITY smarty-pants.do-tracks-from-artist-tooltip "Isto irá adicionar todas as faixas de um artista de sua biblioteca à lista de execução">
+<!ENTITY smarty-pants.do-artist-top-tracks-tooltip "Isto usará o last.fm para buscar as melhores músicas dos artistas que forem encontrados">
+<!ENTITY smarty-pants.diminish-track-scores-check "Diminui a pontuação de faixas de artistas comuns">
+<!ENTITY smarty-pants.diminish-track-scores-tooltip "Isto irá penalizar a pontuação de faixas de artistas que já estão na lista, levando a uma maior variedade">
+<!ENTITY smarty-pants.diminish-tracks-after-label "Diminuir faixas depois de:">
+<!ENTITY smarty-pants.diminish-tracks-after-tooltip "A pontuação começará a diminuir depois que uma quantidade de músicas de um mesmo artista forem encontradas">
+<!ENTITY smarty-pants.default-similar-artist-track-score-label "Pontuação padrão para faixas por artista:">
+<!ENTITY smarty-pants.default-similar-artist-track-score-tooltip "Esta é a pontuação atribuída às faixas encontradas se a opção 'Adicionar todas as faixas dos artistas' estiver ligado">
+<!ENTITY smarty-pants.artist-top-track-weight-label "Peso máximo por faixa do artista:">
+<!ENTITY smarty-pants.artist-top-track-weight-tooltip "Este é o desconto aplicado para faixas encontradas nas buscas de melhor faixa do artista">
+<!ENTITY smarty-pants.similar-artist-track-weight-label "Peso da faixa do artista similar:">
+<!ENTITY smarty-pants.similar-artist-track-weight-tooltip "Esta é a parte da pontuação do artista que vem dos resultados de faixas similares">
+<!ENTITY smarty-pants.similar-artist-similarity-weight-label "Peso da similaridade do artista similar:">
+<!ENTITY smarty-pants.similar-artist-similarity-weight-tooltip "Esta é a parte da pontuação do artista que vem dos resultados de artistas similares">
+<!ENTITY smarty-pants.advanced-options-general-header "Geral">
+<!ENTITY smarty-pants.advanced-options-track-header "Faixa">
+<!ENTITY smarty-pants.advanced-options-artist-header "Artista">
+<!ENTITY smarty-pants.max-top-tracks-label "Máximo de melhores faixas:">
+<!ENTITY smarty-pants.max-top-tracks-tooltip "O número máximo de melhores faixas do artista que serão adicionadas à lista">
+<!ENTITY smarty-pants.max-num-to-process-label "Máximo de músicas/artistas a processar:">
+<!ENTITY smarty-pants.max-num-to-process-tooltip "Este é o número máximo de músicas ou artistas que será processado">
+<!ENTITY smarty-pants.ignore-not-in-library-check "Ignorar músicas/artistas que não estão na biblioteca">
+<!ENTITY smarty-pants.ignore-not-in-library-tooltip "Se esta opção está selecionada, músicas e artistas que não estiverem em sua biblioteca não serão processadas">
+<!ENTITY smarty-pants.ignore-similar-tracks-from-same-artist-check "Ignorar faixas similares do mesmo artista">
+<!ENTITY smarty-pants.ignore-similar-tracks-from-same-artist-tooltip "Se esta opção estiver selecionada, quaisquer faixas similares encontradas do mesmo artista serão ignoradas">
+<!ENTITY smarty-pants.do-artist-top-albums-check "Obter as recomendações do álbum">
+<!ENTITY smarty-pants.do-artist-top-albums-tooltip "Se esta opção estiver marcada, os álbuns dos artistas recomendados que não estiverem em sua biblioteca serão mostrados">
+<!ENTITY smarty-pants.show-images-check "Mostrar as imagens de artistas">
+<!ENTITY smarty-pants.show-albums-check "Mostrar as imagens de álbuns">
+<!ENTITY smarty-pants.play-menu-label "Executar no Songbird">
+<!ENTITY smarty-pants.open-song-menu-label "Abrir música no Last.fm">
+<!ENTITY smarty-pants.open-artist-menu-label "Abrir artista no Last.fm">
+<!ENTITY smarty-pants.play-artist-radio-label "Tocar artista">
+<!ENTITY smarty-pants.automatic-mode-check "Atualizar automaticamente">
+<!ENTITY smarty-pants.automatic-mode-tooltip "Com esta opção habilitada, Smarty Pants irá atualizar automaticamente toda vez que as alterações completa">
+<!ENTITY smarty-pants.help-button-label "Ajuda">
+<!ENTITY smarty-pants.preferences-label "Preferências:">
+<!ENTITY smarty-pants.preferences-list-default "Padrão">
+<!ENTITY smarty-pants.preferences-list-best-results "Melhores resultados">
+<!ENTITY smarty-pants.preferences-list-quick "Rápido">
+<!ENTITY smarty-pants.preferences-list-super-quick "Super-rápido">
+<!ENTITY smarty-pants.preferences-list-multiple-selection "Seleção múltipla">
+<!ENTITY smarty-pants.preferences-list-varied-results "Resultados variados">
+<!ENTITY smarty-pants.preferences-list-artist-top-tracks "Melhores faixas do artista">
+<!ENTITY smarty-pants.preferences-list-artist-and-similar-top-tracks "Melhores faixas do artista e semelhante">
+<!ENTITY smarty-pants.preferences-list-artist-album-recommendations "Recomendações do artista e album">
+<!ENTITY smarty-pants.preferences-list-all-from-artist-and-similar "Tudo do artista ou semelhante">
+<!ENTITY smarty-pants.preferences-list-auto-mode "Modo automático">
+<!ENTITY smarty-pants.preferences-list-default-tooltip "Obtém as faixas de um número de diferentes fontes e deve obter bons resultados para a maioria das faixas">
+<!ENTITY smarty-pants.preferences-list-best-results-tooltip "Obtém melhores resultados do que o padrão, mas pode não funcionar para todas as músicas">
+<!ENTITY smarty-pants.preferences-list-quick-tooltip "Escolha esta opção para obter resultados mais rápidos, sem perder muita qualidade">
+<!ENTITY smarty-pants.preferences-list-super-quick-tooltip "Escolha esta opção para obter resultados muito mais rápido, mas com qualidade reduzida">
+<!ENTITY smarty-pants.preferences-list-multiple-selection-tooltip "Este modo irá tentar encontrar as músicas que mais combinam com todos os itens que você selecionar">
+<!ENTITY smarty-pants.preferences-list-varied-results-tooltip "Isto vai dar penas mais severas para canções dos mesmos artistas, levando a resultados que vêm de um número maior de artistas">
+<!ENTITY smarty-pants.preferences-list-artist-top-tracks-tooltip "Recebe apenas as melhores faixas do artista selecionado">
+<!ENTITY smarty-pants.preferences-list-artist-and-similar-top-tracks-tooltip "Obtém as melhores faixas do artista selecionado e afins">
+<!ENTITY smarty-pants.preferences-list-artist-album-recommendations-tooltip "Só encontra artistas relacionados e seus melhores álbuns">
+<!ENTITY smarty-pants.preferences-list-all-from-artist-and-similar-tooltip "Localiza todas as músicas do artista selecionado e afins em sua biblioteca">
+<!ENTITY smarty-pants.preferences-list-auto-mode-tooltip "Processa menos músicas e tem uma pontuação de corte mais rigorosa do que as configurações padrão">
