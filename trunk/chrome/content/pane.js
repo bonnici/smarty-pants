@@ -151,6 +151,10 @@ SmartyPants.PaneController = {
           return -1; // Don't infinite loop
         }
         
+        if (track.artist == "Justice" && track.trackName == "Let There Be Light") {
+          //alert("score 1 " + track.score);
+        }
+        
         if (track.seedTrack) {
           track.needsRescoring = false;
           return 1;
@@ -168,6 +172,9 @@ SmartyPants.PaneController = {
             var parentsScore = this.scoreTrack(track.relatedTo[index].track);
             if (parentsScore >= 0) {
               var score = (track.relatedTo[index].score / track.relatedTo[index].track.maxSimilarityScore) * parentsScore * controller._similarTrackWeight;
+              
+              //alert("score = (" + track.relatedTo[index].score + "/" + track.relatedTo[index].track.maxSimilarityScore + ") * " + parentsScore + "*" + controller._similarTrackWeight);
+              
               properScoreFound = true;
               if (controller._ignoreDuplicateMatches) {
                 if (score > similarTrackScore) {
@@ -181,6 +188,11 @@ SmartyPants.PaneController = {
           }
           track.isGettingScored = false;
           
+          
+          if (track.artist == "Justice" && track.trackName == "Let There Be Light") {
+            //alert("score 2 " + track.score);
+          }
+          
           if (!properScoreFound && similarArtistTopTrackScore == 0) {
             return -1;
           }
@@ -192,9 +204,17 @@ SmartyPants.PaneController = {
           track.needsRescoring = false;
           
           if (similarTrackScore > similarArtistTopTrackScore) {
+            if (track.artist == "Justice" && track.trackName == "Let There Be Light") {
+              //alert("score 3 " + similarTrackScore);
+            }
+            
             return similarTrackScore;
           }
           else {
+            if (track.artist == "Justice" && track.trackName == "Let There Be Light") {
+              //alert("score 4 " + similarArtistTopTrackScore);
+            }
+            
             return similarArtistTopTrackScore;
           }
         }
@@ -581,6 +601,8 @@ SmartyPants.PaneController = {
     this._similarArtistWeightTextbox = document.getElementById("similar-artist-weight-textbox");
     this._exportRecommendedButton = document.getElementById("export-recommended-button");
     this._exportArtistButton = document.getElementById("export-artist-button");
+    this._boostOtherArtistsCheckbox = document.getElementById("boost-other-artist-scores-check");
+    this._penaliseSameArtistsCheckbox = document.getElementById("penalise-same-artist-scores-check");
     
     this._goButton.setAttribute("label", this._strings.getString("goButtonGo"));
     
@@ -1181,6 +1203,8 @@ SmartyPants.PaneController = {
       this._dontShowAllAlbums = (this._dontShowAllAlbumsCheck.getAttribute("checked") == "true" ? true : false);
       this._trackRatingWeight = parseFloat(this._trackRatingWeightTextbox.value);
       this._similarArtistWeight = parseFloat(this._similarArtistWeightTextbox.value);
+      this._boostOtherArtists = (this._boostOtherArtistsCheckbox.getAttribute("checked") == "true" ? true : false);
+      this._penaliseSameArtists = (this._penaliseSameArtistsCheckbox.getAttribute("checked") == "true" ? true : false);
     }
     else {
       this._ignoreDuplicateMatches = true;
@@ -1428,6 +1452,9 @@ SmartyPants.PaneController = {
     
     var foundTracks = 0;
     var totalTracks = tracks.length;
+    var bestNonArtistScore = 0;
+    
+    var mytemp = true;
     
     for (var index = 0; index < totalTracks; index++) {
       
@@ -1438,6 +1465,7 @@ SmartyPants.PaneController = {
           artistName.length == sourceArtistName.length 
           && 
           artistName.toLowerCase().indexOf(sourceArtistName.toLowerCase()) != -1;
+         
       if (this._ignoreSimilarTracksFromSameArtist && artistsAreEqual) {
         continue;
       }
@@ -1446,9 +1474,29 @@ SmartyPants.PaneController = {
       var score = this.getScoreFromTrackNode(trackNode);
       var url = this.getUrlFromTrackNode(trackNode);
       var streamable = this.getStreamableFromTrackNode(trackNode);
+       
+      if (!artistsAreEqual && bestNonArtistScore == 0) {
+        bestNonArtistScore = score;
+      }
       
-      if (score+1 > track.maxSimilarityScore) {
-        track.maxSimilarityScore = score+1;
+      if (score > track.maxSimilarityScore) {
+        track.maxSimilarityScore = score;
+      }
+      
+      // Give the highest scoring non-artist track a score of 0.95
+      if (this._boostOtherArtists && !artistsAreEqual) {
+        
+        if (mytemp) {
+          //alert("for " + trackName + " was " + score + " now " + (score * (0.95/bestNonArtistScore)));
+          
+        }
+        
+        score *= (0.95/bestNonArtistScore);
+      }
+      
+      // Give results from the same artist a penalty
+      if (this._penaliseSameArtists && artistsAreEqual) {
+        score /= 1.5;
       }
             
       var bestSong = VandelayIndustriesSharedForSmartyPants.Functions.findBestSongInLibrary(artistName, trackName);
@@ -1581,6 +1629,12 @@ SmartyPants.PaneController = {
           this._candidateTracks.addOrUpdate(candidateTrack, false);
           this._candidateArtists.addOrUpdate(this.makeCandidateArtistFromDetails(artistName, score));
         }
+      }
+      
+      
+      if (mytemp && !artistsAreEqual) {
+        //alert("for " + trackName + " score is " + score);
+        mytemp = false;
       }
     }
     
@@ -2511,8 +2565,10 @@ SmartyPants.PaneController = {
     this._maxNumToProcessTextbox.value = 25;
     
     this._ignoreDuplicateMatchesCheckbox.setAttribute("checked", "true");
-    this._ignoreSimilarTracksFromSameArtistCheckbox.setAttribute("checked", "true");
+    this._ignoreSimilarTracksFromSameArtistCheckbox.setAttribute("checked", "false");
     this._diminishTrackScoresCheckbox.setAttribute("checked", "true");
+    this._boostOtherArtistsCheckbox.setAttribute("checked", "true");
+    this._penaliseSameArtistsCheckbox.setAttribute("checked", "true");
     this._diminishTracksAfterTextbox.value = 4;
     this._similarTrackWeightTextbox.value = 1.0;
     
@@ -2570,6 +2626,7 @@ SmartyPants.PaneController = {
   setVariedResultsPreferences: function() {
     this.setDefaultPreferences();
     
+    this._ignoreSimilarTracksFromSameArtistCheckbox.setAttribute("checked", "true");
     this._ignoreScoresTextbox.value = 0.25;
     this._diminishTracksAfterTextbox.value = 1;
     this._maxTopTracksTextbox.value = 2;
@@ -2587,6 +2644,7 @@ SmartyPants.PaneController = {
     this._diminishTrackScoresCheckbox.setAttribute("checked", "false");
     this._artistTopTrackWeightTextbox.value = 1.0;
     this._maxTopTracksTextbox.value = 50;
+    this._penaliseSameArtistsCheckbox.setAttribute("checked", "false");
   },
   
   setArtistAndSimilarTopTracksPreferences: function() {
@@ -2601,6 +2659,7 @@ SmartyPants.PaneController = {
     this._similarArtistTrackWeightTextbox.value = 0.0;
     this._similarArtistSimilarityWeightTextbox.value = 1.0;
     this._similarArtistWeightTextbox.value = 1.0;
+    this._penaliseSameArtistsCheckbox.setAttribute("checked", "false");
   },
   
   setArtistAndAlbumRecommendationsPreferences: function() {
@@ -2628,6 +2687,8 @@ SmartyPants.PaneController = {
     this._artistTopTrackWeightTextbox.value = 1.0;
     this._maxTopTracksTextbox.value = 50;
     this._similarArtistWeightTextbox.value = 1.0;
+    this._boostOtherArtistsCheckbox.setAttribute("checked", "false");
+    this._penaliseSameArtistsCheckbox.setAttribute("checked", "false");
   },
   
   setAutoModePreferences: function() {
