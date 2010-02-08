@@ -1,0 +1,107 @@
+<!ENTITY smarty-pants.save-button-label "Save">
+<!ENTITY smarty-pants.clear-button-label "Reset">
+<!ENTITY smarty-pants.track-list.title-column-header "Title">
+<!ENTITY smarty-pants.track-list.artist-column-header "Artist">
+<!ENTITY smarty-pants.track-list.score-column-header "Score">
+<!ENTITY smarty-pants.track-list.album-column-header "Album">
+<!ENTITY smarty-pants.ignore-duplicate-matches-check "Ignore duplicate matches">
+<!ENTITY smarty-pants.output-list.column-header "Details">
+<!ENTITY smarty-pants.show-advanced-options-check "Show advanced options">
+<!ENTITY smarty-pants.show-output-check "Show details">
+<!ENTITY smarty-pants.playlist-tabpanel-header "Playlist">
+<!ENTITY smarty-pants.recommendations-tabpanel-header "Recommended">
+<!ENTITY smarty-pants.recommendation-list-streamable-column-header "Stream">
+<!ENTITY smarty-pants.ignore-scores-below-label "Ignore scores below:">
+<!ENTITY smarty-pants.similar-track-weight-label "Similar track weight:">
+<!ENTITY smarty-pants.recommendation-filter-caption "Show">
+<!ENTITY smarty-pants.recommendation-filter-all "All">
+<!ENTITY smarty-pants.recommendation-filter-steamable "Streamable">
+<!ENTITY smarty-pants.recommendation-filter-full "Full">
+<!ENTITY smarty-pants.ignore-duplicate-matches-tooltip "If this is turned off, the track's score will increase each time it is found as a similar track">
+<!ENTITY smarty-pants.ignore-scores-below-tooltip "Any track with a score below this value will not be processed or shown in the list">
+<!ENTITY smarty-pants.similar-tracks-weight-tooltip "All similar track scores are multiplied by this value, decrease if the scores are too high">
+<!ENTITY smarty-pants.playlist-limit-to-label "Limit to:">
+<!ENTITY smarty-pants.playlist-limit-to-songs "songs or">
+<!ENTITY smarty-pants.playlist-limit-to-time "minutes">
+<!ENTITY smarty-pants.try-other-artist-check "Automatically correct source artist">
+<!ENTITY smarty-pants.try-other-artist-tooltip "This option will search last.fm for the artist name and use the best match if no similar tracks can be found.">
+<!ENTITY smarty-pants.fuzzy-match-check "Automatically correct results">
+<!ENTITY smarty-pants.fuzzy-match-tooltip "If this option is checked, the results from last.fm do not have to exactly match your library.">
+<!ENTITY smarty-pants.artists-tabpanel-header "Artists">
+<!ENTITY smarty-pants.do-similar-tracks-check "Find similar tracks">
+<!ENTITY smarty-pants.do-similar-artists-check "Find similar artists">
+<!ENTITY smarty-pants.do-tracks-from-artist-check "Add all tracks from artists">
+<!ENTITY smarty-pants.do-artist-top-tracks-check "Find top tracks">
+<!ENTITY smarty-pants.do-similar-tracks-tooltip "This will use last.fm to find tracks that are similar to the tracks you add">
+<!ENTITY smarty-pants.do-similar-artists-tooltip "This will use last.fm to find artists that are similar to the artists you add">
+<!ENTITY smarty-pants.do-tracks-from-artist-tooltip "This will add all the tracks in your library from an artist to the playlist">
+<!ENTITY smarty-pants.do-artist-top-tracks-tooltip "This will use last.fm to find the top tracks of artists that are found">
+<!ENTITY smarty-pants.diminish-track-scores-check "Diminish scores of tracks from common artists">
+<!ENTITY smarty-pants.diminish-track-scores-tooltip "This will penalise the scores of tracks from artists that are already in the list, leading to more variety">
+<!ENTITY smarty-pants.diminish-tracks-after-label "Diminish tracks after:">
+<!ENTITY smarty-pants.diminish-tracks-after-tooltip "Scores will start to be diminished after this many tracks from the same artist have been found">
+<!ENTITY smarty-pants.default-similar-artist-track-score-label "Default score for tracks from artist:">
+<!ENTITY smarty-pants.default-similar-artist-track-score-tooltip "This is the score given to the tracks found if the 'Add all tracks from artists' option is turned on">
+<!ENTITY smarty-pants.artist-top-track-weight-label "Artist top track weight:">
+<!ENTITY smarty-pants.artist-top-track-weight-tooltip "This is the penalty applied to tracks found from the artist top track queries">
+<!ENTITY smarty-pants.similar-artist-track-weight-label "Similar artist track weight:">
+<!ENTITY smarty-pants.similar-artist-track-weight-tooltip "This is the part of the artist score that comes from the similar track results">
+<!ENTITY smarty-pants.similar-artist-similarity-weight-label "Similar artist similarity weight:">
+<!ENTITY smarty-pants.similar-artist-similarity-weight-tooltip "This is the part of the artist score that comes from the similar artist results">
+<!ENTITY smarty-pants.advanced-options-general-header "General">
+<!ENTITY smarty-pants.advanced-options-track-header "Track">
+<!ENTITY smarty-pants.advanced-options-artist-header "Artist">
+<!ENTITY smarty-pants.max-top-tracks-label "Maximum top tracks:">
+<!ENTITY smarty-pants.max-top-tracks-tooltip "The maximum number of artist top tracks that will be added to the list">
+<!ENTITY smarty-pants.max-num-to-process-label "Max songs/artists to process:">
+<!ENTITY smarty-pants.max-num-to-process-tooltip "This is the maximum number of songs or artists that will be processed">
+<!ENTITY smarty-pants.ignore-not-in-library-check "Ignore songs/artists not in library">
+<!ENTITY smarty-pants.ignore-not-in-library-tooltip "If this option is checked, songs and artists that are not in your library will not be processed">
+<!ENTITY smarty-pants.ignore-similar-tracks-from-same-artist-check "Ignore similar tracks from the same artist">
+<!ENTITY smarty-pants.ignore-similar-tracks-from-same-artist-tooltip "If this option is on, any similar tracks found with the same artist will be ignored">
+<!ENTITY smarty-pants.do-artist-top-albums-check "Get album recommendations">
+<!ENTITY smarty-pants.do-artist-top-albums-tooltip "If this option is checked, albums from the recommended artists that are not in your library will be shown">
+<!ENTITY smarty-pants.show-images-check "Show artist images">
+<!ENTITY smarty-pants.show-albums-check "Show album images">
+<!ENTITY smarty-pants.play-menu-label "Play in Songbird">
+<!ENTITY smarty-pants.open-song-menu-label "Open song in Last.fm">
+<!ENTITY smarty-pants.open-artist-menu-label "Open artist in Last.fm">
+<!ENTITY smarty-pants.play-artist-radio-label "Play artist radio">
+<!ENTITY smarty-pants.automatic-mode-check "Update automatically">
+<!ENTITY smarty-pants.automatic-mode-tooltip "With this option enabled, Smarty Pants will automatically update every time the track changes">
+<!ENTITY smarty-pants.help-button-label "Help">
+<!ENTITY smarty-pants.preferences-label "Preferences:">
+<!ENTITY smarty-pants.preferences-list-default "Default">
+<!ENTITY smarty-pants.preferences-list-best-results "Best results">
+<!ENTITY smarty-pants.preferences-list-quick "Quick">
+<!ENTITY smarty-pants.preferences-list-super-quick "Super quick">
+<!ENTITY smarty-pants.preferences-list-multiple-selection "Multiple selection">
+<!ENTITY smarty-pants.preferences-list-varied-results "Varied results">
+<!ENTITY smarty-pants.preferences-list-artist-top-tracks "Artist's top tracks">
+<!ENTITY smarty-pants.preferences-list-artist-and-similar-top-tracks "Artist and similar top tracks">
+<!ENTITY smarty-pants.preferences-list-artist-album-recommendations "Artist and album recommendations">
+<!ENTITY smarty-pants.preferences-list-all-from-artist-and-similar "All from artist and similar">
+<!ENTITY smarty-pants.preferences-list-auto-mode "Auto mode">
+<!ENTITY smarty-pants.preferences-list-default-tooltip "Gets the tracks from a number of different sources and should get decent results for most tracks">
+<!ENTITY smarty-pants.preferences-list-best-results-tooltip "Gets better results than the default but might not work for all songs">
+<!ENTITY smarty-pants.preferences-list-quick-tooltip "Choose this for faster results without losing much quality">
+<!ENTITY smarty-pants.preferences-list-super-quick-tooltip "Choose this for much faster results, but with reduced quality">
+<!ENTITY smarty-pants.preferences-list-multiple-selection-tooltip "This mode will try to find the songs that best match all the items that you select">
+<!ENTITY smarty-pants.preferences-list-varied-results-tooltip "This will give harsher penalties to songs from the same artists, leading to results that come from a larger number of artists">
+<!ENTITY smarty-pants.preferences-list-artist-top-tracks-tooltip "Just gets the top tracks from the artist that is selected">
+<!ENTITY smarty-pants.preferences-list-artist-and-similar-top-tracks-tooltip "Gets the top tracks from the selected artist and similar artists">
+<!ENTITY smarty-pants.preferences-list-artist-album-recommendations-tooltip "Only finds related artists and their top albums">
+<!ENTITY smarty-pants.preferences-list-all-from-artist-and-similar-tooltip "Finds all songs in your library from the selected artist and related artists">
+<!ENTITY smarty-pants.preferences-list-auto-mode-tooltip "Processes less songs and has a more strict score cutoff than the default settings">
+<!ENTITY smarty-pants.dont-show-all-albums-check "Only show albums not in library">
+<!ENTITY smarty-pants.dont-show-all-albums-tooltip "If this is checked, only the albums that are not in your library will be shown on the Artist tab">
+<!ENTITY smarty-pants-gen-playlist.label "Generate Smarty Pants playlist">
+<!ENTITY smarty-pants.track-rating-weight-label "Track rating weight">
+<!ENTITY smarty-pants.track-rating-weight-tooltip "This controls the bonus or penalty applied to a track's score due to its rating">
+<!ENTITY smarty-pants.similar-artist-weight-label "Similar artist weight">
+<!ENTITY smarty-pants.similar-artist-weight-tooltip "This is a penalty applied to the similar artist score">
+<!ENTITY smarty-pants.export-button-label "Export">
+<!ENTITY smarty-pants.boost-other-artist-scores-check "Boost scores from other artists">
+<!ENTITY smarty-pants.boost-other-artist-scores-tooltip "Last.fm gives low scores to similar tracks from other artists, this setting forces higher scores for those tracks">
+<!ENTITY smarty-pants.penalise-same-artist-scores-check "Penalise scores from the same artists">
+<!ENTITY smarty-pants.penalise-same-artist-scores-tooltip "Last.fm gives high scores to similar tracks from the same artist, this setting forces lower scores for those tracks">

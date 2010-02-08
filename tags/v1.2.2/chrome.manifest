@@ -1,0 +1,8 @@
+content smarty-pants  chrome/content/
+locale  smarty-pants  en-US  chrome/locale/en-US/
+locale  smarty-pants  pt-BR  chrome/locale/pt-BR/
+skin    smarty-pants  classic/1.0 chrome/skin/
+
+overlay chrome://songbird/content/xul/layoutWithBrowserOverlay.xul chrome://smarty-pants/content/scripts-overlay.xul
+overlay chrome://songbird/content/xul/layoutWithBrowserOverlay.xul chrome://smarty-pants/content/toolbar-overlay.xul
+overlay chrome://songbird/content/xul/layoutWithBrowserOverlay.xul chrome://smarty-pants/content/commands-overlay.xul
