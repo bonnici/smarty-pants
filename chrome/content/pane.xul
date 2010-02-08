@@ -183,11 +183,13 @@
             <tabpanel>
               <vbox>
                 <checkbox id="ignore-duplicate-matches-checkbox" label="&smarty-pants.ignore-duplicate-matches-check;" checked="true" tooltiptext="&smarty-pants.ignore-duplicate-matches-tooltip;" />
-                <checkbox id="ignore-similar-tracks-from-same-artist-check" label="&smarty-pants.ignore-similar-tracks-from-same-artist-check;" checked="true" tooltiptext="&smarty-pants.ignore-similar-tracks-from-same-artist-tooltip;" />
+                <checkbox id="ignore-similar-tracks-from-same-artist-check" label="&smarty-pants.ignore-similar-tracks-from-same-artist-check;" checked="false" tooltiptext="&smarty-pants.ignore-similar-tracks-from-same-artist-tooltip;" />
+                <checkbox id="boost-other-artist-scores-check" label="&smarty-pants.boost-other-artist-scores-check;" checked="true" tooltiptext="&smarty-pants.boost-other-artist-scores-tooltip;" />
+                <checkbox id="penalise-same-artist-scores-check" label="&smarty-pants.penalise-same-artist-scores-check;" checked="true" tooltiptext="&smarty-pants.penalise-same-artist-scores-tooltip;" />
                 <checkbox id="diminish-track-scores-check" label="&smarty-pants.diminish-track-scores-check;" checked="true" tooltiptext="&smarty-pants.diminish-track-scores-tooltip;" />
                 <hbox align="center">
                   <label value="&smarty-pants.diminish-tracks-after-label;" width="110" tooltiptext="&smarty-pants.diminish-tracks-after-tooltip;"/>
-                  <textbox id="diminish-tracks-after-textbox" value="3" type="number" min="1" max="100" increment="1" width="50" tooltiptext="&smarty-pants.diminish-tracks-after-tooltip;"/>
+                  <textbox id="diminish-tracks-after-textbox" value="4" type="number" min="1" max="100" increment="1" width="50" tooltiptext="&smarty-pants.diminish-tracks-after-tooltip;"/>
                 </hbox>
                 <hbox align="center">
                   <label value="&smarty-pants.similar-track-weight-label;" width="110" tooltiptext="&smarty-pants.similar-tracks-weight-tooltip;" />

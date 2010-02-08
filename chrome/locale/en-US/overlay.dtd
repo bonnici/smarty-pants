@@ -101,3 +101,7 @@
 <!ENTITY smarty-pants.similar-artist-weight-label "Similar artist weight">
 <!ENTITY smarty-pants.similar-artist-weight-tooltip "This is a penalty applied to the similar artist score">
 <!ENTITY smarty-pants.export-button-label "Export">
+<!ENTITY smarty-pants.boost-other-artist-scores-check "Boost scores from other artists">
+<!ENTITY smarty-pants.boost-other-artist-scores-tooltip "Last.fm gives low scores to similar tracks from other artists, this setting forces higher scores for those tracks">
+<!ENTITY smarty-pants.penalise-same-artist-scores-check "Penalise scores from the same artists">
+<!ENTITY smarty-pants.penalise-same-artist-scores-tooltip "Last.fm gives high scores to similar tracks from the same artist, this setting forces lower scores for those tracks">
