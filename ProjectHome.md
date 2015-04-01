@@ -1,0 +1,3 @@
+This is a sidebar with functionality similar to Genius from iTunes. You can select one or more tracks in your library and Smarty Pants will find tracks that are similar. It is split up into three tabs, the first shows the songs in your library, which you can play in Songbird or save as a playlist. The second has recommended songs that are not in your library, which can opened and played in last.fm. The third is a list of recommended artists along with albums from those artists that are not in your library.
+
+Smarty Pants will try to process lots of songs and artists to get the best results, but this can be stopped at any time if you are happy with the results.
